@@ -2,19 +2,21 @@ name = "arkive-relay"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+account_id = "df08a4524c6b150c79348335a7211040"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "arkive-relay"
-# Replace with real D1 database UUID from `wrangler d1 create arkive-relay`
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "d050374e-99db-4d1d-9ff4-ce593233f5c4"
 
 [[r2_buckets]]
 binding = "OPS_BUCKET"
 bucket_name = "arkive-ops"
 
+[[routes]]
+pattern = "relay-arkive.punyakosh.in"
+custom_domain = true
+
 [vars]
 VAPID_PUBLIC_KEY = ""
-
-# Set secrets via `wrangler secret put`:
-# VAPID_PRIVATE_KEY
+# Set via: cd relay && npx wrangler secret put VAPID_PRIVATE_KEY
