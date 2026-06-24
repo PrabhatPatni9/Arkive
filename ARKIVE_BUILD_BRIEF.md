@@ -187,25 +187,49 @@ The version byte is mandatory from day one so the cipher can be migrated later i
 
 ---
 
-## 8. Relay spec (Cloudflare)
-
-**Components:** a Worker (the dumb API), R2 (encrypted blobs), D1 (op log + metadata + cursors), optional Durable Object per family (real-time fan-out, SQLite-backed, WebSocket hibernation) — **deferred**; V1 uses poll-on-open + FCM/Web-Push wake.
-
-**Worker endpoints (all over TLS + cert pinning, per-device token scoped to one family_id):**
-- `POST /ops` — push batched ops (append to family log in D1; store any referenced new blobs in R2).
-- `GET /ops?since=<cursor>` — pull ops since cursor.
-- `PUT /blob/<hash>` / `GET /blob/<hash>` — encrypted blob put/get (R2).
-- `POST /join/*` — relay the encrypted join handshake (request, approval, key-wrap envelope). Relay forwards opaque blobs only.
-- `POST /family` / `DELETE /family` — create / full-purge.
-- `GET /entitlement` — read managed subscription status (set by the web billing flow).
-- `POST /event` — anonymous metadata events (e.g. `renew_clicked`), family-id tagged, no content.
-
-**R2:** blobs keyed by `family_id` + content hash. Encrypted client-side. (Compression + dedup keep storage small.)
-
-**D1 (metadata only — NO plaintext PII ever):** families, nodes, members (ids + roles + key-epoch refs only), devices (id + human label + pubkey), op rows (encrypted payload + scope + epoch + hashes + cursor), entitlement/billing status, audit events, anonymous intent events.
-
-**Metadata the relay holds (must be listed verbatim in the README + privacy policy):** family email, billing cycle, sync timing/volume, device list (named), renew-clicks. **Nothing readable.**
-
-**Operational:** per-family rate limits (block a token flooding the relay; Cloudflare edge absorbs DDoS); a **retention sweep** for abandoned families (R2 has no auto-delete, so orphaned blobs are a cost + privacy liability); a **per-family free-tier storage cap** (so the free relay isn't abused as an encrypted dead-drop).
-
-**Self-host:** the same Worker is deployable to any Cloudflare account via a "Deploy to Cloudflare" button + `.env.example`. The app can point a
+8. Relay spec (Cloudflare)
+Components: a Worker (the dumb API), R2 (encrypted blobs), D1 (op log + metadata + cursors), optional Durable Object per family (real-time fan-out, SQLite-backed, WebSocket hibernation) — deferred; V1 uses poll-on-open + FCM/Web-Push wake.
+Worker endpoints (all over TLS + cert pinning, per-device token scoped to one family_id):
+POST /ops — push batched ops (append to family log in D1; store any referenced new blobs in R2).
+GET /ops?since=<cursor> — pull ops since cursor.
+PUT /blob/<hash> / GET /blob/<hash> — encrypted blob put/get (R2).
+POST /join/* — relay the encrypted join handshake (request, approval, key-wrap envelope). Relay forwards opaque blobs only.
+POST /family / DELETE /family — create / full-purge.
+GET /entitlement — read managed subscription status (set by the web billing flow).
+POST /event — anonymous metadata events (e.g. renew_clicked), family-id tagged, no content.
+R2: blobs keyed by family_id + content hash. Encrypted client-side. (Compression + dedup keep storage small.)
+D1 (metadata only — NO plaintext PII ever): families, nodes, members (ids + roles + key-epoch refs only), devices (id + human label + pubkey), op rows (encrypted payload + scope + epoch + hashes + cursor), entitlement/billing status, audit events, anonymous intent events.
+Metadata the relay holds (must be listed verbatim in the README + privacy policy): family email, billing cycle, sync timing/volume, device list (named), renew-clicks. Nothing readable.
+Operational: per-family rate limits (block a token flooding the relay; Cloudflare edge absorbs DDoS); a retention sweep for abandoned families (R2 has no auto-delete, so orphaned blobs are a cost + privacy liability); a per-family free-tier storage cap (so the free relay isn't abused as an encrypted dead-drop).
+Self-host: the same Worker is deployable to any Cloudflare account via a "Deploy to Cloudflare" button + .env.example. The app can point at any relay URL. Self-hosters need a card on file for R2 even on the free tier; document that 10 GB is free and a family of documents never crosses it, so they are not charged.
+Cost guardrails to respect (already costed): R2 free 10 GB / 1M writes / 10M reads, $0.015/GB after, zero egress. D1 free ~150M reads / ~3M writes / 5 GB monthly. Workers free 100k req/day; $5/mo paid plan only needed past ~650 families. Keep operations batched so these limits stay distant.
+9. Phased execution plan (build in this order; test each before advancing)
+Phase 0 — Scaffold. New repo, TS strict, Vite + React + Capacitor, GitHub Actions APK build + signing, the version-check endpoint + signed-update mechanism skeleton, lint/test setup. No secrets in repo.
+Phase 1 — Crypto core. libsodium wrappers; the three-tier key model; envelope format with version byte; op signing; hash-chained log; Shamir threshold module. Local SQLite schema + the op log. Heavy test suite here (round-trips, rotation, threshold reconstruction per scope). Nothing else proceeds until this is solid.
+Phase 2 — Family lifecycle. Create family; join via QR + handshake + admin-approval + matching code; managed/dependent profiles; device registry + renaming; roles; recovery-code setup; backup-admin; admin transfer.
+Phase 3 — Relay + sync. Worker + R2 + D1; push/pull; blob put/get; per-family auth; entitlement read. Wire the app to sync. Deploy to the provided Cloudflare account.
+Phase 4 — Core modules. Document vault (compression + ML Kit OCR + scopes + sealed + expiry); medical/health; reminders; calendar; emergency access + emergency card + audit trail; settings (feature flags, lean/full toggle, delete + export).
+Phase 5 — Best-effort transports. Internet P2P (opportunistic, relay fallback) then LAN (mDNS, best-effort). Prefetch critical + recently-viewed docs on WiFi.
+Phase 6 — i18n + billing read. 15 locales scaffolded; web-billing entitlement consumed by the app.
+Phase 7 — Feature-flagged modules via the module pattern: insurance registry + expiry reminders + dummy renew button, vehicles, expenses, milk, contacts, devices, identity view.
+Deferred (V2, do NOT build now): real insurance transaction (licensing), node-partitioned sync optimization, Durable-Object real-time, rollback/split-view hardening beyond best-effort cross-device verification, threshold-based admin succession, native iOS App Store build, RTL languages, TTS for the emergency view.
+15 languages (LTR; adjust the list with the owner if needed): English, Hindi, Marathi, Kannada, Bengali, Tamil, Telugu, Gujarati, Spanish, French, German, Portuguese, Mandarin (Simplified), Japanese, Indonesian.
+10. Testing & security
+Required test suites: crypto round-trips; key rotation across epochs; threshold reconstruction per scope (node N vs family N produce different M); join handshake incl. wrong-code rejection; conflict/merge with the medical no-silent-overwrite rule; sync across mixed op-format versions; offline emergency-field availability (critical fields readable with the network fully off); delete operations (record / member-leave / family-purge); signed-update verification rejects a tampered APK.
+Security posture to implement and document (threat-mapped):
+Network eavesdropper / MITM: defeated by TLS + cert pinning over E2E ciphertext. Replay defeated by per-op nonce + counter. Tamper/injection defeated by AEAD auth tags + Ed25519 signatures.
+Compromised/subpoenaed relay: only ciphertext + metadata; cannot read or forge. Rollback/split-view mitigated (not eliminated) by the hash chain + cross-device checks — note as a residual.
+Stolen device: locked = keystore-protected, encrypted at rest. Unlocked = remote revoke + key rotation cuts future sync; you cannot retroactively erase what a thief already pulled — say exactly that, never "your data is safe if stolen."
+Insiders: family-shared data is readable by members by design; privacy comes from the member tier + node isolation; break-glass needs a quorum and is audit-logged.
+Supply chain / fake apps: signed APK, published checksums, official-source guidance, minimal locked deps, the trademark, and the mandatory signed-update verification.
+Residuals to disclose honestly in the README (do not overclaim on a medical app): traffic metadata (the relay can see that a family syncs and roughly how often/how much, never content); the managed metadata list above; unlocked-device compromise; a malicious fork stripping protections.
+Headline claim that is true and defensible: content is end-to-end encrypted and the relay is mathematically blind, so neither a network attacker nor the operator's own server can read or forge family data. The honest edges are traffic metadata, unlocked stolen devices, and what an existing member already saw.
+11. Carried over from the prior product, and what is dropped
+Carried (map onto the new architecture): dependent members → managed profiles; member handover → claim flow + member-key handover; sealed documents → member tier + threshold break-glass; emergency consensus → the clamp(ceil(0.3N),2,6) threshold; feature flags → per-family module toggles; households-within-org → nodes; localization → 15-language i18n; all the concrete field/type enums in §5.
+Dropped / replaced (do NOT rebuild these):
+Supabase / Postgres / cloud RLS → local-first + the blind Cloudflare relay.
+The family wallet and pay-per-feature model → gone. OCR is now free on-device; sync is the web-billed paid convenience; insurance is the future revenue.
+DigiLocker pull and WhatsApp paid reminders → deferred (not V1).
+Three separate apps → one Capacitor codebase (Android + PWA now, native iOS later) + the relay Worker.
+12. README must include (for the open-source launch)
+The honest privacy posture and the exact metadata list from §8; the AGPL-3.0 license; the trademark notice on the name/logo; the three sync tiers and that local-only and LAN are free; install-from-official-source guidance; the self-host "Deploy to Cloudflare" path with the 10 GB free-tier note; and an explicit statement of the residual risks from §10. Invite security review; protect branches; require signed commits; the owner personally reviews every PR touching keys, sync, auth, or the updater.
