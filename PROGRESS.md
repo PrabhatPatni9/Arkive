@@ -1,61 +1,79 @@
 # Arkive Build Progress
 
-## Current Phase: Phase 1 — Crypto Core
+## All 8 Phases COMPLETE
+
+---
 
 ## Phase 0 — Scaffold (COMPLETE)
+- TypeScript strict, Vite + React 18 + Capacitor 6
+- GitHub Actions: lint-and-test (all branches), build-apk (main only)
+- ESLint, Vitest, signed-APK skeleton, no secrets in repo
 
-- [x] TypeScript strict mode (`strict: true`, `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`, `noUncheckedSideEffectImports`, `isolatedModules`)
-- [x] Vite + React 18 + Capacitor 6 wired together
-- [x] GitHub Actions: `lint-and-test` (all branches) + `build-apk` (main only)
-- [x] APK signing via `r0adkll/sign-android-release@v1` (secrets wired, not yet provisioned by owner)
-- [x] Version-check endpoint skeleton (`src/updater/index.ts`) with pubkey guard
-- [x] Signed-update mechanism skeleton with Ed25519 verify stub
-- [x] ESLint config (typescript-eslint strict + react-hooks + react-refresh)
-- [x] Vitest config (node environment, globals, `src/**/*.test.ts`)
-- [x] No secrets in repo (`.env.example` documents required vars only)
-- [x] `.gitignore` covers node_modules, dist, .env*, .capacitor/
-- [x] `capacitor.config.ts` — appId `com.arkive.app`, webDir `dist`, APK release
+## Phase 1 — Crypto Core (COMPLETE)
+- libsodium singleton, versioned AEAD envelope `[version:1][algo:1][nonce:24][ct+tag]`
+- Three-tier ScopeKey (family/node/member), X25519 wrap/unwrap, Ed25519 sign/verify
+- Append-only Op struct with hash chain (BLAKE2b-256)
+- Shamir SSS: `computeThreshold(N) = clamp(ceil(0.3N), 2, 6)`, split/reconstruct
+- Argon2id recovery packages (createRecoveryPackage / openRecoveryPackage)
+- 6-digit join verification code (constant-time codesMatch)
+- MemoryOpLog for tests; comprehensive test suite passes
 
-## Phase 1 — Crypto Core (IN PROGRESS)
+## Phase 2 — SQLite Persistence (COMPLETE)
+- Migration runner with `_migrations` version table
+- SQLiteOpLog — SQLite-backed OpLogStore
+- KeyStore — encrypted ScopeKey storage (envelope on top of SQLite BLOB)
 
-### Deliverables pushed
+## Phase 3 — Relay (COMPLETE)
+- Cloudflare Worker: `relay/` directory with own package.json + tsconfig + wrangler.toml
+- D1 schema: `devices` + `op_index` with lamport_clock indexes
+- R2: blind op storage at `ops/{family_id}/{op_hash}`
+- Ed25519 signature verification via Web Crypto API
+- POST /ops (verify + store), GET /ops (pull since), POST /devices (register)
+- CORS preflight handled; non-blocking push notify stubs
+- `relay/schema.sql` for `wrangler d1 execute`
 
-- [x] `src/crypto/sodium.ts` — libsodium init singleton
-- [x] `src/crypto/envelope.ts` — versioned AEAD envelope `[version:1][algo:1][nonce:24][ct+tag]`
-- [x] `src/crypto/keys.ts` — three-tier ScopeKey (family/node/member), X25519 wrap/unwrap, Ed25519 keypair gen, key rotation
-- [x] `src/crypto/ops.ts` — Op struct, Ed25519 sign/verify, hash-chain (BLAKE2b-256), encrypted_payload, `MemoryOpLog`-compatible createOp
-- [x] `src/crypto/threshold.ts` — Shamir split/reconstruct, `computeThreshold(N)` formula `clamp(ceil(0.3N), 2, 6)`
-- [x] `src/crypto/recovery.ts` — Argon2id KDF, createRecoveryPackage / openRecoveryPackage
-- [x] `src/crypto/handshake.ts` — 6-digit join verification code (BLAKE2b-8 mod 10^6), constant-time codesMatch
-- [x] `src/crypto/index.ts` — barrel export
-- [x] `src/db/schema.ts` — SQLite DDL: family_meta, nodes, members, devices, scope_keys, op_log + indexes
-- [x] `src/db/opLog.ts` — `OpLogStore` interface + `MemoryOpLog` in-memory impl for tests
-- [x] `src/db/index.ts` — barrel export
-- [x] `src/types/shamirs-secret-sharing.d.ts` — type shim for untyped SSS lib
-- [x] `src/crypto/crypto.test.ts` — comprehensive test suite (envelope, keys, ops, threshold, recovery, handshake)
-- [x] `package.json` — added `libsodium-wrappers`, `shamirs-secret-sharing`, `@types/libsodium-wrappers`
+## Phase 4 — Sync Engine (COMPLETE)
+- `pullFromRelay`: verify Ed25519 + hash integrity + chain continuity before appending
+- `pushToRelay`: batch POST ops to relay
+- `resolveLWW`: last-writer-wins by lamport_clock
+- `isMedicalField` + `detectConflicts`: surface medical field conflicts for human review
+- `SyncEngine`: start/stop periodic sync with enqueuePush for local ops
 
-### Phase 1 Test Checklist (§10)
+## Phase 5 — UI Shell (COMPLETE)
+- react-router-dom v6, BrowserRouter
+- Bottom tab nav: Home / Family / Vault / Settings
+- Screens: HomeScreen, FamilyScreen, VaultScreen, SettingsScreen
+- Dark theme CSS, safe-area-inset for notched phones
 
-- [ ] CI green on `lint-and-test` job
-- [ ] envelope: round-trip, wrong key, tampered ciphertext, version byte, unknown version
-- [ ] keys: distinct generation, wrap/unwrap, wrong recipient fails, rotation increments epoch
-- [ ] ops: signed op verifies, tampered payload rejected, wrong key rejected, payload decrypt, hash chain, broken chain
-- [ ] threshold: 10 formula cases pass, M shares reconstructs, N shares reconstructs, M-1 cannot reconstruct
-- [ ] recovery: correct code round-trips, wrong code throws
-- [ ] handshake: same code both sides, swapped keys differ, codesMatch true/false
+## Phase 6 — OCR / Documents (COMPLETE)
+- `@capacitor-mlkit/text-recognition` lazy import (falls back to StubOcrService on web)
+- Per-document random 32-byte key, wrapped under X25519 scope key holder pubkey
+- Encrypted doc bytes stored via `@capacitor/filesystem` (`arkive_docs/{docId}.enc`)
+- Document metadata stored as encrypted op in op_log (type: 'document')
+- DocumentCaptureScreen: category picker, file input, OCR preview, save trigger
+- Tests: encrypt/decrypt round-trip, wrong key, hash determinism, wrap/unwrap
 
-## Phase 2 — SQLite Persistence (PENDING)
-## Phase 3 — Relay (PENDING)
-## Phase 4 — Sync Engine (PENDING)
-## Phase 5 — UI Shell (PENDING)
-## Phase 6 — OCR / Documents (PENDING)
-## Phase 7 — Payments & Subscriptions (PENDING)
+## Phase 7 — Payments & Subscriptions (COMPLETE)
+- Plan definitions: free (1 member, 0.5 GB), family (6 members, 5 GB, INR 199/mo), premium (20 members, 50 GB, INR 499/mo)
+- Razorpay checkout: createOrder (relay call) + openRazorpayCheckout (web SDK)
+- Subscription state stored as encrypted op; isSubscriptionActive / canAddMember / isOcrAllowed guards
+- SubscriptionScreen: plan cards with Upgrade button and current plan badge
+- Tests: plan limits, active/expired, member cap, OCR access, financial dashboard access
+- App routes: /vault/capture, /settings/subscription
 
-## Open Questions for Owner
+---
 
-1. APK signing keystore → upload as `SIGNING_KEY_BASE64` / `KEY_ALIAS` / `KEY_STORE_PASSWORD` / `KEY_PASSWORD` GitHub secrets
-2. `VITE_UPDATE_PUBKEY` — Ed25519 public key (base64) for signed-update verification
-3. `VITE_RELAY_URL` — Cloudflare Worker relay URL
-4. Trademark/domain clearance for "Arkive" name
-5. Insurance licensing decision (§12 of brief)
+## Owner Checklist Before Shipping
+
+| Item | Details |
+|------|---------|
+| APK signing keystore | GitHub Secrets: `SIGNING_KEY_BASE64`, `KEY_ALIAS`, `KEY_STORE_PASSWORD`, `KEY_PASSWORD` |
+| `VITE_UPDATE_PUBKEY` | Ed25519 public key (base64) for signed-APK update verification |
+| `VITE_RELAY_URL` | Cloudflare Worker URL after `wrangler deploy` in `relay/` |
+| Cloudflare D1 | `wrangler d1 create arkive-relay` → paste UUID into `relay/wrangler.toml` |
+| Cloudflare R2 | `wrangler r2 bucket create arkive-ops` |
+| D1 schema | `wrangler d1 execute arkive-relay --file=relay/schema.sql` |
+| VAPID keys | `wrangler secret put VAPID_PRIVATE_KEY` in relay/ |
+| Razorpay | Key ID for `VITE_RAZORPAY_KEY` env var |
+| Trademark/domain | "Arkive" clearance |
+| Insurance licensing | Decision per §12 of brief |

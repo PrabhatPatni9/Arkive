@@ -3,6 +3,8 @@ import { HomeScreen } from './screens/HomeScreen'
 import { FamilyScreen } from './screens/FamilyScreen'
 import { VaultScreen } from './screens/VaultScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
+import { DocumentCaptureScreen } from './screens/DocumentCaptureScreen'
+import { SubscriptionScreen } from './screens/SubscriptionScreen'
 import { Nav } from './components/Nav'
 import './app.css'
 
@@ -16,7 +18,9 @@ export default function App() {
             <Route path="/home" element={<HomeScreen />} />
             <Route path="/family" element={<FamilyScreen />} />
             <Route path="/vault" element={<VaultScreen />} />
+            <Route path="/vault/capture" element={<DocumentCaptureScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
+            <Route path="/settings/subscription" element={<SubscriptionScreen />} />
           </Routes>
         </div>
         <Nav />
