@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { HomeScreen } from './screens/HomeScreen'
 import { FamilyScreen } from './screens/FamilyScreen'
 import { VaultScreen } from './screens/VaultScreen'
@@ -8,7 +9,23 @@ import { SubscriptionScreen } from './screens/SubscriptionScreen'
 import { Nav } from './components/Nav'
 import './app.css'
 
+function applyTheme() {
+  const theme = localStorage.getItem('arkive_theme') ?? 'light'
+  const accent = localStorage.getItem('arkive_accent') ?? 'blue'
+  document.documentElement.setAttribute('data-theme', theme)
+  document.documentElement.setAttribute('data-accent', accent)
+}
+
 export default function App() {
+  useEffect(() => {
+    applyTheme()
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'arkive_theme' || e.key === 'arkive_accent') applyTheme()
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
   return (
     <BrowserRouter>
       <div className="app-shell">

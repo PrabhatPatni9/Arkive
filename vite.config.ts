@@ -5,5 +5,12 @@ export default defineConfig({
   plugins: [react()],
   build: {
     target: 'es2020',
+    rollupOptions: {
+      // Capacitor native plugins are only available in the native APK context
+      external: [
+        '@capacitor-mlkit/text-recognition',
+        '@capacitor-community/sqlite',
+      ],
+    },
   },
 })

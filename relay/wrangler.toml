@@ -18,5 +18,4 @@ pattern = "relay-arkive.punyakosh.in"
 custom_domain = true
 
 [vars]
-VAPID_PUBLIC_KEY = ""
-# Set via: cd relay && npx wrangler secret put VAPID_PRIVATE_KEY
+VAPID_PUBLIC_KEY = "BCBktjdyAXfYbKs28Onbbo6CacxevBMcFxQvGmXkIfEsV3JdIdGxqnYdx_vGGtlb1FvK5J1XfgyUyxLxi6VPPWU"
