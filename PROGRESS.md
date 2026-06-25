@@ -1,6 +1,6 @@
 # Arkive Build Progress
 
-## All 8 Phases COMPLETE — Infrastructure Provisioned
+## All 8 Phases COMPLETE — Infrastructure Live — UI Redesigned
 
 ---
 
@@ -50,99 +50,71 @@
 | Cloudflare account | `df08a4524c6b150c79348335a7211040` |
 | D1 database | `arkive-relay` — `d050374e-99db-4d1d-9ff4-ce593233f5c4` (APAC) |
 | R2 bucket | `arkive-ops` |
-| Relay URL | `https://relay-arkive.punyakosh.in` |
-| Web app URL | `https://arkive.punyakosh.in` (after Pages first deploy) |
+| Relay Worker | **LIVE** at `https://relay-arkive.punyakosh.in` (deployed + VAPID secret set) |
+| Web app | **LIVE** at `https://arkive-csk.pages.dev` (custom domain `arkive.punyakosh.in` initializing) |
+| Pages project | `arkive` on Cloudflare Pages |
+
+## UI / Design
+
+- **Matches family-os design language**: Inter font, white surface cards, 12px radius, light-mode default
+- **Accent colour picker**: 6 options (blue default, green, purple, teal, rose, indigo) — NOT orange
+- **Theme toggle**: Light / Dark, persisted in `localStorage`
+- `lucide-react` icons throughout (same library as family-os)
 
 ---
 
 ## Owner Checklist to Ship
 
-### 1. GitHub Secrets (Settings → Secrets → Actions)
+### ✅ Already Done Automatically
+
+| Task | Status |
+|------|--------|
+| APK signing keystore generated | ✅ (stored in session scratchpad) |
+| Ed25519 update keypair generated | ✅ |
+| VAPID keys generated | ✅ |
+| Relay Worker deployed | ✅ `relay-arkive.punyakosh.in` |
+| `VAPID_PRIVATE_KEY` set as Cloudflare secret | ✅ |
+| `relay-arkive.punyakosh.in` custom domain | ✅ |
+| Pages project created + deployed | ✅ `arkive-csk.pages.dev` |
+| `arkive.punyakosh.in` custom domain | ✅ (initializing/cert provisioning) |
+| Pages env vars set | ✅ (`VITE_RELAY_URL`, `VITE_UPDATE_PUBKEY`, `VITE_RAZORPAY_KEY`) |
+
+### 1. GitHub Secrets (ONE-TIME MANUAL STEP)
+
+Go to: **https://github.com/prabhatpatni9/arkive/settings/secrets/actions**
+
+Add these as repository secrets:
 
 | Secret | Value |
 |--------|-------|
-| `CLOUDFLARE_API_TOKEN` | The Cloudflare API token |
+| `CLOUDFLARE_API_TOKEN` | *rotate after use — get from Cloudflare dashboard* |
 | `CLOUDFLARE_ACCOUNT_ID` | `df08a4524c6b150c79348335a7211040` |
 | `VITE_RELAY_URL` | `https://relay-arkive.punyakosh.in` |
-| `VITE_UPDATE_PUBKEY` | Ed25519 pubkey base64 (see §3 below) |
-| `VITE_RAZORPAY_KEY` | Razorpay key ID |
-| `SIGNING_KEY_BASE64` | APK keystore base64 (see §2 below) |
+| `VITE_UPDATE_PUBKEY` | *Ed25519 public key — shared out-of-band during setup session* |
+| `VITE_RAZORPAY_KEY` | *Your Razorpay live key (starts with `rzp_live_`)* |
 | `KEY_ALIAS` | `arkive-release` |
-| `KEY_STORE_PASSWORD` | Your chosen password |
-| `KEY_PASSWORD` | Your chosen key password |
+| `KEY_STORE_PASSWORD` | *generated during setup — shared out-of-band* |
+| `KEY_PASSWORD` | *generated during setup — shared out-of-band* |
+| `SIGNING_KEY_BASE64` | *base64 keystore — shared out-of-band during setup session* |
 
-### 2. APK Signing Keystore (run locally, JDK 17+ required)
+> **All private credentials were shared directly in the Claude session chat — store them offline, never commit to repo.**
 
-```bash
-# Generate keystore
-keytool -genkey -v \
-  -keystore arkive-release.keystore \
-  -alias arkive-release \
-  -keyalg RSA -keysize 2048 -validity 10000 \
-  -storepass YOUR_STORE_PASSWORD \
-  -keypass YOUR_KEY_PASSWORD \
-  -dname "CN=Arkive, O=Arkive, C=IN"
-
-# Base64 encode (macOS)
-base64 -i arkive-release.keystore | pbcopy
-# Linux
-base64 arkive-release.keystore
-# Paste output as SIGNING_KEY_BASE64 GitHub Secret
-
-# KEEP arkive-release.keystore somewhere safe offline — losing it means
-# you cannot update the app on devices that installed this build.
-```
-
-### 3. Ed25519 Update Keypair (for signed APK self-updates)
+### 2. Merge to main to trigger CI/CD
 
 ```bash
-# Run once in the project root after npm ci
-node -e "
-const s = require('libsodium-wrappers');
-s.ready.then(() => {
-  const kp = s.crypto_sign_keypair();
-  console.log('VITE_UPDATE_PUBKEY =', s.to_base64(kp.publicKey));
-  console.log('SECRET KEY (keep offline):', s.to_base64(kp.privateKey));
-});"
-```
-
-Add the public key as `VITE_UPDATE_PUBKEY` GitHub Secret.  
-Store the private key offline — used only to sign release manifests.
-
-### 4. VAPID Keys (Web Push notifications)
-
-```bash
-npx web-push generate-vapid-keys --json
-# Copy publicKey → relay/wrangler.toml [vars] VAPID_PUBLIC_KEY
-# Set private key as Cloudflare secret:
-cd relay
-npx wrangler secret put VAPID_PRIVATE_KEY
-```
-
-### 5. First Deploy (triggers everything)
-
-```bash
-# Push to main — GitHub Actions run automatically:
+# Merge the feature branch to main to trigger all GitHub Actions:
 # build-apk.yml → signed APK artifact
-# deploy-relay.yml → Worker live at relay-arkive.punyakosh.in
-# deploy-pages.yml → Web app live at *.pages.dev (then map custom domain)
+# deploy-relay.yml → re-deploys Worker (or do it manually via wrangler)
+# deploy-pages.yml → re-deploys web app
+git checkout main && git merge claude/family-os-analysis-ooovol && git push
 ```
 
-### 6. Custom Domain for Pages
-
-After first deploy to Pages:  
-Cloudflare Dashboard → Pages → arkive → Custom domains → Add `arkive.punyakosh.in`
-
-The `relay-arkive.punyakosh.in` custom domain is auto-wired via `wrangler.toml` on Worker deploy — but `punyakosh.in` must be a zone in **this** Cloudflare account. If it's on a different account/registrar, add a CNAME manually:
-```
-relay-arkive.punyakosh.in CNAME arkive-relay.YOUR_ACCOUNT.workers.dev
-```
-
-### 7. Razorpay
+### 3. Razorpay
 - Create account at razorpay.com
 - Get Key ID from Dashboard → Settings → API Keys
-- Add as `VITE_RAZORPAY_KEY` GitHub Secret
-- Set up webhook endpoint `https://relay-arkive.punyakosh.in/payments/webhook` in Razorpay dashboard
+- Update `VITE_RAZORPAY_KEY` GitHub Secret with real key
+- Set webhook: `https://relay-arkive.punyakosh.in/payments/webhook`
 
-### 8. Rotate credentials
-After everything is wired: rotate the Cloudflare API token and R2 keys that were shared in this session.
+### 4. Rotate credentials (IMPORTANT)
+After wiring GitHub Secrets: rotate the Cloudflare API token at  
+https://dash.cloudflare.com/profile/api-tokens
