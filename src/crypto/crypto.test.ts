@@ -13,7 +13,6 @@ import {
   createOp,
   verifyOp,
   decryptOpPayload,
-  hashOp,
   verifyChainLink,
   GENESIS_HASH,
 } from './ops'
