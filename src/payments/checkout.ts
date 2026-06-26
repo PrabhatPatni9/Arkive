@@ -1,5 +1,5 @@
-import type { PlanId } from './plans'
-import { PLANS } from './plans'
+import type { SyncTierId } from './plans'
+import { SYNC_TIERS } from './plans'
 
 export interface LoadOrderResponse {
   orderId: string
@@ -13,15 +13,14 @@ export interface CheckoutResult {
   signature: string
 }
 
-export async function createOrder(
+export async function createRelayOrder(
   relayUrl: string,
-  planId: PlanId,
   familyId: string
 ): Promise<LoadOrderResponse> {
   const res = await fetch(`${relayUrl}/payments/order`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ planId, familyId }),
+    body: JSON.stringify({ syncTierId: 'managed_relay', familyId }),
   })
   if (!res.ok) throw new Error(`Order creation failed: ${res.status}`)
   return res.json() as Promise<LoadOrderResponse>
@@ -30,7 +29,7 @@ export async function createOrder(
 export function openRazorpayCheckout(
   razorpayKey: string,
   order: LoadOrderResponse,
-  planId: PlanId,
+  tierId: SyncTierId,
   familyName: string
 ): Promise<CheckoutResult> {
   return new Promise((resolve, reject) => {
@@ -38,13 +37,13 @@ export function openRazorpayCheckout(
       reject(new Error('Razorpay SDK not loaded'))
       return
     }
-    const plan = PLANS[planId]
+    const tier = SYNC_TIERS[tierId]
     const rzp = new window.Razorpay({
       key: razorpayKey,
       amount: order.amount,
       currency: order.currency,
       name: 'Arkive',
-      description: `${plan.name} plan — ${familyName}`,
+      description: `${tier.name} — ${familyName}`,
       order_id: order.orderId,
       handler(response) {
         resolve({

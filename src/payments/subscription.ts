@@ -1,61 +1,39 @@
-import { sodium } from '../crypto/sodium'
-import type { PlanId } from './plans'
-import { PLANS } from './plans'
-import type { ScopeKey } from '../crypto/keys'
-import type { OpWithHash } from '../crypto/ops'
-import { createOp } from '../crypto/ops'
-import { sealEnvelope } from '../crypto/envelope'
+import type { SyncTierId } from './plans'
 
-export interface SubscriptionState {
-  planId: PlanId
-  validUntil: string   // ISO-8601
-  paymentId: string
-  activatedAt: string  // ISO-8601
+export interface RelayEntitlement {
+  syncTierId: SyncTierId
+  validUntil: string | null  // null = free/self-hosted
+  paymentId: string | null
+  activatedAt: string | null
 }
 
-export function isSubscriptionActive(state: SubscriptionState): boolean {
-  return new Date(state.validUntil) > new Date()
+export function defaultEntitlement(): RelayEntitlement {
+  return { syncTierId: 'local_lan', validUntil: null, paymentId: null, activatedAt: null }
 }
 
-export function canAddMember(
-  state: SubscriptionState,
-  currentMemberCount: number
-): boolean {
-  return currentMemberCount < PLANS[state.planId].maxMembers
+export function isManagedRelayActive(ent: RelayEntitlement): boolean {
+  if (ent.syncTierId !== 'managed_relay') return false
+  if (!ent.validUntil) return false
+  return new Date(ent.validUntil) > new Date()
 }
 
-export function isOcrAllowed(state: SubscriptionState): boolean {
-  if (!isSubscriptionActive(state)) return PLANS['free'].ocrEnabled
-  return PLANS[state.planId].ocrEnabled
+export function getEffectiveSyncTier(ent: RelayEntitlement): SyncTierId {
+  if (ent.syncTierId === 'managed_relay' && !isManagedRelayActive(ent)) {
+    return 'local_lan'
+  }
+  return ent.syncTierId
 }
 
-export function isFinancialDashboardAllowed(state: SubscriptionState): boolean {
-  if (!isSubscriptionActive(state)) return false
-  return PLANS[state.planId].financialDashboard
+const ENTITLEMENT_KEY = 'arkive_entitlement_v1'
+
+export function loadEntitlement(): RelayEntitlement {
+  try {
+    const raw = localStorage.getItem(ENTITLEMENT_KEY)
+    if (raw) return JSON.parse(raw) as RelayEntitlement
+  } catch { /* ignore */ }
+  return defaultEntitlement()
 }
 
-export function createSubscriptionOp(
-  subscription: SubscriptionState,
-  scopeKey: ScopeKey,
-  authorDeviceId: string,
-  signingSecretKey: Uint8Array,
-  prevHash: string,
-  lamportClock: number
-): OpWithHash {
-  const payload = sodium.from_string(
-    JSON.stringify({ type: 'subscription', ...subscription })
-  )
-  return createOp(
-    {
-      scope: scopeKey.scope,
-      keyEpoch: scopeKey.epoch,
-      prevHash,
-      lamportClock,
-      authorDeviceId,
-      signingSecretKey,
-      plaintextPayload: payload,
-      scopeKeyBytes: scopeKey.bytes,
-    },
-    sealEnvelope
-  )
+export function saveEntitlement(ent: RelayEntitlement): void {
+  localStorage.setItem(ENTITLEMENT_KEY, JSON.stringify(ent))
 }

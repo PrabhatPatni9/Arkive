@@ -68,4 +68,28 @@ export const MIGRATIONS: Migration[] = [
         ON op_log (hash);
     `,
   },
+  {
+    version: 2,
+    sql: `
+      CREATE TABLE IF NOT EXISTS reminders (
+        reminder_id          TEXT PRIMARY KEY,
+        family_id            TEXT NOT NULL,
+        member_id            TEXT,
+        type                 TEXT NOT NULL,
+        title                TEXT NOT NULL,
+        description          TEXT,
+        due_date             TEXT NOT NULL,
+        advance_notice_days  INTEGER NOT NULL DEFAULT 0,
+        recurrence_json      TEXT,
+        timezone             TEXT NOT NULL DEFAULT 'Asia/Kolkata',
+        linked_document_id   TEXT,
+        completions_json     TEXT NOT NULL DEFAULT '[]',
+        created_at           TEXT NOT NULL,
+        updated_at           TEXT NOT NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_reminders_family
+        ON reminders (family_id, due_date);
+    `,
+  },
 ]

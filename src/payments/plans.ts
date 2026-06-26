@@ -1,41 +1,54 @@
-export type PlanId = 'free' | 'family' | 'premium'
+export type SyncTierId = 'local_lan' | 'managed_relay' | 'self_hosted'
 
-export interface Plan {
-  id: PlanId
+export interface SyncTier {
+  id: SyncTierId
   name: string
-  priceInr: number          // monthly, 0 for free
-  maxMembers: number
-  storageLimitGb: number
-  ocrEnabled: boolean
-  financialDashboard: boolean
+  priceInrPerYear: number
+  tagline: string
+  features: string[]
+  managed: boolean
 }
 
-export const PLANS: Record<PlanId, Plan> = {
-  free: {
-    id: 'free',
-    name: 'Free',
-    priceInr: 0,
-    maxMembers: 1,
-    storageLimitGb: 0.5,
-    ocrEnabled: false,
-    financialDashboard: false,
+export const SYNC_TIERS: Record<SyncTierId, SyncTier> = {
+  local_lan: {
+    id: 'local_lan',
+    name: 'Local & LAN',
+    priceInrPerYear: 0,
+    tagline: 'All features, no server needed',
+    features: [
+      'Unlimited family members',
+      'On-device OCR scanning',
+      'All document types',
+      'Full offline access',
+      'Same-network sync via Wi-Fi',
+    ],
+    managed: false,
   },
-  family: {
-    id: 'family',
-    name: 'Family',
-    priceInr: 199,
-    maxMembers: 6,
-    storageLimitGb: 5,
-    ocrEnabled: true,
-    financialDashboard: false,
+  managed_relay: {
+    id: 'managed_relay',
+    name: 'Managed Relay',
+    priceInrPerYear: 99,
+    tagline: 'Free year one, then ₹99/year',
+    features: [
+      'Everything in Local & LAN',
+      'Internet sync across any network',
+      'Encrypted relay — Arkive cannot read your data',
+      'Background sync & push wake',
+      'Billing is web-only (no in-app purchase)',
+    ],
+    managed: true,
   },
-  premium: {
-    id: 'premium',
-    name: 'Premium',
-    priceInr: 499,
-    maxMembers: 20,
-    storageLimitGb: 50,
-    ocrEnabled: true,
-    financialDashboard: true,
+  self_hosted: {
+    id: 'self_hosted',
+    name: 'Self-Hosted',
+    priceInrPerYear: 0,
+    tagline: 'Deploy your own relay. Free forever.',
+    features: [
+      'Everything in Local & LAN',
+      'Point the app at your own Cloudflare Worker',
+      'One-click "Deploy to Cloudflare" setup',
+      '10 GB R2 free tier covers most families',
+    ],
+    managed: false,
   },
 }
