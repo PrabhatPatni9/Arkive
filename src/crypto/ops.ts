@@ -34,7 +34,7 @@ function signedFields(op: Op & { hash?: string }): string {
 export function hashOp(op: Op & { hash?: string }): string {
   const { hash: _h, ...opWithoutHash } = op
   const bytes = sodium.from_string(canonical(opWithoutHash as unknown as Record<string, unknown>))
-  return sodium.to_hex(sodium.crypto_generichash(32, bytes))
+  return sodium.to_hex(sodium.crypto_generichash(32, bytes, null))
 }
 
 export interface CreateOpParams {

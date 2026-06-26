@@ -18,7 +18,7 @@ export function decryptDocument(docKey: Uint8Array, ciphertext: Uint8Array): Uin
 
 // BLAKE2b-256 as hex — same primitive as op hash function for consistency
 export function contentHash(data: Uint8Array): string {
-  return sodium.to_hex(sodium.crypto_generichash(32, data))
+  return sodium.to_hex(sodium.crypto_generichash(32, data, null))
 }
 
 // Wrap a per-document key for a specific recipient using sealed box

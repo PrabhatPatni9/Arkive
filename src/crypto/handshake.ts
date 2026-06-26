@@ -9,7 +9,7 @@ export function deriveVerificationCode(
   const combined = new Uint8Array(requesterPublicKey.length + adminPublicKey.length)
   combined.set(requesterPublicKey, 0)
   combined.set(adminPublicKey, requesterPublicKey.length)
-  const hashBytes = sodium.crypto_generichash(8, combined)
+  const hashBytes = sodium.crypto_generichash(8, combined, null)
   const view = new DataView(hashBytes.buffer, hashBytes.byteOffset, 4)
   const num = view.getUint32(0, false) // big-endian
   const code = (num % 1_000_000).toString().padStart(6, '0')
