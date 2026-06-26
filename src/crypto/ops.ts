@@ -26,13 +26,14 @@ function canonical(obj: Record<string, unknown>): string {
   return JSON.stringify(sorted)
 }
 
-function signedFields(op: Op): string {
-  const { signature: _sig, ...rest } = op
+function signedFields(op: Op & { hash?: string }): string {
+  const { signature: _sig, hash: _h, ...rest } = op
   return canonical(rest as Record<string, unknown>)
 }
 
-export function hashOp(op: Op): string {
-  const bytes = sodium.from_string(canonical(op as unknown as Record<string, unknown>))
+export function hashOp(op: Op & { hash?: string }): string {
+  const { hash: _h, ...opWithoutHash } = op
+  const bytes = sodium.from_string(canonical(opWithoutHash as unknown as Record<string, unknown>))
   return sodium.to_hex(sodium.crypto_generichash(32, bytes))
 }
 

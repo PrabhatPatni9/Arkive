@@ -277,7 +277,7 @@ describe('threshold', () => {
   })
 
   it('threshold differs when N differs', () => {
-    expect(computeThreshold(7)).not.toBe(computeThreshold(10))
+    expect(computeThreshold(6)).not.toBe(computeThreshold(7))  // 2 vs 3
   })
 
   it('split and reconstruct with exactly M shares', () => {

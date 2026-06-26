@@ -11,16 +11,18 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "cap:sync": "cap sync",
-    "cap:android": "cap run android"
+    "cap:android": "cap run android",
+    "postinstall": "node -e \"const{cpSync}=require('fs');try{cpSync('node_modules/libsodium/dist/modules-esm/libsodium.mjs','node_modules/libsodium-wrappers/dist/modules-esm/libsodium.mjs')}catch(e){}\""
   },
   "dependencies": {
+    "@capacitor-community/sqlite": "^6.0.0",
     "@capacitor/android": "^6.0.0",
     "@capacitor/app": "^6.0.0",
     "@capacitor/camera": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/filesystem": "^6.0.0",
-    "@capacitor-community/sqlite": "^6.0.0",
     "libsodium-wrappers": "^0.7.15",
+    "libsodium-wrappers-sumo": "^0.8.4",
     "lucide-react": "^0.447.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
