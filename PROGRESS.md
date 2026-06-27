@@ -52,12 +52,22 @@
 - **New tests:** `family.test.ts` (wordlist, createFamily, join handshake round-trip, wrong-key
   rejection) and `reminders.test.ts` (CRUD, recurrence, overdue, due-soon, builders).
 
+### Also done (follow-up session):
+- **Backup admin designation:** Warning banner in FamilyScreen; inline member picker;
+  `setBackupAdmin()` in familyStore (admin-only, excludes dependents).
+- **Dependent profile creation (steward flow):** `AddDependentScreen` — name, DOB, health
+  fields at creation. `createDependentMember()` in familyStore; admin-only guard.
+- **Device naming/renaming:** Pencil icon on FamilyScreen device card; inline edit; `renameDevice()`.
+- **Delete/export data (HC #16):** `DataPrivacyScreen` — export JSON (members + reminders,
+  no keys), leave family (clears local state), delete vault (admin, type family name to confirm).
+  Accessible from Settings > Data & Privacy.
+- **Bug fixes backported from main:**
+  - `sodium.ts` imports from `libsodium-wrappers-sumo` (Argon2id support restored)
+  - `ops.ts` signedFields/hashOp strip both signature and hash (fixes verifyOp)
+  - Threshold test corrected (n=6 vs n=20)
+
 ### Still needed in Phase 2:
 - Wire family state to SQLite op log (currently localStorage) for durable sync
-- Managed / dependent profile creation (steward flow)
-- Backup admin designation UI
-- Device naming / renaming UI
-- `delete-my-data` and `export-my-data` (§7 Hard Constraint #16)
 - i18n scaffold (15 languages — Hard Constraint #18; large task, defer to Phase 6)
 
 ## Phase 3 — Relay + Sync (PARTIAL)
