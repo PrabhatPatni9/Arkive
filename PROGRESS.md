@@ -85,8 +85,6 @@
 - **Schema migration 3:** `device_tokens` + `join_handshakes` tables (run: `wrangler d1 execute arkive-relay --file=relay/schema.sql`)
 
 ### Still needed in Phase 3:
-- Deploy relay update to Cloudflare (`wrangler deploy` from relay/) — **owner action**
-- Run D1 migration for new tables — **owner action**
 - LAN sync (mDNS — Phase 5)
 - P2P sync (Phase 5)
 
