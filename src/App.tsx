@@ -9,6 +9,8 @@ import { SubscriptionScreen } from './screens/SubscriptionScreen'
 import { EmergencyScreen } from './screens/EmergencyScreen'
 import { EmergencyCardScreen } from './screens/EmergencyCardScreen'
 import { RemindersScreen } from './screens/RemindersScreen'
+import { AddDependentScreen } from './screens/AddDependentScreen'
+import { DataPrivacyScreen } from './screens/DataPrivacyScreen'
 import { OnboardingScreen } from './screens/onboarding/OnboardingScreen'
 import { CreateFamilyScreen } from './screens/onboarding/CreateFamilyScreen'
 import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
@@ -84,10 +86,12 @@ export default function App() {
             <Route path="/home" element={<RequireFamily><HomeScreen /></RequireFamily>} />
             <Route path="/family" element={<RequireFamily><FamilyScreen /></RequireFamily>} />
             <Route path="/family/approve-join" element={<RequireFamily><ApproveJoinScreen /></RequireFamily>} />
+            <Route path="/family/add-dependent" element={<RequireFamily><AddDependentScreen /></RequireFamily>} />
             <Route path="/vault" element={<RequireFamily><VaultScreen /></RequireFamily>} />
             <Route path="/vault/capture" element={<RequireFamily><DocumentCaptureScreen /></RequireFamily>} />
             <Route path="/settings" element={<RequireFamily><SettingsScreen /></RequireFamily>} />
             <Route path="/settings/subscription" element={<RequireFamily><SubscriptionScreen /></RequireFamily>} />
+            <Route path="/settings/data" element={<RequireFamily><DataPrivacyScreen /></RequireFamily>} />
             <Route path="/emergency" element={<RequireFamily><EmergencyScreen /></RequireFamily>} />
             <Route path="/emergency/card/:memberId" element={<RequireFamily><EmergencyCardScreen /></RequireFamily>} />
             <Route path="/reminders" element={<RequireFamily><RemindersScreen /></RequireFamily>} />

@@ -356,3 +356,91 @@ export function setEmergencyCardEnabled(memberId: string, enabled: boolean): voi
   family.emergencyCardEnabled[memberId] = enabled
   saveFamily(family)
 }
+
+export function setBackupAdmin(memberId: string): void {
+  const family = getFamily()
+  if (!family || family.role !== 'admin') return
+  const target = family.members.find(m => m.memberId === memberId)
+  if (!target || target.memberId === family.myMemberId || target.isDependent) return
+  family.backupAdminMemberId = memberId
+  saveFamily(family)
+}
+
+export function createDependentMember(params: {
+  name: string
+  dateOfBirth?: string
+  bloodGroup?: string
+  allergies?: string
+  conditions?: string
+  medications?: string
+}): FamilyMember {
+  const family = getFamily()
+  if (!family || family.role !== 'admin') throw new Error('Only admin can add dependents')
+  const memberId = sodium.to_hex(sodium.randombytes_buf(16))
+  const member: FamilyMember = {
+    memberId,
+    name: params.name,
+    role: 'member',
+    deviceId: '',
+    encPublicKey: '',
+    sigPublicKey: '',
+    isDependent: true,
+    dateOfBirth: params.dateOfBirth,
+    bloodGroup: params.bloodGroup,
+    allergies: params.allergies,
+    conditions: params.conditions,
+    medications: params.medications,
+  }
+  family.members.push(member)
+  saveFamily(family)
+  return member
+}
+
+export function renameDevice(label: string): void {
+  const family = getFamily()
+  if (!family) return
+  const trimmed = label.trim()
+  if (!trimmed) return
+  family.deviceLabel = trimmed
+  saveFamily(family)
+}
+
+export function exportFamilyData(): string {
+  const family = getFamily()
+  const remindersRaw = localStorage.getItem('arkive_reminders_v1')
+  const reminders = remindersRaw ? JSON.parse(remindersRaw) : []
+  return JSON.stringify({
+    exportedAt: new Date().toISOString(),
+    appVersion: '0.0.1',
+    family: family ? {
+      familyId: family.familyId,
+      familyName: family.familyName,
+      familyType: family.familyType,
+      createdAt: family.createdAt,
+      members: family.members.map(m => ({
+        memberId: m.memberId,
+        name: m.name,
+        role: m.role,
+        isDependent: m.isDependent,
+        bloodGroup: m.bloodGroup,
+        allergies: m.allergies,
+        conditions: m.conditions,
+        medications: m.medications,
+        emergencyContacts: m.emergencyContacts,
+        policyNumbers: m.policyNumbers,
+        dateOfBirth: m.dateOfBirth,
+      })),
+    } : null,
+    reminders,
+  }, null, 2)
+}
+
+export function leaveFamily(): void {
+  clearFamily()
+  localStorage.removeItem('arkive_reminders_v1')
+}
+
+export function purgeAllData(): void {
+  const keys = Object.keys(localStorage).filter(k => k.startsWith('arkive_'))
+  keys.forEach(k => localStorage.removeItem(k))
+}

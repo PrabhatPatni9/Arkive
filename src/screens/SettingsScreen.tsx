@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { ChevronRight, Moon, Sun, CreditCard } from 'lucide-react'
+import { ChevronRight, Moon, Sun, CreditCard, Shield, Download } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const ACCENT_OPTIONS = [
@@ -132,6 +132,33 @@ export function SettingsScreen() {
               <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
             </button>
           ))}
+        </div>
+
+        {/* Data & Privacy */}
+        <div className="settings-section">
+          <p className="settings-group-label">Data & Privacy</p>
+          <button
+            className="settings-row"
+            type="button"
+            onClick={() => navigate('/settings/data')}
+          >
+            <span className="settings-row-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Download size={17} aria-hidden />
+              Export / Delete My Data
+            </span>
+            <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
+          </button>
+          <button
+            className="settings-row"
+            type="button"
+            onClick={() => navigate('/settings/data')}
+          >
+            <span className="settings-row-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Shield size={17} aria-hidden />
+              Leave / Delete Family Vault
+            </span>
+            <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
+          </button>
         </div>
 
         {/* About */}

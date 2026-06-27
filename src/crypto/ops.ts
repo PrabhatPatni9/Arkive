@@ -26,14 +26,15 @@ function canonical(obj: Record<string, unknown>): string {
   return JSON.stringify(sorted)
 }
 
-function signedFields(op: Op): string {
-  const { signature: _sig, ...rest } = op
+function signedFields(op: Op & { hash?: string }): string {
+  const { signature: _sig, hash: _h, ...rest } = op
   return canonical(rest as Record<string, unknown>)
 }
 
-export function hashOp(op: Op): string {
-  const bytes = sodium.from_string(canonical(op as unknown as Record<string, unknown>))
-  return sodium.to_hex(sodium.crypto_generichash(32, bytes))
+export function hashOp(op: Op & { hash?: string }): string {
+  const { hash: _h, ...opWithoutHash } = op
+  const bytes = sodium.from_string(canonical(opWithoutHash as unknown as Record<string, unknown>))
+  return sodium.to_hex(sodium.crypto_generichash(32, bytes, null))
 }
 
 export interface CreateOpParams {
@@ -69,7 +70,7 @@ export function createOp(
   return { ...op, hash: hashOp(op) }
 }
 
-export function verifyOp(op: Op, signingPublicKey: Uint8Array): boolean {
+export function verifyOp(op: Op & { hash?: string }, signingPublicKey: Uint8Array): boolean {
   try {
     const msg = sodium.from_string(signedFields(op))
     const sig = sodium.from_base64(op.signature)
