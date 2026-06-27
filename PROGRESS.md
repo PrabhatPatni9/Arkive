@@ -70,13 +70,25 @@
 - Wire family state to SQLite op log (currently localStorage) for durable sync
 - i18n scaffold (15 languages — Hard Constraint #18; large task, defer to Phase 6)
 
-## Phase 3 — Relay + Sync (PARTIAL)
+## Phase 3 — Relay + Sync (CORE COMPLETE)
 - Cloudflare Worker deployed at `https://relay-arkive.punyakosh.in` (LIVE)
 - D1 database `arkive-relay`, R2 bucket `arkive-ops` provisioned
-- `POST /ops`, `GET /ops`, `GET /health` implemented
-- Sync engine (`puller`, `pusher`, `resolver`, `SyncEngine`) written
-- **NOT YET:** join handshake relay endpoints (`POST /join/*`); entitlement read; per-family auth;
-  LAN sync; P2P sync
+
+### Done this session:
+- **Per-family auth (HC #11):** `device_tokens` D1 table; `POST /devices` generates+returns 64-hex bearer token; `requireAuth` middleware on all `POST/GET /ops`; `Authorization: Bearer` on all relay calls from client
+- **Join handshake relay endpoints:** `POST /join/requests` (no auth — requester posts); `GET /join/requests` (admin auth — list pending); `POST /join/approvals` (admin auth — post approval); `GET /join/approvals/:id` (no auth — requester polls)
+- **Join relay UX:** `JoinFamilyScreen` — enter Family ID to post request via relay and poll for approval instead of copy-paste; falls back to in-person JSON flow. `ApproveJoinScreen` — fetches pending list from relay, one-click approve auto-posts via relay; toggle to paste flow.
+- **Entitlement endpoint:** `GET /entitlement` (auth) returns tier stub (Phase 6 wires Razorpay)
+- **SyncEngine wired:** `App.tsx` starts engine (30s interval) when family + `relayDeviceToken` + `VITE_RELAY_URL` are available
+- **Auto-register:** `RecoveryPhraseScreen` and `JoinFamilyScreen` call `registerWithRelay()` after family creation/join; token saved to `FamilyState.relayDeviceToken`
+- **relayClient.ts:** `registerWithRelay`, `lookupEntitlement`, `postJoinRequest`, `pollJoinApproval`, `getPendingJoinRequests`, `postJoinApproval`
+- **Schema migration 3:** `device_tokens` + `join_handshakes` tables (run: `wrangler d1 execute arkive-relay --file=relay/schema.sql`)
+
+### Still needed in Phase 3:
+- Deploy relay update to Cloudflare (`wrangler deploy` from relay/) — **owner action**
+- Run D1 migration for new tables — **owner action**
+- LAN sync (mDNS — Phase 5)
+- P2P sync (Phase 5)
 
 ## Phase 4 — Core Modules (PARTIAL)
 - Document vault UI skeleton (`VaultScreen`, `DocumentCaptureScreen`)
@@ -104,9 +116,10 @@
 
 ## Test status (as of this session)
 - Phase 1 crypto: 71/71 ✅
-- Phase 2 payments (new model): 8/8 ✅ (expected)
-- Phase 2 family: tests written, run to verify
-- Phase 2 reminders: tests written, run to verify
+- Phase 2 payments: 8/8 ✅
+- Phase 2 family: 13/13 ✅
+- Phase 2 reminders: 12/12 ✅
+- Total: 104/104 ✅
 
 ## Owner Checklist
 
