@@ -15,6 +15,13 @@ export interface DeviceRow {
   registered_at: string
 }
 
+export interface DeviceTokenRow {
+  token: string
+  device_id: string
+  family_id: string
+  created_at: string
+}
+
 export interface OpIndexRow {
   op_hash: string
   family_id: string
@@ -24,8 +31,17 @@ export interface OpIndexRow {
   posted_at: string
 }
 
-export interface PostOpBody {
+export interface JoinHandshakeRow {
+  request_id: string
   family_id: string
+  request_json: string
+  approval_json: string | null
+  posted_at: string
+  approved_at: string | null
+}
+
+export interface PostOpBody {
+  family_id?: string
   op: {
     op_id: string
     scope: string
@@ -47,4 +63,15 @@ export interface RegisterDeviceBody {
     endpoint: string
     keys: { auth: string; p256dh: string }
   }
+}
+
+export interface PostJoinRequestBody {
+  family_id: string
+  request_id: string
+  request_json: string
+}
+
+export interface PostJoinApprovalBody {
+  request_id: string
+  approval_json: string
 }

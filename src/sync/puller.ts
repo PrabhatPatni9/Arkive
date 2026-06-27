@@ -12,10 +12,14 @@ export async function pullFromRelay(
   familyId: string,
   sinceLamport: number,
   signingKeys: Map<string, Uint8Array>,
-  opLog: OpLogStore
+  opLog: OpLogStore,
+  deviceToken?: string
 ): Promise<PullResult> {
   const url = `${relayUrl}/ops?family_id=${encodeURIComponent(familyId)}&since=${sinceLamport}`
-  const response = await fetch(url)
+  const headers: Record<string, string> = {}
+  if (deviceToken) headers['Authorization'] = `Bearer ${deviceToken}`
+
+  const response = await fetch(url, { headers })
   if (!response.ok) throw new Error(`Relay pull failed: ${response.status}`)
 
   const { ops } = await response.json() as { ops: OpWithHash[] }
@@ -31,7 +35,6 @@ export async function pullFromRelay(
 
       if (hashOp(op) !== op.hash) { skipped++; continue }
 
-      // Verify chain continuity: prev_hash must exist in our log
       if (op.prev_hash !== GENESIS_HASH) {
         const prev = await opLog.getByHash(op.prev_hash)
         if (!prev) { skipped++; continue }

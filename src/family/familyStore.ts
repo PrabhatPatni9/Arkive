@@ -60,6 +60,7 @@ export interface FamilyState {
   backupAdminMemberId: string | null
   members: FamilyMember[]
   emergencyCardEnabled: Record<string, boolean>
+  relayDeviceToken: string | null
 }
 
 // Shared between requester and admin during the join handshake
@@ -186,6 +187,7 @@ export function createFamily(params: {
       },
     ],
     emergencyCardEnabled: {},
+    relayDeviceToken: null,
   }
 
   saveFamily(state)
@@ -331,6 +333,7 @@ export function completeJoin(pending: PendingJoin, approval: JoinApproval): Fami
       },
     ],
     emergencyCardEnabled: {},
+    relayDeviceToken: null,
   }
 
   saveFamily(state)
@@ -438,6 +441,13 @@ export function exportFamilyData(): string {
 export function leaveFamily(): void {
   clearFamily()
   localStorage.removeItem('arkive_reminders_v1')
+}
+
+export function setRelayDeviceToken(token: string): void {
+  const family = getFamily()
+  if (!family) return
+  family.relayDeviceToken = token
+  saveFamily(family)
 }
 
 export function purgeAllData(): void {

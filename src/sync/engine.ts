@@ -7,6 +7,7 @@ export interface SyncConfig {
   relayUrl: string
   familyId: string
   deviceId: string
+  deviceToken?: string
   signingKeys: Map<string, Uint8Array> // device_id → Ed25519 public key
   intervalMs: number
 }
@@ -69,7 +70,8 @@ export class SyncEngine {
         this.config.familyId,
         this.lastLamport,
         this.config.signingKeys,
-        this.opLog
+        this.opLog,
+        this.config.deviceToken
       )
       const head = await this.opLog.getHead(this.config.familyId)
       if (head && head.lamport_clock > this.lastLamport) {
@@ -88,7 +90,8 @@ export class SyncEngine {
       await pushToRelay(
         this.config.relayUrl,
         this.config.familyId,
-        unpushed.map(p => p.op)
+        unpushed.map(p => p.op),
+        this.config.deviceToken
       )
       unpushed.forEach(p => { p.pushed = true })
     } catch {

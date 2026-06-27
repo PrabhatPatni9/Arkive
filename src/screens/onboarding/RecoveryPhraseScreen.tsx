@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, Check, Copy } from 'lucide-react'
-import { createFamily } from '../../family/familyStore'
+import { createFamily, setRelayDeviceToken } from '../../family/familyStore'
+import { registerWithRelay } from '../../sync/relayClient'
+
+const RELAY_URL = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
 
 interface LocationState {
   familyName: string
@@ -34,12 +37,20 @@ export function RecoveryPhraseScreen() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  function handleCreate() {
+  async function handleCreate() {
     if (!phraseMatches) { setError('Phrase does not match. Please check carefully.'); return }
     setError('')
     setLoading(true)
     try {
-      createFamily({ familyName, myName, familyType, recoveryPhrase: phrase })
+      const family = createFamily({ familyName, myName, familyType, recoveryPhrase: phrase })
+
+      // Register with relay in background — failure is non-fatal (offline still works)
+      if (RELAY_URL) {
+        registerWithRelay(RELAY_URL, family)
+          .then(token => setRelayDeviceToken(token))
+          .catch(() => {})
+      }
+
       navigate('/home', { replace: true })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to create family')
@@ -62,7 +73,6 @@ export function RecoveryPhraseScreen() {
       </header>
 
       <div className="screen-body" style={{ paddingTop: 16 }}>
-        {/* Warning banner */}
         <div style={{
           background: 'rgba(245, 166, 35, 0.12)',
           border: '1.5px solid var(--warning)',
@@ -83,7 +93,6 @@ export function RecoveryPhraseScreen() {
           </div>
         </div>
 
-        {/* Phrase display */}
         <div className="card card-p" style={{ marginBottom: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Your 12-word recovery phrase</p>
@@ -96,11 +105,7 @@ export function RecoveryPhraseScreen() {
               {copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy</>}
             </button>
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: 8,
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             {words.map((word, i) => (
               <div key={i} style={{
                 background: 'var(--bg)',
@@ -120,7 +125,6 @@ export function RecoveryPhraseScreen() {
           </div>
         </div>
 
-        {/* Written-it-down checkbox */}
         <button
           type="button"
           onClick={() => setConfirmed(!confirmed)}
@@ -144,7 +148,6 @@ export function RecoveryPhraseScreen() {
           </span>
         </button>
 
-        {/* Confirm by re-typing */}
         {confirmed && (
           <div className="card card-p" style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', display: 'block', marginBottom: 8 }}>

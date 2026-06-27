@@ -1,5 +1,7 @@
 import { handleOps } from './routes/ops'
 import { handleDevices } from './routes/devices'
+import { handleJoin } from './routes/join'
+import { handleEntitlement } from './routes/entitlement'
 import type { Env } from './types'
 
 export default {
@@ -7,16 +9,24 @@ export default {
     const url = new URL(request.url)
     const { pathname } = url
 
-    // CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(request) })
     }
 
     let response: Response
-    if (pathname === '/ops') response = await handleOps(request, env)
-    else if (pathname === '/devices') response = await handleDevices(request, env)
-    else if (pathname === '/health') response = new Response('ok', { status: 200 })
-    else response = new Response('Not found', { status: 404 })
+    if (pathname === '/ops') {
+      response = await handleOps(request, env)
+    } else if (pathname === '/devices') {
+      response = await handleDevices(request, env)
+    } else if (pathname === '/entitlement') {
+      response = await handleEntitlement(request, env)
+    } else if (pathname === '/health') {
+      response = new Response('ok', { status: 200 })
+    } else if (pathname.startsWith('/join/')) {
+      response = await handleJoin(request, env, pathname)
+    } else {
+      response = new Response('Not found', { status: 404 })
+    }
 
     return addCors(response, request)
   },
@@ -27,7 +37,7 @@ function corsHeaders(request: Request): Headers {
   const h = new Headers()
   h.set('Access-Control-Allow-Origin', origin)
   h.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  h.set('Access-Control-Allow-Headers', 'Content-Type')
+  h.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   return h
 }
 

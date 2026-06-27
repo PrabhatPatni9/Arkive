@@ -1,5 +1,11 @@
 import type { Env, RegisterDeviceBody } from '../types'
-import { upsertDevice } from '../db/d1'
+import { upsertDevice, createDeviceToken } from '../db/d1'
+
+function randomHex(bytes: number): string {
+  const arr = new Uint8Array(bytes)
+  crypto.getRandomValues(arr)
+  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('')
+}
 
 export async function handleDevices(request: Request, env: Env): Promise<Response> {
   if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 })
@@ -25,7 +31,15 @@ export async function handleDevices(request: Request, env: Env): Promise<Respons
     registered_at: new Date().toISOString(),
   })
 
-  return json({ ok: true }, 201)
+  const token = randomHex(32)
+  await createDeviceToken(env, {
+    token,
+    device_id: body.device_id,
+    family_id: body.family_id,
+    created_at: new Date().toISOString(),
+  })
+
+  return json({ ok: true, token }, 201)
 }
 
 function json(data: unknown, status = 200): Response {
