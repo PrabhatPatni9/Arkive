@@ -1,4 +1,4 @@
-import { FileText, Heart, Shield, AlertTriangle, Bell, ChevronRight } from 'lucide-react'
+import { FileText, Heart, Shield, AlertTriangle, Bell, ChevronRight, Calendar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getFamily } from '../family/familyStore'
 import { getReminders, isOverdue, isDueSoon } from '../reminders/engine'
@@ -9,9 +9,10 @@ function greetingForHour(h: number) {
   return 'Good evening'
 }
 
-const VAULT_CARDS = [
+const QUICK_CARDS = [
   { icon: FileText, title: 'Documents', desc: 'Aadhaar, passport, wills', to: '/vault' },
-  { icon: Heart,    title: 'Medical',   desc: 'Health records & reports', to: '/vault' },
+  { icon: Heart,    title: 'Medical',   desc: 'Medicines, vitals, doctors', to: '/medical' },
+  { icon: Calendar, title: 'Calendar',  desc: 'Birthdays & appointments', to: '/calendar' },
 ]
 
 export function HomeScreen() {
@@ -84,7 +85,7 @@ export function HomeScreen() {
         {/* Vault quick access */}
         <p className="section-header" style={{ marginTop: 0 }}>Quick Access</p>
         <div className="card-grid">
-          {VAULT_CARDS.map(({ icon: Icon, title, desc, to }) => (
+          {QUICK_CARDS.map(({ icon: Icon, title, desc, to }) => (
             <button
               key={title}
               className="feature-card"

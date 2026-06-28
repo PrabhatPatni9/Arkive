@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { HomeScreen } from './screens/HomeScreen'
 import { FamilyScreen } from './screens/FamilyScreen'
 import { VaultScreen } from './screens/VaultScreen'
+import { VaultDocumentScreen } from './screens/VaultDocumentScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { DocumentCaptureScreen } from './screens/DocumentCaptureScreen'
 import { SubscriptionScreen } from './screens/SubscriptionScreen'
@@ -11,6 +12,11 @@ import { EmergencyCardScreen } from './screens/EmergencyCardScreen'
 import { RemindersScreen } from './screens/RemindersScreen'
 import { AddDependentScreen } from './screens/AddDependentScreen'
 import { DataPrivacyScreen } from './screens/DataPrivacyScreen'
+import { MedicalScreen } from './screens/MedicalScreen'
+import { AddMedicineScreen } from './screens/AddMedicineScreen'
+import { AddVitalScreen } from './screens/AddVitalScreen'
+import { AddDoctorScreen } from './screens/AddDoctorScreen'
+import { CalendarScreen } from './screens/CalendarScreen'
 import { OnboardingScreen } from './screens/onboarding/OnboardingScreen'
 import { CreateFamilyScreen } from './screens/onboarding/CreateFamilyScreen'
 import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
@@ -121,6 +127,12 @@ export default function App() {
             <Route path="/family/add-dependent" element={<RequireFamily><AddDependentScreen /></RequireFamily>} />
             <Route path="/vault" element={<RequireFamily><VaultScreen /></RequireFamily>} />
             <Route path="/vault/capture" element={<RequireFamily><DocumentCaptureScreen /></RequireFamily>} />
+            <Route path="/vault/doc/:docId" element={<RequireFamily><VaultDocumentScreen /></RequireFamily>} />
+            <Route path="/medical" element={<RequireFamily><MedicalScreen /></RequireFamily>} />
+            <Route path="/medical/add-medicine" element={<RequireFamily><AddMedicineScreen /></RequireFamily>} />
+            <Route path="/medical/add-vital" element={<RequireFamily><AddVitalScreen /></RequireFamily>} />
+            <Route path="/medical/add-doctor" element={<RequireFamily><AddDoctorScreen /></RequireFamily>} />
+            <Route path="/calendar" element={<RequireFamily><CalendarScreen /></RequireFamily>} />
             <Route path="/settings" element={<RequireFamily><SettingsScreen /></RequireFamily>} />
             <Route path="/settings/subscription" element={<RequireFamily><SubscriptionScreen /></RequireFamily>} />
             <Route path="/settings/data" element={<RequireFamily><DataPrivacyScreen /></RequireFamily>} />

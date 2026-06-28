@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { Home, Users, Shield, Settings } from 'lucide-react'
+import { Home, Users, Shield, Heart, Settings } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/home',     label: 'Home',     Icon: Home },
   { to: '/family',   label: 'Family',   Icon: Users },
   { to: '/vault',    label: 'Vault',    Icon: Shield },
+  { to: '/medical',  label: 'Medical',  Icon: Heart },
   { to: '/settings', label: 'Settings', Icon: Settings },
 ] as const
 

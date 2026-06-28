@@ -2,6 +2,7 @@ import { handleOps } from './routes/ops'
 import { handleDevices } from './routes/devices'
 import { handleJoin } from './routes/join'
 import { handleEntitlement } from './routes/entitlement'
+import { handleBlobs } from './routes/blobs'
 import type { Env } from './types'
 
 export default {
@@ -24,6 +25,9 @@ export default {
       response = new Response('ok', { status: 200 })
     } else if (pathname.startsWith('/join/')) {
       response = await handleJoin(request, env, pathname)
+    } else if (pathname.startsWith('/blob/')) {
+      const hash = pathname.slice('/blob/'.length)
+      response = await handleBlobs(request, env, hash)
     } else {
       response = new Response('Not found', { status: 404 })
     }
@@ -36,7 +40,7 @@ function corsHeaders(request: Request): Headers {
   const origin = request.headers.get('Origin') ?? '*'
   const h = new Headers()
   h.set('Access-Control-Allow-Origin', origin)
-  h.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  h.set('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
   h.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   return h
 }
