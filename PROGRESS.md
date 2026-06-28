@@ -88,12 +88,47 @@
 - LAN sync (mDNS — Phase 5)
 - P2P sync (Phase 5)
 
-## Phase 4 — Core Modules (PARTIAL)
-- Document vault UI skeleton (`VaultScreen`, `DocumentCaptureScreen`)
-- OCR service (`ocrService.ts`, ML Kit stub + Tesseract fallback)
-- Per-doc crypto (`documentCrypto.ts`), encrypted blob store (`documentStore.ts`)
-- **NOT YET:** full document CRUD with ops; compression at capture; sealed documents;
-  medical/health module; calendar
+## Phase 4 — Core Modules (COMPLETE)
+
+### Done this session:
+- **Relay blob endpoints:** `relay/src/routes/blobs.ts` — `PUT /blob/:hash` (auth, 10 MB limit,
+  family-scoped R2 key); `GET /blob/:hash` (auth, family-scoped). Wired into `relay/src/index.ts`.
+  CORS updated to include `PUT`. Deployed — smoke-tested live.
+- **Vault types (`src/vault/types.ts`):** Full `DocumentType` enum (13 types: Aadhaar, PAN,
+  Passport, Insurance, RC, PUC, Driving Licence, Medical Report, Blood Report, Prescription,
+  Discharge Summary, Bill, Other) + `DocumentRecord` interface.
+- **Vault store (`src/vault/vaultStore.ts`):** localStorage metadata (`arkive_vault_v1`) +
+  per-doc encrypted blob (`arkive_blob_<docId>`). Per-doc random key wrapped to family enc
+  pubkey via sealed box. CRUD: `saveDocument`, `deleteDocument`, `decryptDocumentBytes`,
+  `getDocumentsByType`, `isExpired`, `isExpiringSoon`.
+- **Compression (`src/vault/compression.ts`):** Canvas API, multi-pass JPEG quality (0.85/0.70/
+  0.55/0.40), targets ≤300 KB (HC #4). PDF and other types pass through as-is.
+- **DocumentCaptureScreen:** Full 3-step flow — type picker (13 types) → take photo/upload
+  (compresses, OCRs) → confirm title/expiry/member → save encrypted.
+- **VaultScreen:** Type filter chips (scrollable), document cards showing title/type/member/
+  expiry status (expired/expiring-soon indicators). Empty state with Add CTA.
+- **VaultDocumentScreen:** Inline image preview, PDF iframe preview, metadata grid, OCR text,
+  delete with confirmation. Decrypt on mount using device enc keypair.
+- **Medical types (`src/medical/types.ts`):** `VitalType` (6), `MedicineFrequency` (5),
+  `Medicine`, `Vital`, `Doctor` interfaces with labels/units.
+- **Medical store (`src/medical/medicalStore.ts`):** Full CRUD for medicines, vitals, doctors
+  in separate localStorage keys. `getLatestVitals` per-type.
+- **MedicalScreen:** Member picker chips + tabbed view (Medicines / Vitals / Doctors). Delete
+  inline on each card.
+- **AddMedicineScreen:** All fields (name, dosage, frequency, timing, ongoing toggle, start/end
+  date, notes). Member picker.
+- **AddVitalScreen:** Type picker, value (BP as "120/80", others numeric), notes. Member picker.
+- **AddDoctorScreen:** Name, speciality, phone (tel: link), address, notes. Member picker.
+- **Calendar store (`src/calendar/calendarStore.ts`):** `CalendarEvent` interface + localStorage
+  store. `syncBirthdayEvents` — idempotent birthday event generation from member DOBs (yearly
+  recurring). `addEvent`, `deleteEvent`, `getEventsForMonth`, `getEventsForDate`.
+- **CalendarScreen:** Full monthly calendar grid (7-col, correct first-weekday offset), event
+  dots, date event list. Inline add-event form. Birthday events auto-populated.
+- **Nav updated:** Added Medical (Heart icon) as 5th nav item.
+- **HomeScreen updated:** Medical + Calendar quick access cards added.
+- **App.tsx:** Routes for `/vault/doc/:docId`, `/medical`, `/medical/add-{medicine,vital,doctor}`,
+  `/calendar`.
+- **Tests:** `vault.test.ts` (10 tests), `medical.test.ts` (14 tests); total 128/128 ✅
 
 ## Phases 5–7 — NOT STARTED
 - Phase 5: Internet P2P, LAN mDNS sync
@@ -117,7 +152,9 @@
 - Phase 2 payments: 8/8 ✅
 - Phase 2 family: 13/13 ✅
 - Phase 2 reminders: 12/12 ✅
-- Total: 104/104 ✅
+- Phase 4 vault: 10/10 ✅
+- Phase 4 medical: 14/14 ✅
+- Total: 128/128 ✅
 
 ## Owner Checklist
 
