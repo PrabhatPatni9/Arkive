@@ -75,3 +75,19 @@ export interface PostJoinApprovalBody {
   request_id: string
   approval_json: string
 }
+
+export interface SignalRow {
+  id: string
+  sender_id: string
+  recipient_id: string
+  family_id: string
+  type: 'offer' | 'answer' | 'ice' | 'presence'
+  payload: string
+  expires_at: number
+}
+
+export interface PostSignalBody {
+  recipient_device_id: string
+  type: 'offer' | 'answer' | 'ice' | 'presence'
+  payload: string
+}

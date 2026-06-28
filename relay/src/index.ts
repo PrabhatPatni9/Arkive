@@ -3,6 +3,7 @@ import { handleDevices } from './routes/devices'
 import { handleJoin } from './routes/join'
 import { handleEntitlement } from './routes/entitlement'
 import { handleBlobs } from './routes/blobs'
+import { handleSignal } from './routes/signal'
 import type { Env } from './types'
 
 export default {
@@ -28,6 +29,8 @@ export default {
     } else if (pathname.startsWith('/blob/')) {
       const hash = pathname.slice('/blob/'.length)
       response = await handleBlobs(request, env, hash)
+    } else if (pathname === '/signal' || pathname === '/signal/presence' || pathname.startsWith('/signal/')) {
+      response = await handleSignal(request, env, pathname)
     } else {
       response = new Response('Not found', { status: 404 })
     }
@@ -40,7 +43,7 @@ function corsHeaders(request: Request): Headers {
   const origin = request.headers.get('Origin') ?? '*'
   const h = new Headers()
   h.set('Access-Control-Allow-Origin', origin)
-  h.set('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
+  h.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   h.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   return h
 }

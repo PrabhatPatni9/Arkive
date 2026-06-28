@@ -43,3 +43,17 @@ CREATE TABLE IF NOT EXISTS join_handshakes (
 );
 
 CREATE INDEX IF NOT EXISTS idx_join_handshakes_family ON join_handshakes (family_id, posted_at);
+
+-- Migration 3: WebRTC signaling (P2P + LAN peer discovery)
+CREATE TABLE IF NOT EXISTS signals (
+  id              TEXT PRIMARY KEY,
+  sender_id       TEXT NOT NULL,
+  recipient_id    TEXT NOT NULL,
+  family_id       TEXT NOT NULL,
+  type            TEXT NOT NULL,    -- 'offer' | 'answer' | 'ice' | 'presence'
+  payload         TEXT NOT NULL,
+  expires_at      INTEGER NOT NULL  -- unix epoch seconds
+);
+
+CREATE INDEX IF NOT EXISTS idx_signals_recipient ON signals (recipient_id, family_id, expires_at);
+CREATE INDEX IF NOT EXISTS idx_signals_presence  ON signals (family_id, type, expires_at);

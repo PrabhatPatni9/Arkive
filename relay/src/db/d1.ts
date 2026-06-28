@@ -1,4 +1,4 @@
-import type { Env, DeviceRow, DeviceTokenRow, OpIndexRow, JoinHandshakeRow } from '../types'
+import type { Env, DeviceRow, DeviceTokenRow, OpIndexRow, JoinHandshakeRow, SignalRow } from '../types'
 
 export async function getDevice(env: Env, deviceId: string): Promise<DeviceRow | null> {
   return env.DB.prepare('SELECT * FROM devices WHERE device_id = ?')
@@ -124,3 +124,62 @@ export async function getPendingJoinRequests(
     .all<JoinHandshakeRow>()
   return res.results
 }
+
+// --- Signaling ---
+
+const SIGNAL_TTL_SECONDS = 300  // 5 minutes
+
+export async function insertSignal(env: Env, row: SignalRow): Promise<void> {
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO signals (id,sender_id,recipient_id,family_id,type,payload,expires_at)
+     VALUES (?,?,?,?,?,?,?)`
+  )
+    .bind(row.id, row.sender_id, row.recipient_id, row.family_id, row.type, row.payload, row.expires_at)
+    .run()
+}
+
+export async function getSignalsForDevice(
+  env: Env,
+  deviceId: string,
+  familyId: string
+): Promise<SignalRow[]> {
+  const now = Math.floor(Date.now() / 1000)
+  const res = await env.DB.prepare(
+    `SELECT * FROM signals
+     WHERE recipient_id=? AND family_id=? AND expires_at>?
+     ORDER BY expires_at ASC LIMIT 50`
+  )
+    .bind(deviceId, familyId, now)
+    .all<SignalRow>()
+  return res.results
+}
+
+export async function deleteSignal(env: Env, id: string, deviceId: string): Promise<void> {
+  await env.DB.prepare(
+    'DELETE FROM signals WHERE id=? AND recipient_id=?'
+  )
+    .bind(id, deviceId)
+    .run()
+}
+
+export async function getPresences(
+  env: Env,
+  familyId: string
+): Promise<SignalRow[]> {
+  const now = Math.floor(Date.now() / 1000)
+  const res = await env.DB.prepare(
+    `SELECT * FROM signals
+     WHERE family_id=? AND type='presence' AND expires_at>?
+     ORDER BY expires_at DESC`
+  )
+    .bind(familyId, now)
+    .all<SignalRow>()
+  return res.results
+}
+
+export async function purgeExpiredSignals(env: Env): Promise<void> {
+  const now = Math.floor(Date.now() / 1000)
+  await env.DB.prepare('DELETE FROM signals WHERE expires_at<?').bind(now).run()
+}
+
+export { SIGNAL_TTL_SECONDS }

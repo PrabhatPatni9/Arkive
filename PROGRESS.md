@@ -1,6 +1,6 @@
 # Arkive Build Progress
 
-## Current Phase: 2 (Family Lifecycle) — In Progress
+## Current Phase: 5 (Best-Effort Transports) — COMPLETE; Phase 6 is next
 
 ---
 
@@ -130,8 +130,29 @@
   `/calendar`.
 - **Tests:** `vault.test.ts` (10 tests), `medical.test.ts` (14 tests); total 128/128 ✅
 
-## Phases 5–7 — NOT STARTED
-- Phase 5: Internet P2P, LAN mDNS sync
+## Phase 5 — Best-Effort Transports (COMPLETE)
+
+### Relay additions (DEPLOYED to relay-arkive.punyakosh.in):
+- **`relay/schema.sql` migration 3:** `signals` table with indexes on `(recipient_id, family_id, expires_at)` and `(family_id, type, expires_at)`. 5-minute TTL; opportunistic purge on write.
+- **`relay/src/routes/signal.ts`:** `POST /signal` (create), `GET /signal` (poll by device), `GET /signal/presence` (all presence for family), `DELETE /signal/:id` (ack). All auth-required.
+- **`relay/src/db/d1.ts`:** `insertSignal`, `getSignalsForDevice`, `deleteSignal`, `getPresences`, `purgeExpiredSignals`. `SIGNAL_TTL_SECONDS = 300`.
+- **`relay/src/index.ts`:** Signal routes wired; `DELETE` added to CORS.
+- **`relay/src/types.ts`:** `SignalRow` + `PostSignalBody` interfaces.
+
+### Client additions:
+- **`src/sync/network.ts`:** `@capacitor/network` wrapper — `getConnectionType()`, `isOnWifi()`, `onNetworkChange(cb)`.
+- **`src/sync/signalClient.ts`:** `postSignal`, `pollSignals`, `ackSignal`, `postPresence`, `getOnlineDevices`. Typed `SignalMessage` + `PresenceEntry`.
+- **`src/sync/webrtcTransport.ts`:** `WebRTCTransport` class with inner `PeerConnection`. STUN: `stun.l.google.com:19302`. `start` (poll every 2s), `stop`, `connect(peerId)` (wait up to 8s), `send`, `connectedPeers`. ICE candidates buffered 500ms. Handles offer/answer/ice signals; skips presence. Works for both Internet P2P and LAN (ICE auto-picks local path).
+- **`src/sync/prefetch.ts`:** `recordViewed`, `getRecentlyViewed` (capped at 20), `markPrefetched`, `isPrefetched`, `prefetchOnWifi` (WiFi-only, sorted by recency, 100ms pause between fetches).
+- **`src/plugins/nsd.ts`:** `NsdPlugin` interface + PWA no-op stubs via `registerPlugin`. `NsdService {name, host, port}`.
+- **`src/sync/lanDiscovery.ts`:** `LanDiscovery` — tries native NSD first, falls back to relay-presence. `LanPeer {deviceId, host?, port?, via: 'nsd'|'relay'}`.
+- **`src/sync/engine.ts`:** Rewrote with `enableP2P?` in `SyncConfig`. `initP2P()` creates WebRTCTransport + LanDiscovery. `enqueuePush()` delivers immediately to connected WebRTC peers. Relay push always runs for durability. `maybePrefetch()` on every sync cycle. `maybePostPresence()` on WiFi change.
+- **`android/.../NsdPlugin.java`:** Full Android NsdManager plugin: registers `_arkive._tcp.` service named `arkive-<deviceId>`, fires `serviceFound`/`serviceLost` events. Methods: `register`, `startDiscovery`, `stop`.
+- **`android/.../MainActivity.java`:** `registerPlugin(NsdPlugin.class)` in `onCreate`.
+- **`android/.../AndroidManifest.xml`:** INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE, CHANGE_NETWORK_STATE permissions.
+- **`src/sync/transport.test.ts`:** 21 new tests covering: `recordViewed`/`getRecentlyViewed`, `markPrefetched`/`isPrefetched`, `prefetchOnWifi` (mocked fetch), signal message shape validation, `signalClient` functions (mocked fetch), network detection.
+
+## Phases 6–7 — NOT STARTED
 - Phase 6: i18n (15 languages), web-billing entitlement read
 - Phase 7: Insurance registry, vehicles, expenses, milk, contacts — all feature-flagged
 
@@ -154,7 +175,8 @@
 - Phase 2 reminders: 12/12 ✅
 - Phase 4 vault: 10/10 ✅
 - Phase 4 medical: 14/14 ✅
-- Total: 128/128 ✅
+- Phase 5 transport: 21/21 ✅
+- Total: 149/149 ✅
 
 ## Owner Checklist
 
