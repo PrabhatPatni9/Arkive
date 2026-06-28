@@ -103,4 +103,5 @@ jobs:
       # The relay's /version endpoint serves a signed UpdateManifest.
       # Phase 1+ will populate this step with the manifest signing script.
       - name: Publish version manifest (stub)
-        run: echo "TODO Phase 1+: sign and upload UpdateManifest to relay /version"
+        run: |
+          echo "TODO Phase 1+: sign and upload UpdateManifest to relay /version"

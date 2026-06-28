@@ -13,9 +13,8 @@ database_id = "d050374e-99db-4d1d-9ff4-ce593233f5c4"
 binding = "OPS_BUCKET"
 bucket_name = "arkive-ops"
 
-[[routes]]
-pattern = "relay-arkive.punyakosh.in"
-custom_domain = true
+# Custom domain relay-arkive.punyakosh.in is managed via Cloudflare Workers Domains API
+# (not via wrangler routes — avoids needing Zone:Edit scope on the deploy token)
 
 [vars]
 VAPID_PUBLIC_KEY = "BCBktjdyAXfYbKs28Onbbo6CacxevBMcFxQvGmXkIfEsV3JdIdGxqnYdx_vGGtlb1FvK5J1XfgyUyxLxi6VPPWU"
