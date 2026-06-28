@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": [] },
+  "common": { "save": "Guardar", "cancel": "Cancelar", "delete": "Eliminar", "confirm": "Confirmar", "loading": "Cargando…", "back": "Atrás", "add": "Agregar", "edit": "Editar", "done": "Listo", "error": "Error", "yes": "Sí", "no": "No", "unknown": "Desconocido", "none": "Ninguno" },
+  "nav": { "home": "Inicio", "family": "Familia", "vault": "Documentos", "medical": "Médico", "emergency": "Emergencia" },
+  "home": {
+    "greeting_morning": "Buenos días", "greeting_afternoon": "Buenas tardes", "greeting_evening": "Buenas noches",
+    "your_family_vault": "Tu bóveda familiar", "encrypted_badge": "Cifrado de extremo a extremo",
+    "privacy_note": "El operador nunca ve tus datos. Todas las claves viven en tu dispositivo.",
+    "emergency_access": "Acceso de emergencia", "emergency_desc": "Grupos sanguíneos, alergias, medicamentos — siempre sin conexión",
+    "quick_access": "Acceso rápido", "coming_up": "Próximos", "see_all": "Ver todo",
+    "overdue_reminders_one": "{{count}} recordatorio vencido", "overdue_reminders_other": "{{count}} recordatorios vencidos",
+    "upcoming_reminders_one": "{{count}} recordatorio próximo", "upcoming_reminders_other": "{{count}} recordatorios próximos",
+    "no_reminders": "Sin recordatorios aún — agrega fechas de vencimiento para empezar",
+    "doc_quick_desc": "DNI, pasaporte, testamentos", "medical_quick_desc": "Medicamentos, constantes, médicos", "calendar_quick_desc": "Cumpleaños y citas"
+  },
+  "emergency": {
+    "title": "Acceso de emergencia", "subtitle": "Información de salud crítica — legible sin conexión",
+    "blood_group": "Grupo sanguíneo", "allergies": "Alergias", "conditions": "Condiciones médicas",
+    "medications": "Medicamentos", "emergency_contacts": "Contactos de emergencia",
+    "no_data": "No hay datos críticos registrados",
+    "no_allergies": "Sin alergias registradas", "no_conditions": "Sin condiciones registradas", "no_medications": "Sin medicamentos registrados", "tap_to_add": "Toca para agregar"
+  },
+  "settings": {
+    "title": "Ajustes", "subtitle": "Apariencia, seguridad y más", "appearance": "Apariencia",
+    "theme": "Tema", "theme_light": "Claro", "theme_dark": "Oscuro", "accent_colour": "Color de acento",
+    "language": "Idioma", "select_language": "Seleccionar idioma", "subscription": "Suscripción", "manage_plan": "Gestionar plan",
+    "recovery": "Recuperación", "view_recovery": "Ver frase de recuperación", "trusted_contacts": "Contactos de confianza",
+    "shamir_backup": "Copia de Shamir", "security": "Seguridad", "biometric_lock": "Bloqueo biométrico",
+    "key_rotation": "Rotación de claves", "manage_devices": "Gestionar dispositivos", "data_privacy": "Datos y privacidad",
+    "export_delete": "Exportar / eliminar mis datos", "leave_family": "Abandonar / eliminar bóveda familiar",
+    "about": "Acerca de", "version": "Versión", "encryption": "Cifrado",
+    "language_review_warning": "Algunas cadenas en este idioma necesitan revisión humana."
+  },
+  "vault": { "title": "Documentos", "subtitle": "Tu almacén cifrado de documentos", "add_document": "Agregar documento", "no_documents": "Sin documentos aún", "no_documents_hint": "Agrega tu DNI, pasaporte o informes médicos", "expired": "Vencido", "expiring_soon": "Próximo a vencer", "all": "Todos", "delete_confirm": "¿Eliminar este documento?", "downloading": "Descifrando…" },
+  "medical": { "title": "Médico", "subtitle": "Registros de salud de tu familia", "medicines": "Medicamentos", "vitals": "Constantes vitales", "doctors": "Médicos", "add_medicine": "Agregar medicamento", "add_vital": "Agregar constante", "add_doctor": "Agregar médico", "no_medicines": "Sin medicamentos registrados", "no_vitals": "Sin constantes registradas", "no_doctors": "Sin médicos registrados", "ongoing": "En curso", "dosage": "Dosis", "frequency": "Frecuencia" },
+  "calendar": { "title": "Calendario", "add_event": "Agregar evento", "no_events": "Sin eventos hoy", "birthday": "Cumpleaños", "anniversary": "Aniversario", "appointment": "Cita" },
+  "onboarding": { "welcome": "Bienvenido a Arkive", "tagline": "La bóveda cifrada de tu familia", "create_family": "Crear una familia", "join_family": "Unirse a una familia", "family_name": "Nombre de familia", "your_name": "Tu nombre", "recovery_phrase": "Frase de recuperación", "recovery_warning": "Escríbela y guárdala en un lugar seguro. La necesitarás si pierdes todos los dispositivos.", "recovery_confirm": "He anotado mi frase de recuperación" },
+  "family": { "title": "Familia", "members": "Miembros", "devices": "Dispositivos", "add_member": "Agregar miembro", "invite_member": "Invitar miembro", "admin": "Administrador", "member": "Miembro", "dependent": "Dependiente" },
+  "subscription": { "title": "Sincronización", "subtitle": "Todas las funciones gratis — paga solo por la retransmisión gestionada", "active": "Activo", "free": "Gratis", "current_plan": "Plan actual", "tier_local": "Local y LAN", "tier_managed": "Retransmisión gestionada", "tier_self_hosted": "Autoalojado", "subscribe_web": "Suscribirse en la web", "deploy_relay": "Despliega tu propio servidor", "billing_note": "La facturación es solo en la web.", "refreshing": "Comprobando estado de suscripción…" }
+}

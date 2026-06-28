@@ -1,6 +1,6 @@
 # Arkive Build Progress
 
-## Current Phase: 5 (Best-Effort Transports) — COMPLETE; Phase 6 is next
+## Current Phase: 6 (i18n + Billing) — COMPLETE; Phase 7 is next
 
 ---
 
@@ -152,9 +152,27 @@
 - **`android/.../AndroidManifest.xml`:** INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE, CHANGE_NETWORK_STATE permissions.
 - **`src/sync/transport.test.ts`:** 21 new tests covering: `recordViewed`/`getRecentlyViewed`, `markPrefetched`/`isPrefetched`, `prefetchOnWifi` (mocked fetch), signal message shape validation, `signalClient` functions (mocked fetch), network detection.
 
-## Phases 6–7 — NOT STARTED
-- Phase 6: i18n (15 languages), web-billing entitlement read
-- Phase 7: Insurance registry, vehicles, expenses, milk, contacts — all feature-flagged
+## Phase 6 — i18n + Billing Read (COMPLETE)
+
+### Done:
+- **i18next + react-i18next + i18next-http-backend** installed; lazy-loads locale JSON from `/locales/{{lng}}/translation.json` at runtime.
+- **`src/i18n/config.ts`:** `SUPPORTED_LANGUAGES` (15 LTR locales), `getStoredLocale`/`saveLocale` (localStorage), `needsReview(locale)`, `REVIEW_REQUIRED_LOCALES`, `REVIEW_REQUIRED_KEYS` (HC #18 human-review flag on emergency medical strings).
+- **Locale files created for all 15 languages** under `public/locales/`:
+  - `en` (English — base, no review needed)
+  - `hi` (Hindi), `mr` (Marathi), `kn` (Kannada), `bn` (Bengali), `ta` (Tamil), `te` (Telugu), `gu` (Gujarati) — review required for emergency keys
+  - `es` (Spanish), `fr` (French), `de` (German), `pt` (Portuguese) — no review needed
+  - `zh` (Chinese Simplified), `ja` (Japanese) — review required
+  - `id` (Bahasa Indonesia) — no review needed
+  - Each file has `_meta.review_required` listing emergency keys needing human check.
+- **`main.tsx`:** `import './i18n/config'` before render; wrapped in `<Suspense>` for lazy locale load.
+- **`SettingsScreen.tsx`:** Language picker with full 15-locale list; `AlertTriangle` icon on languages needing review; disclaimer text; instant language switch via `i18n.changeLanguage`.
+- **`src/payments/entitlement.ts`:** `refreshEntitlementFromRelay(relayUrl, token)` — calls relay `GET /entitlement`, maps `tier` → `SyncTierId`, calls `saveEntitlement()`; best-effort (silent on failure).
+- **`App.tsx`:** Calls `refreshEntitlementFromRelay` in background after `initSodium()` when family + relay token present.
+- **`src/i18n/i18n.test.ts`:** 19 tests covering: language count, locale list, `getStoredLocale`, `saveLocale`, `needsReview`, `REVIEW_REQUIRED_KEYS`, entitlement mapping (managed_relay, unknown tier → local_lan, network failure → null).
+- **Tests: 168/168 passing** ✅
+
+## Phase 7 — Feature-Flagged Modules — NOT STARTED
+- Insurance registry + dummy renew button, vehicles, expenses, milk, contacts — all via module pattern
 
 ---
 
@@ -176,7 +194,8 @@
 - Phase 4 vault: 10/10 ✅
 - Phase 4 medical: 14/14 ✅
 - Phase 5 transport: 21/21 ✅
-- Total: 149/149 ✅
+- Phase 6 i18n + billing: 19/19 ✅
+- Total: 168/168 ✅
 
 ## Owner Checklist
 

@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
-import { ChevronRight, Moon, Sun, CreditCard, Shield, Download } from 'lucide-react'
+import { ChevronRight, Moon, Sun, CreditCard, Shield, Download, Globe, AlertTriangle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { SUPPORTED_LANGUAGES, type SupportedLocale, saveLocale, needsReview } from '../i18n/config'
 
 const ACCENT_OPTIONS = [
   { key: 'blue',   hex: '#4f8ef7', label: 'Blue (default)' },
@@ -17,8 +19,17 @@ function getStored(key: string, fallback: string) {
 
 export function SettingsScreen() {
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
   const [theme, setTheme] = useState(() => getStored('arkive_theme', 'light'))
   const [accent, setAccent] = useState(() => getStored('arkive_accent', 'blue'))
+  const [showLangPicker, setShowLangPicker] = useState(false)
+  const currentLocale = i18n.language as SupportedLocale
+
+  const applyLanguage = useCallback((locale: SupportedLocale) => {
+    void i18n.changeLanguage(locale)
+    saveLocale(locale)
+    setShowLangPicker(false)
+  }, [i18n])
 
   const applyTheme = useCallback((t: string) => {
     setTheme(t)
@@ -36,20 +47,20 @@ export function SettingsScreen() {
     <main className="screen">
       <header className="screen-header" style={{ paddingTop: 20 }}>
         <div>
-          <p className="screen-title">Settings</p>
-          <p className="screen-subtitle">Appearance, security & more</p>
+          <p className="screen-title">{t('settings.title')}</p>
+          <p className="screen-subtitle">{t('settings.subtitle')}</p>
         </div>
       </header>
 
       <div className="screen-body">
         {/* Appearance */}
         <div className="settings-section" style={{ marginTop: 16 }}>
-          <p className="settings-group-label">Appearance</p>
+          <p className="settings-group-label">{t('settings.appearance')}</p>
 
           {/* Theme toggle */}
           <div className="card card-p" style={{ marginBottom: 8 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 10 }}>
-              Theme
+              {t('settings.theme')}
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
@@ -59,7 +70,7 @@ export function SettingsScreen() {
                 onClick={() => applyTheme('light')}
               >
                 <Sun size={15} style={{ marginRight: 6 }} aria-hidden />
-                Light
+                {t('settings.theme_light')}
               </button>
               <button
                 className={`btn btn-sm${theme === 'dark' ? ' btn-primary' : ' btn-ghost'}`}
@@ -68,15 +79,60 @@ export function SettingsScreen() {
                 onClick={() => applyTheme('dark')}
               >
                 <Moon size={15} style={{ marginRight: 6 }} aria-hidden />
-                Dark
+                {t('settings.theme_dark')}
               </button>
             </div>
+          </div>
+
+          {/* Language picker */}
+          <div className="card card-p" style={{ marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: showLangPicker ? 12 : 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Globe size={15} aria-hidden />
+                {t('settings.language')}
+              </p>
+              <button
+                type="button"
+                style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}
+                onClick={() => setShowLangPicker(p => !p)}
+              >
+                {SUPPORTED_LANGUAGES[currentLocale]}
+              </button>
+            </div>
+            {showLangPicker && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {(Object.entries(SUPPORTED_LANGUAGES) as [SupportedLocale, string][]).map(([code, label]) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => applyLanguage(code)}
+                    style={{
+                      background: code === currentLocale ? 'var(--accent-bg)' : 'none',
+                      border: 'none', borderRadius: 8, padding: '8px 10px',
+                      textAlign: 'left', cursor: 'pointer', fontSize: 14,
+                      color: code === currentLocale ? 'var(--accent)' : 'var(--text)',
+                      fontWeight: code === currentLocale ? 600 : 400,
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    }}
+                  >
+                    {label}
+                    {needsReview(code) && (
+                      <AlertTriangle size={13} color="var(--warning)" aria-label="Needs review" />
+                    )}
+                  </button>
+                ))}
+                <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6, padding: '0 4px' }}>
+                  <AlertTriangle size={10} style={{ display: 'inline', marginRight: 4 }} />
+                  {t('settings.language_review_warning')}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Accent color picker */}
           <div className="card card-p" style={{ marginBottom: 0 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 10 }}>
-              Accent Colour
+              {t('settings.accent_colour')}
             </p>
             <div className="accent-picker">
               {ACCENT_OPTIONS.map(({ key, hex, label }) => (
@@ -98,7 +154,7 @@ export function SettingsScreen() {
 
         {/* Subscription */}
         <div className="settings-section">
-          <p className="settings-group-label">Subscription</p>
+          <p className="settings-group-label">{t('settings.subscription')}</p>
           <button
             className="settings-row"
             type="button"
@@ -106,7 +162,7 @@ export function SettingsScreen() {
           >
             <span className="settings-row-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <CreditCard size={17} aria-hidden />
-              Manage Plan
+              {t('settings.manage_plan')}
             </span>
             <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
           </button>
@@ -114,9 +170,13 @@ export function SettingsScreen() {
 
         {/* Recovery */}
         <div className="settings-section">
-          <p className="settings-group-label">Recovery</p>
-          {['View Recovery Phrase', 'Trusted Contacts', 'Shamir Backup'].map((label) => (
-            <button key={label} className="settings-row" type="button">
+          <p className="settings-group-label">{t('settings.recovery')}</p>
+          {([
+            ['view_recovery', t('settings.view_recovery')],
+            ['trusted_contacts', t('settings.trusted_contacts')],
+            ['shamir_backup', t('settings.shamir_backup')],
+          ] as const).map(([key, label]) => (
+            <button key={key} className="settings-row" type="button">
               <span className="settings-row-label">{label}</span>
               <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
             </button>
@@ -125,9 +185,13 @@ export function SettingsScreen() {
 
         {/* Security */}
         <div className="settings-section">
-          <p className="settings-group-label">Security</p>
-          {['Biometric Lock', 'Key Rotation', 'Manage Devices'].map((label) => (
-            <button key={label} className="settings-row" type="button">
+          <p className="settings-group-label">{t('settings.security')}</p>
+          {([
+            ['biometric_lock', t('settings.biometric_lock')],
+            ['key_rotation', t('settings.key_rotation')],
+            ['manage_devices', t('settings.manage_devices')],
+          ] as const).map(([key, label]) => (
+            <button key={key} className="settings-row" type="button">
               <span className="settings-row-label">{label}</span>
               <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
             </button>
@@ -136,7 +200,7 @@ export function SettingsScreen() {
 
         {/* Data & Privacy */}
         <div className="settings-section">
-          <p className="settings-group-label">Data & Privacy</p>
+          <p className="settings-group-label">{t('settings.data_privacy')}</p>
           <button
             className="settings-row"
             type="button"
@@ -144,7 +208,7 @@ export function SettingsScreen() {
           >
             <span className="settings-row-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Download size={17} aria-hidden />
-              Export / Delete My Data
+              {t('settings.export_delete')}
             </span>
             <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
           </button>
@@ -155,7 +219,7 @@ export function SettingsScreen() {
           >
             <span className="settings-row-label" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Shield size={17} aria-hidden />
-              Leave / Delete Family Vault
+              {t('settings.leave_family')}
             </span>
             <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
           </button>
@@ -163,13 +227,13 @@ export function SettingsScreen() {
 
         {/* About */}
         <div className="settings-section">
-          <p className="settings-group-label">About</p>
+          <p className="settings-group-label">{t('settings.about')}</p>
           <div className="settings-row" style={{ cursor: 'default' }}>
-            <span className="settings-row-label">Version</span>
+            <span className="settings-row-label">{t('settings.version')}</span>
             <span className="settings-row-value">0.0.1 (open beta)</span>
           </div>
           <div className="settings-row" style={{ cursor: 'default' }}>
-            <span className="settings-row-label">Encryption</span>
+            <span className="settings-row-label">{t('settings.encryption')}</span>
             <span className="settings-row-value">XChaCha20-Poly1305</span>
           </div>
         </div>

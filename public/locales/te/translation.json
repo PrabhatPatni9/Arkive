@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": ["emergency.blood_group","emergency.allergies","emergency.conditions","emergency.medications","emergency.emergency_contacts"] },
+  "common": { "save": "సేవ్ చేయి", "cancel": "రద్దు చేయి", "delete": "తొలగించు", "confirm": "నిర్ధారించు", "loading": "లోడ్ అవుతోంది…", "back": "వెనక్కి", "add": "జోడించు", "edit": "సవరించు", "done": "పూర్తయింది", "error": "లోపం", "yes": "అవును", "no": "కాదు", "unknown": "తెలియదు", "none": "ఏమీ లేదు" },
+  "nav": { "home": "హోమ్", "family": "కుటుంబం", "vault": "పత్రాలు", "medical": "వైద్యం", "emergency": "అత్యవసరం" },
+  "home": {
+    "greeting_morning": "శుభోదయం", "greeting_afternoon": "శుభ మధ్యాహ్నం", "greeting_evening": "శుభ సాయంత్రం",
+    "your_family_vault": "మీ కుటుంబ వాల్ట్", "encrypted_badge": "ఎండ్-టు-ఎండ్ ఎన్‌క్రిప్టెడ్",
+    "privacy_note": "ఆపరేటర్ మీ డేటాను చూడలేరు.",
+    "emergency_access": "అత్యవసర యాక్సెస్", "emergency_desc": "రక్త సమూహం, అలర్జీలు, మందులు — ఎల్లప్పుడూ ఆఫ్‌లైన్",
+    "quick_access": "త్వరిత యాక్సెస్", "coming_up": "రాబోయే", "see_all": "అన్నీ చూడు",
+    "overdue_reminders_one": "{{count}} గడువు మించిన రిమైండర్", "overdue_reminders_other": "{{count}} గడువు మించిన రిమైండర్లు",
+    "upcoming_reminders_one": "{{count}} రిమైండర్ రాబోతోంది", "upcoming_reminders_other": "{{count}} రిమైండర్లు రాబోతున్నాయి",
+    "no_reminders": "ఇంకా రిమైండర్లు లేవు",
+    "doc_quick_desc": "ఆధార్, పాస్‌పోర్ట్, వీలునామా", "medical_quick_desc": "మందులు, వైటల్స్, వైద్యులు", "calendar_quick_desc": "పుట్టినరోజులు & అపాయింట్‌మెంట్లు"
+  },
+  "emergency": {
+    "title": "అత్యవసర యాక్సెస్", "subtitle": "ముఖ్యమైన ఆరోగ్య సమాచారం — ఆఫ్‌లైన్‌లో చదవవచ్చు",
+    "blood_group": "రక్త సమూహం", "allergies": "అలర్జీలు", "conditions": "ఆరోగ్య పరిస్థితులు",
+    "medications": "మందులు", "emergency_contacts": "అత్యవసర పరిచయాలు",
+    "no_data": "ముఖ్యమైన డేటా నమోదు కాలేదు",
+    "no_allergies": "అలర్జీలు నమోదు కాలేదు", "no_conditions": "పరిస్థితులు నమోదు కాలేదు", "no_medications": "మందులు నమోదు కాలేదు", "tap_to_add": "జోడించడానికి నొక్కండి"
+  },
+  "settings": {
+    "title": "సెట్టింగులు", "subtitle": "రూపం, భద్రత మరియు మరిన్ని", "appearance": "రూపం",
+    "theme": "థీమ్", "theme_light": "లైట్", "theme_dark": "డార్క్", "accent_colour": "యాక్సెంట్ రంగు",
+    "language": "భాష", "select_language": "భాషను ఎంచుకోండి", "subscription": "సభ్యత్వం", "manage_plan": "ప్లాన్ నిర్వహించు",
+    "recovery": "రికవరీ", "view_recovery": "రికవరీ పదబంధాన్ని చూడండి", "trusted_contacts": "నమ్మకమైన పరిచయాలు",
+    "shamir_backup": "షమీర్ బ్యాకప్", "security": "భద్రత", "biometric_lock": "బయోమెట్రిక్ లాక్",
+    "key_rotation": "కీ రొటేషన్", "manage_devices": "పరికరాలను నిర్వహించు", "data_privacy": "డేటా & గోప్యత",
+    "export_delete": "డేటా ఎగుమతి / తొలగించు", "leave_family": "కుటుంబాన్ని వదిలి వెళ్ళు / వాల్ట్ తొలగించు",
+    "about": "గురించి", "version": "వెర్షన్", "encryption": "ఎన్‌క్రిప్షన్",
+    "language_review_warning": "ఈ భాషలో కొన్ని స్ట్రింగులకు మానవ సమీక్ష అవసరం."
+  },
+  "vault": { "title": "పత్రాలు", "subtitle": "మీ ఎన్‌క్రిప్టెడ్ పత్ర నిల్వ", "add_document": "పత్రం జోడించు", "no_documents": "ఇంకా పత్రాలు లేవు", "no_documents_hint": "మీ ఆధార్, పాన్ లేదా వైద్య రికార్డులను జోడించండి", "expired": "గడువు తీరింది", "expiring_soon": "త్వరలో గడువు తీరుతుంది", "all": "అన్నీ", "delete_confirm": "ఈ పత్రాన్ని తొలగించాలా?", "downloading": "డీక్రిప్ట్ అవుతోంది…" },
+  "medical": { "title": "వైద్యం", "subtitle": "మీ కుటుంబ ఆరోగ్య రికార్డులు", "medicines": "మందులు", "vitals": "వైటల్స్", "doctors": "వైద్యులు", "add_medicine": "మందు జోడించు", "add_vital": "వైటల్ జోడించు", "add_doctor": "వైద్యుడిని జోడించు", "no_medicines": "మందులు నమోదు కాలేదు", "no_vitals": "వైటల్స్ నమోదు కాలేదు", "no_doctors": "వైద్యులు నమోదు కాలేదు", "ongoing": "కొనసాగుతోంది", "dosage": "మోతాదు", "frequency": "పౌనఃపున్యం" },
+  "calendar": { "title": "క్యాలెండర్", "add_event": "ఈవెంట్ జోడించు", "no_events": "ఈరోజు ఈవెంట్లు లేవు", "birthday": "పుట్టినరోజు", "anniversary": "వార్షికోత్సవం", "appointment": "అపాయింట్‌మెంట్" },
+  "onboarding": { "welcome": "Arkive కి స్వాగతం", "tagline": "మీ కుటుంబ ఎన్‌క్రిప్టెడ్ వాల్ట్", "create_family": "కుటుంబాన్ని సృష్టించు", "join_family": "కుటుంబంలో చేరు", "family_name": "కుటుంబ పేరు", "your_name": "మీ పేరు", "recovery_phrase": "రికవరీ పదబంధం", "recovery_warning": "దీన్ని రాసి సురక్షితంగా ఉంచండి.", "recovery_confirm": "నా రికవరీ పదబంధాన్ని రాసి ఉంచాను" },
+  "family": { "title": "కుటుంబం", "members": "సభ్యులు", "devices": "పరికరాలు", "add_member": "సభ్యుని జోడించు", "invite_member": "సభ్యుని ఆహ్వానించు", "admin": "అడ్మిన్", "member": "సభ్యుడు", "dependent": "ఆధారపడేవారు" },
+  "subscription": { "title": "సింక్", "subtitle": "అన్ని ఫీచర్లు ఉచితం", "active": "సక్రియంగా ఉంది", "free": "ఉచితం", "current_plan": "ప్రస్తుత ప్లాన్", "tier_local": "స్థానిక & LAN", "tier_managed": "నిర్వహించబడే రిలే", "tier_self_hosted": "స్వయం-హోస్ట్", "subscribe_web": "వెబ్‌లో సభ్యత్వం తీసుకోండి", "deploy_relay": "మీ స్వంత రిలే డిప్లాయ్ చేయండి", "billing_note": "బిల్లింగ్ వెబ్‌లో మాత్రమే.", "refreshing": "సభ్యత్వ స్థితిని తనిఖీ చేస్తోంది…" }
+}

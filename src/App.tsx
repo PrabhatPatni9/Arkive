@@ -28,6 +28,7 @@ import { sodium } from './crypto/sodium'
 import { initSodium } from './crypto/sodium'
 import { MemoryOpLog } from './db/opLog'
 import { SyncEngine } from './sync/engine'
+import { refreshEntitlementFromRelay } from './payments/entitlement'
 import './app.css'
 
 const RELAY_URL = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
@@ -61,7 +62,14 @@ export default function App() {
       if (e.key === 'arkive_theme' || e.key === 'arkive_accent') applyTheme()
     }
     window.addEventListener('storage', onStorage)
-    initSodium().then(() => setReady(true))
+    initSodium().then(() => {
+      setReady(true)
+      // Best-effort: refresh billing entitlement from relay in the background
+      const family = getFamily()
+      if (RELAY_URL && family?.relayDeviceToken) {
+        void refreshEntitlementFromRelay(RELAY_URL, family.relayDeviceToken)
+      }
+    })
     return () => window.removeEventListener('storage', onStorage)
   }, [])
 
