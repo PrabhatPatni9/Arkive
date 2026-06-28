@@ -1,4 +1,4 @@
-import type { Env, DeviceRow, OpIndexRow } from '../types'
+import type { Env, DeviceRow, DeviceTokenRow, OpIndexRow, JoinHandshakeRow, SignalRow } from '../types'
 
 export async function getDevice(env: Env, deviceId: string): Promise<DeviceRow | null> {
   return env.DB.prepare('SELECT * FROM devices WHERE device_id = ?')
@@ -17,6 +17,27 @@ export async function upsertDevice(env: Env, row: DeviceRow): Promise<void> {
       row.push_endpoint, row.push_auth, row.push_p256dh, row.registered_at
     )
     .run()
+}
+
+export async function createDeviceToken(env: Env, row: DeviceTokenRow): Promise<void> {
+  await env.DB.prepare(
+    'INSERT OR REPLACE INTO device_tokens (token,device_id,family_id,created_at) VALUES (?,?,?,?)'
+  )
+    .bind(row.token, row.device_id, row.family_id, row.created_at)
+    .run()
+}
+
+export async function getDeviceByToken(
+  env: Env,
+  token: string
+): Promise<{ deviceId: string; familyId: string } | null> {
+  const row = await env.DB.prepare(
+    'SELECT device_id, family_id FROM device_tokens WHERE token = ?'
+  )
+    .bind(token)
+    .first<{ device_id: string; family_id: string }>()
+  if (!row) return null
+  return { deviceId: row.device_id, familyId: row.family_id }
 }
 
 export async function indexOp(env: Env, row: OpIndexRow): Promise<void> {
@@ -55,3 +76,110 @@ export async function getFamilyDevices(env: Env, familyId: string): Promise<Devi
     .all<DeviceRow>()
   return res.results
 }
+
+export async function upsertJoinHandshake(env: Env, row: JoinHandshakeRow): Promise<void> {
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO join_handshakes
+       (request_id,family_id,request_json,approval_json,posted_at,approved_at)
+     VALUES (?,?,?,?,?,?)`
+  )
+    .bind(
+      row.request_id, row.family_id, row.request_json,
+      row.approval_json, row.posted_at, row.approved_at
+    )
+    .run()
+}
+
+export async function getJoinHandshake(
+  env: Env,
+  requestId: string
+): Promise<JoinHandshakeRow | null> {
+  return env.DB.prepare('SELECT * FROM join_handshakes WHERE request_id = ?')
+    .bind(requestId)
+    .first<JoinHandshakeRow>()
+}
+
+export async function setJoinApproval(
+  env: Env,
+  requestId: string,
+  approvalJson: string
+): Promise<void> {
+  await env.DB.prepare(
+    'UPDATE join_handshakes SET approval_json=?, approved_at=? WHERE request_id=?'
+  )
+    .bind(approvalJson, new Date().toISOString(), requestId)
+    .run()
+}
+
+export async function getPendingJoinRequests(
+  env: Env,
+  familyId: string
+): Promise<JoinHandshakeRow[]> {
+  const res = await env.DB.prepare(
+    `SELECT * FROM join_handshakes
+     WHERE family_id=? AND approval_json IS NULL
+     ORDER BY posted_at ASC LIMIT 50`
+  )
+    .bind(familyId)
+    .all<JoinHandshakeRow>()
+  return res.results
+}
+
+// --- Signaling ---
+
+const SIGNAL_TTL_SECONDS = 300  // 5 minutes
+
+export async function insertSignal(env: Env, row: SignalRow): Promise<void> {
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO signals (id,sender_id,recipient_id,family_id,type,payload,expires_at)
+     VALUES (?,?,?,?,?,?,?)`
+  )
+    .bind(row.id, row.sender_id, row.recipient_id, row.family_id, row.type, row.payload, row.expires_at)
+    .run()
+}
+
+export async function getSignalsForDevice(
+  env: Env,
+  deviceId: string,
+  familyId: string
+): Promise<SignalRow[]> {
+  const now = Math.floor(Date.now() / 1000)
+  const res = await env.DB.prepare(
+    `SELECT * FROM signals
+     WHERE recipient_id=? AND family_id=? AND expires_at>?
+     ORDER BY expires_at ASC LIMIT 50`
+  )
+    .bind(deviceId, familyId, now)
+    .all<SignalRow>()
+  return res.results
+}
+
+export async function deleteSignal(env: Env, id: string, deviceId: string): Promise<void> {
+  await env.DB.prepare(
+    'DELETE FROM signals WHERE id=? AND recipient_id=?'
+  )
+    .bind(id, deviceId)
+    .run()
+}
+
+export async function getPresences(
+  env: Env,
+  familyId: string
+): Promise<SignalRow[]> {
+  const now = Math.floor(Date.now() / 1000)
+  const res = await env.DB.prepare(
+    `SELECT * FROM signals
+     WHERE family_id=? AND type='presence' AND expires_at>?
+     ORDER BY expires_at DESC`
+  )
+    .bind(familyId, now)
+    .all<SignalRow>()
+  return res.results
+}
+
+export async function purgeExpiredSignals(env: Env): Promise<void> {
+  const now = Math.floor(Date.now() / 1000)
+  await env.DB.prepare('DELETE FROM signals WHERE expires_at<?').bind(now).run()
+}
+
+export { SIGNAL_TTL_SECONDS }

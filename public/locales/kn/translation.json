@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": ["emergency.blood_group","emergency.allergies","emergency.conditions","emergency.medications","emergency.emergency_contacts"] },
+  "common": { "save": "ಉಳಿಸಿ", "cancel": "ರದ್ದುಮಾಡಿ", "delete": "ಅಳಿಸಿ", "confirm": "ದೃಢೀಕರಿಸಿ", "loading": "ಲೋಡ್ ಆಗುತ್ತಿದೆ…", "back": "ಹಿಂದೆ", "add": "ಸೇರಿಸಿ", "edit": "ಸಂಪಾದಿಸಿ", "done": "ಮುಗಿಯಿತು", "error": "ದೋಷ", "yes": "ಹೌದು", "no": "ಇಲ್ಲ", "unknown": "ಅಜ್ಞಾತ", "none": "ಯಾವುದೂ ಇಲ್ಲ" },
+  "nav": { "home": "ಮುಖಪುಟ", "family": "ಕುಟುಂಬ", "vault": "ದಾಖಲೆಗಳು", "medical": "ವೈದ್ಯಕೀಯ", "emergency": "ತುರ್ತು" },
+  "home": {
+    "greeting_morning": "ಶುಭ ಮುಂಜಾನೆ", "greeting_afternoon": "ಶುಭ ಮಧ್ಯಾಹ್ನ", "greeting_evening": "ಶುಭ ಸಂಜೆ",
+    "your_family_vault": "ನಿಮ್ಮ ಕುಟುಂಬದ ತಿಜೋರಿ", "encrypted_badge": "ಎಂಡ್-ಟು-ಎಂಡ್ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಆಗಿದೆ",
+    "privacy_note": "ಆಪರೇಟರ್ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ನೋಡುವುದಿಲ್ಲ.",
+    "emergency_access": "ತುರ್ತು ಪ್ರವೇಶ", "emergency_desc": "ರಕ್ತ ಗುಂಪು, ಅಲರ್ಜಿ, ಔಷಧಿಗಳು — ಯಾವಾಗಲೂ ಆಫ್‌ಲೈನ್",
+    "quick_access": "ತ್ವರಿತ ಪ್ರವೇಶ", "coming_up": "ಮುಂಬರುವ", "see_all": "ಎಲ್ಲ ನೋಡಿ",
+    "overdue_reminders_one": "{{count}} ವಿಳಂಬ ಜ್ಞಾಪನೆ", "overdue_reminders_other": "{{count}} ವಿಳಂಬ ಜ್ಞಾಪನೆಗಳು",
+    "upcoming_reminders_one": "{{count}} ಜ್ಞಾಪನೆ ಬರುತ್ತಿದೆ", "upcoming_reminders_other": "{{count}} ಜ್ಞಾಪನೆಗಳು ಬರುತ್ತಿವೆ",
+    "no_reminders": "ಇನ್ನೂ ಯಾವುದೇ ಜ್ಞಾಪನೆಗಳಿಲ್ಲ",
+    "doc_quick_desc": "ಆಧಾರ್, ಪಾಸ್‌ಪೋರ್ಟ್, ವಿಲ್", "medical_quick_desc": "ಔಷಧಿಗಳು, ಆರೋಗ್ಯ ಮಾಪನಗಳು, ವೈದ್ಯರು", "calendar_quick_desc": "ಹುಟ್ಟುಹಬ್ಬ ಮತ್ತು ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್‌ಗಳು"
+  },
+  "emergency": {
+    "title": "ತುರ್ತು ಪ್ರವೇಶ", "subtitle": "ಮಹತ್ವದ ಆರೋಗ್ಯ ಮಾಹಿತಿ — ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಓದಬಹುದು",
+    "blood_group": "ರಕ್ತ ಗುಂಪು", "allergies": "ಅಲರ್ಜಿ", "conditions": "ಆರೋಗ್ಯ ಸ್ಥಿತಿಗಳು",
+    "medications": "ಔಷಧಿಗಳು", "emergency_contacts": "ತುರ್ತು ಸಂಪರ್ಕಗಳು",
+    "no_data": "ಯಾವುದೇ ಮಹತ್ವದ ಡೇಟಾ ದಾಖಲಿಸಲಾಗಿಲ್ಲ",
+    "no_allergies": "ಯಾವುದೇ ಅಲರ್ಜಿ ದಾಖಲಿಲ್ಲ", "no_conditions": "ಯಾವುದೇ ಸ್ಥಿತಿ ದಾಖಲಿಲ್ಲ", "no_medications": "ಯಾವುದೇ ಔಷಧಿ ದಾಖಲಿಲ್ಲ", "tap_to_add": "ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ"
+  },
+  "settings": {
+    "title": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು", "subtitle": "ನೋಟ, ಭದ್ರತೆ ಮತ್ತು ಹೆಚ್ಚು", "appearance": "ನೋಟ",
+    "theme": "ಥೀಮ್", "theme_light": "ಬೆಳಕು", "theme_dark": "ಗಾಢ", "accent_colour": "ಆಕ್ಸೆಂಟ್ ಬಣ್ಣ",
+    "language": "ಭಾಷೆ", "select_language": "ಭಾಷೆ ಆರಿಸಿ", "subscription": "ಚಂದಾದಾರಿಕೆ", "manage_plan": "ಯೋಜನೆ ನಿರ್ವಹಿಸಿ",
+    "recovery": "ಮರುಪಡೆಯುವಿಕೆ", "view_recovery": "ಮರುಪಡೆಯುವ ಪದಗುಚ್ಛ ನೋಡಿ", "trusted_contacts": "ವಿಶ್ವಾಸಾರ್ಹ ಸಂಪರ್ಕಗಳು",
+    "shamir_backup": "ಶಮೀರ್ ಬ್ಯಾಕಪ್", "security": "ಭದ್ರತೆ", "biometric_lock": "ಬಯೋಮೆಟ್ರಿಕ್ ಲಾಕ್",
+    "key_rotation": "ಕೀ ರೊಟೇಶನ್", "manage_devices": "ಸಾಧನಗಳನ್ನು ನಿರ್ವಹಿಸಿ", "data_privacy": "ಡೇಟಾ ಮತ್ತು ಗೌಪ್ಯತೆ",
+    "export_delete": "ಡೇಟಾ ರಫ್ತು / ಅಳಿಸಿ", "leave_family": "ಕುಟುಂಬ ಬಿಡಿ / ತಿಜೋರಿ ಅಳಿಸಿ",
+    "about": "ಕುರಿತು", "version": "ಆವೃತ್ತಿ", "encryption": "ಎನ್‌ಕ್ರಿಪ್ಶನ್",
+    "language_review_warning": "ಈ ಭಾಷೆಯಲ್ಲಿ ಕೆಲವು ಸ್ಟ್ರಿಂಗ್‌ಗಳಿಗೆ ಮಾನವ ಪರಿಶೀಲನೆ ಅಗತ್ಯವಿದೆ."
+  },
+  "vault": { "title": "ದಾಖಲೆಗಳು", "subtitle": "ನಿಮ್ಮ ಎನ್‌ಕ್ರಿಪ್ಟ್ ದಾಖಲೆ ಭಂಡಾರ", "add_document": "ದಾಖಲೆ ಸೇರಿಸಿ", "no_documents": "ಇನ್ನೂ ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ", "no_documents_hint": "ನಿಮ್ಮ ಆಧಾರ್, ಪ್ಯಾನ್ ಅಥವಾ ವೈದ್ಯಕೀಯ ದಾಖಲೆಗಳನ್ನು ಸೇರಿಸಿ", "expired": "ಅವಧಿ ಮೀರಿದೆ", "expiring_soon": "ಶೀಘ್ರದಲ್ಲೇ ಅವಧಿ ಮೀರುತ್ತದೆ", "all": "ಎಲ್ಲ", "delete_confirm": "ಈ ದಾಖಲೆ ಅಳಿಸಬೇಕೇ?", "downloading": "ಡಿಕ್ರಿಪ್ಟ್ ಆಗುತ್ತಿದೆ…" },
+  "medical": { "title": "ವೈದ್ಯಕೀಯ", "subtitle": "ನಿಮ್ಮ ಕುಟುಂಬದ ಆರೋಗ್ಯ ದಾಖಲೆಗಳು", "medicines": "ಔಷಧಿಗಳು", "vitals": "ಆರೋಗ್ಯ ಮಾಪನಗಳು", "doctors": "ವೈದ್ಯರು", "add_medicine": "ಔಷಧಿ ಸೇರಿಸಿ", "add_vital": "ಮಾಪನ ಸೇರಿಸಿ", "add_doctor": "ವೈದ್ಯರನ್ನು ಸೇರಿಸಿ", "no_medicines": "ಯಾವುದೇ ಔಷಧಿ ದಾಖಲಿಲ್ಲ", "no_vitals": "ಯಾವುದೇ ಮಾಪನ ದಾಖಲಿಲ್ಲ", "no_doctors": "ಯಾವುದೇ ವೈದ್ಯರು ದಾಖಲಿಲ್ಲ", "ongoing": "ಮುಂದುವರೆಯುತ್ತಿದೆ", "dosage": "ಪ್ರಮಾಣ", "frequency": "ಆವೃತ್ತಿ" },
+  "calendar": { "title": "ದಿನಪಂಚಾಂಗ", "add_event": "ಕಾರ್ಯಕ್ರಮ ಸೇರಿಸಿ", "no_events": "ಇಂದು ಯಾವುದೇ ಕಾರ್ಯಕ್ರಮವಿಲ್ಲ", "birthday": "ಹುಟ್ಟುಹಬ್ಬ", "anniversary": "ವಾರ್ಷಿಕೋತ್ಸವ", "appointment": "ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್" },
+  "onboarding": { "welcome": "Arkive ಗೆ ಸ್ವಾಗತ", "tagline": "ನಿಮ್ಮ ಕುಟುಂಬದ ಎನ್‌ಕ್ರಿಪ್ಟ್ ತಿಜೋರಿ", "create_family": "ಕುಟುಂಬ ರಚಿಸಿ", "join_family": "ಕುಟುಂಬಕ್ಕೆ ಸೇರಿ", "family_name": "ಕುಟುಂಬದ ಹೆಸರು", "your_name": "ನಿಮ್ಮ ಹೆಸರು", "recovery_phrase": "ಮರುಪಡೆಯುವ ಪದಗುಚ್ಛ", "recovery_warning": "ಇದನ್ನು ಬರೆದುಕೊಂಡು ಸುರಕ್ಷಿತವಾಗಿ ಇರಿಸಿ.", "recovery_confirm": "ನಾನು ನನ್ನ ಮರುಪಡೆಯುವ ಪದಗುಚ್ಛ ಬರೆದುಕೊಂಡಿದ್ದೇನೆ" },
+  "family": { "title": "ಕುಟುಂಬ", "members": "ಸದಸ್ಯರು", "devices": "ಸಾಧನಗಳು", "add_member": "ಸದಸ್ಯ ಸೇರಿಸಿ", "invite_member": "ಸದಸ್ಯರನ್ನು ಆಹ್ವಾನಿಸಿ", "admin": "ನಿರ್ವಾಹಕ", "member": "ಸದಸ್ಯ", "dependent": "ಅವಲಂಬಿ" },
+  "subscription": { "title": "ಸಿಂಕ್", "subtitle": "ಎಲ್ಲ ವೈಶಿಷ್ಟ್ಯಗಳು ಉಚಿತ", "active": "ಸಕ್ರಿಯ", "free": "ಉಚಿತ", "current_plan": "ಪ್ರಸ್ತುತ ಯೋಜನೆ", "tier_local": "ಸ್ಥಳೀಯ ಮತ್ತು LAN", "tier_managed": "ನಿರ್ವಹಿಸಿದ ರಿಲೆ", "tier_self_hosted": "ಸ್ವಯಂ-ಹೋಸ್ಟ್", "subscribe_web": "ವೆಬ್‌ನಲ್ಲಿ ಚಂದಾ ಮಾಡಿ", "deploy_relay": "ನಿಮ್ಮ ಸ್ವಂತ ರಿಲೆ ನಿಯೋಜಿಸಿ", "billing_note": "ಬಿಲ್ಲಿಂಗ್ ಕೇವಲ ವೆಬ್‌ನಲ್ಲಿ.", "refreshing": "ಚಂದಾದಾರಿಕೆ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸುತ್ತಿದೆ…" }
+}

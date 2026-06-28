@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": ["emergency.blood_group","emergency.allergies","emergency.conditions","emergency.medications","emergency.emergency_contacts"] },
+  "common": { "save": "जतन करा", "cancel": "रद्द करा", "delete": "हटवा", "confirm": "पुष्टी करा", "loading": "लोड होत आहे…", "back": "मागे", "add": "जोडा", "edit": "संपादित करा", "done": "झाले", "error": "त्रुटी", "yes": "हो", "no": "नाही", "unknown": "अज्ञात", "none": "काहीही नाही" },
+  "nav": { "home": "मुख्यपृष्ठ", "family": "कुटुंब", "vault": "दस्तावेज", "medical": "वैद्यकीय", "emergency": "आणीबाणी" },
+  "home": {
+    "greeting_morning": "सुप्रभात", "greeting_afternoon": "नमस्कार", "greeting_evening": "शुभ संध्याकाळ",
+    "your_family_vault": "तुमचे कौटुंबिक तिजोरी", "encrypted_badge": "एंड-टू-एंड एन्क्रिप्टेड",
+    "privacy_note": "ऑपरेटर तुमचा डेटा पाहत नाही. सर्व चाव्या तुमच्या डिव्हाइसवर आहेत.",
+    "emergency_access": "आणीबाणी प्रवेश", "emergency_desc": "रक्तगट, ऍलर्जी, औषधे — नेहमी ऑफलाइन",
+    "quick_access": "जलद प्रवेश", "coming_up": "आगामी", "see_all": "सर्व पहा",
+    "overdue_reminders_one": "{{count}} थकबाकी स्मरणपत्र", "overdue_reminders_other": "{{count}} थकबाकी स्मरणपत्रे",
+    "upcoming_reminders_one": "{{count}} स्मरणपत्र येत आहे", "upcoming_reminders_other": "{{count}} स्मरणपत्रे येत आहेत",
+    "no_reminders": "अद्याप कोणतीही स्मरणपत्रे नाहीत", "doc_quick_desc": "आधार, पासपोर्ट, मृत्युपत्र",
+    "medical_quick_desc": "औषधे, महत्त्वाचे मापदंड, डॉक्टर", "calendar_quick_desc": "वाढदिवस आणि भेटी"
+  },
+  "emergency": {
+    "title": "आणीबाणी प्रवेश", "subtitle": "महत्त्वाची आरोग्य माहिती — ऑफलाइन वाचता येते",
+    "blood_group": "रक्तगट", "allergies": "ऍलर्जी", "conditions": "आरोग्य स्थिती",
+    "medications": "औषधे", "emergency_contacts": "आणीबाणी संपर्क",
+    "no_data": "कोणताही महत्त्वाचा डेटा नाही", "no_allergies": "कोणतीही ऍलर्जी नाही",
+    "no_conditions": "कोणतीही स्थिती नाही", "no_medications": "कोणतीही औषधे नाहीत", "tap_to_add": "जोडण्यासाठी टॅप करा"
+  },
+  "settings": {
+    "title": "सेटिंग्ज", "subtitle": "देखावा, सुरक्षा आणि बरेच काही", "appearance": "देखावा",
+    "theme": "थीम", "theme_light": "हलकी", "theme_dark": "गडद", "accent_colour": "ॲक्सेंट रंग",
+    "language": "भाषा", "select_language": "भाषा निवडा", "subscription": "सदस्यता", "manage_plan": "योजना व्यवस्थापित करा",
+    "recovery": "पुनर्प्राप्ती", "view_recovery": "पुनर्प्राप्ती वाक्यांश पहा", "trusted_contacts": "विश्वासू संपर्क",
+    "shamir_backup": "शमीर बॅकअप", "security": "सुरक्षा", "biometric_lock": "बायोमेट्रिक लॉक",
+    "key_rotation": "की रोटेशन", "manage_devices": "डिव्हाइस व्यवस्थापित करा", "data_privacy": "डेटा आणि गोपनीयता",
+    "export_delete": "डेटा निर्यात / हटवा", "leave_family": "कुटुंब सोडा / तिजोरी हटवा",
+    "about": "बद्दल", "version": "आवृत्ती", "encryption": "एन्क्रिप्शन",
+    "language_review_warning": "या भाषेतील काही मजकुरांना मानवी पुनरावलोकन आवश्यक आहे."
+  },
+  "vault": { "title": "दस्तावेज", "subtitle": "तुमचे एन्क्रिप्टेड दस्तावेज भांडार", "add_document": "दस्तावेज जोडा", "no_documents": "अद्याप कोणतेही दस्तावेज नाहीत", "no_documents_hint": "तुमचे आधार, पॅन किंवा वैद्यकीय नोंदी जोडा", "expired": "कालबाह्य", "expiring_soon": "लवकरच कालबाह्य होईल", "all": "सर्व", "delete_confirm": "हे दस्तावेज हटवायचे? हे पूर्ववत करता येणार नाही.", "downloading": "डिक्रिप्ट होत आहे…" },
+  "medical": { "title": "वैद्यकीय", "subtitle": "तुमच्या कुटुंबाच्या आरोग्य नोंदी", "medicines": "औषधे", "vitals": "महत्त्वाचे मापदंड", "doctors": "डॉक्टर", "add_medicine": "औषध जोडा", "add_vital": "मापदंड जोडा", "add_doctor": "डॉक्टर जोडा", "no_medicines": "कोणतीही औषधे नाहीत", "no_vitals": "कोणतेही मापदंड नाहीत", "no_doctors": "कोणतेही डॉक्टर नाहीत", "ongoing": "चालू", "dosage": "डोस", "frequency": "वारंवारता" },
+  "calendar": { "title": "दिनदर्शिका", "add_event": "कार्यक्रम जोडा", "no_events": "आज कोणतेही कार्यक्रम नाहीत", "birthday": "वाढदिवस", "anniversary": "वर्धापनदिन", "appointment": "भेट" },
+  "onboarding": { "welcome": "Arkive मध्ये आपले स्वागत आहे", "tagline": "तुमच्या कुटुंबाची एन्क्रिप्टेड तिजोरी", "create_family": "कुटुंब तयार करा", "join_family": "कुटुंबात सामील व्हा", "family_name": "कुटुंबाचे नाव", "your_name": "तुमचे नाव", "recovery_phrase": "पुनर्प्राप्ती वाक्यांश", "recovery_warning": "हे लिहून ठेवा आणि सुरक्षित ठेवा.", "recovery_confirm": "मी माझा पुनर्प्राप्ती वाक्यांश लिहून ठेवला आहे" },
+  "family": { "title": "कुटुंब", "members": "सदस्य", "devices": "डिव्हाइस", "add_member": "सदस्य जोडा", "invite_member": "सदस्याला आमंत्रित करा", "admin": "प्रशासक", "member": "सदस्य", "dependent": "आश्रित" },
+  "subscription": { "title": "सिंक", "subtitle": "सर्व सुविधा मोफत — केवळ व्यवस्थापित रिलेसाठी पैसे द्या", "active": "सक्रिय", "free": "मोफत", "current_plan": "सध्याची योजना", "tier_local": "स्थानिक आणि LAN", "tier_managed": "व्यवस्थापित रिले", "tier_self_hosted": "स्वयं-होस्टेड", "subscribe_web": "वेबवर सदस्यता घ्या", "deploy_relay": "तुमचे स्वतःचे रिले तैनात करा", "billing_note": "बिलिंग केवळ वेबवर.", "refreshing": "सदस्यता स्थिती तपासत आहे…" }
+}

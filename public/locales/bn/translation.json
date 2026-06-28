@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": ["emergency.blood_group","emergency.allergies","emergency.conditions","emergency.medications","emergency.emergency_contacts"] },
+  "common": { "save": "সংরক্ষণ", "cancel": "বাতিল", "delete": "মুছুন", "confirm": "নিশ্চিত করুন", "loading": "লোড হচ্ছে…", "back": "পেছনে", "add": "যোগ করুন", "edit": "সম্পাদনা", "done": "সম্পন্ন", "error": "ত্রুটি", "yes": "হ্যাঁ", "no": "না", "unknown": "অজানা", "none": "কিছু নেই" },
+  "nav": { "home": "হোম", "family": "পরিবার", "vault": "দলিল", "medical": "চিকিৎসা", "emergency": "জরুরি" },
+  "home": {
+    "greeting_morning": "শুভ সকাল", "greeting_afternoon": "শুভ অপরাহ্ন", "greeting_evening": "শুভ সন্ধ্যা",
+    "your_family_vault": "আপনার পারিবারিক ভল্ট", "encrypted_badge": "এন্ড-টু-এন্ড এনক্রিপ্টেড",
+    "privacy_note": "অপারেটর আপনার ডেটা দেখতে পায় না।",
+    "emergency_access": "জরুরি অ্যাক্সেস", "emergency_desc": "রক্তের গ্রুপ, অ্যালার্জি, ওষুধ — সর্বদা অফলাইন",
+    "quick_access": "দ্রুত অ্যাক্সেস", "coming_up": "আসছে", "see_all": "সব দেখুন",
+    "overdue_reminders_one": "{{count}}টি মেয়াদোত্তীর্ণ অনুস্মারক", "overdue_reminders_other": "{{count}}টি মেয়াদোত্তীর্ণ অনুস্মারক",
+    "upcoming_reminders_one": "{{count}}টি অনুস্মারক আসছে", "upcoming_reminders_other": "{{count}}টি অনুস্মারক আসছে",
+    "no_reminders": "এখনো কোনো অনুস্মারক নেই",
+    "doc_quick_desc": "আধার, পাসপোর্ট, উইল", "medical_quick_desc": "ওষুধ, ভাইটাল, ডাক্তার", "calendar_quick_desc": "জন্মদিন ও অ্যাপয়েন্টমেন্ট"
+  },
+  "emergency": {
+    "title": "জরুরি অ্যাক্সেস", "subtitle": "গুরুত্বপূর্ণ স্বাস্থ্য তথ্য — অফলাইনে পাঠযোগ্য",
+    "blood_group": "রক্তের গ্রুপ", "allergies": "অ্যালার্জি", "conditions": "স্বাস্থ্য পরিস্থিতি",
+    "medications": "ওষুধ", "emergency_contacts": "জরুরি যোগাযোগ",
+    "no_data": "কোনো গুরুত্বপূর্ণ ডেটা রেকর্ড করা হয়নি",
+    "no_allergies": "কোনো অ্যালার্জি রেকর্ড নেই", "no_conditions": "কোনো পরিস্থিতি রেকর্ড নেই", "no_medications": "কোনো ওষুধ রেকর্ড নেই", "tap_to_add": "যোগ করতে ট্যাপ করুন"
+  },
+  "settings": {
+    "title": "সেটিংস", "subtitle": "চেহারা, নিরাপত্তা ও আরো", "appearance": "চেহারা",
+    "theme": "থিম", "theme_light": "হালকা", "theme_dark": "গাঢ়", "accent_colour": "অ্যাকসেন্ট রঙ",
+    "language": "ভাষা", "select_language": "ভাষা নির্বাচন করুন", "subscription": "সাবস্ক্রিপশন", "manage_plan": "পরিকল্পনা পরিচালনা করুন",
+    "recovery": "পুনরুদ্ধার", "view_recovery": "পুনরুদ্ধার বাক্যাংশ দেখুন", "trusted_contacts": "বিশ্বস্ত যোগাযোগ",
+    "shamir_backup": "শামির ব্যাকআপ", "security": "নিরাপত্তা", "biometric_lock": "বায়োমেট্রিক লক",
+    "key_rotation": "কী রোটেশন", "manage_devices": "ডিভাইস পরিচালনা", "data_privacy": "ডেটা ও গোপনীয়তা",
+    "export_delete": "ডেটা রপ্তানি / মুছুন", "leave_family": "পরিবার ছাড়ুন / ভল্ট মুছুন",
+    "about": "সম্পর্কে", "version": "সংস্করণ", "encryption": "এনক্রিপশন",
+    "language_review_warning": "এই ভাষায় কিছু স্ট্রিংয়ের মানব পর্যালোচনা প্রয়োজন।"
+  },
+  "vault": { "title": "দলিল", "subtitle": "আপনার এনক্রিপ্টেড দলিল ভান্ডার", "add_document": "দলিল যোগ করুন", "no_documents": "এখনো কোনো দলিল নেই", "no_documents_hint": "আপনার আধার, প্যান বা চিকিৎসা রেকর্ড যোগ করুন", "expired": "মেয়াদোত্তীর্ণ", "expiring_soon": "শীঘ্রই মেয়াদ শেষ", "all": "সব", "delete_confirm": "এই দলিল মুছবেন?", "downloading": "ডিক্রিপ্ট হচ্ছে…" },
+  "medical": { "title": "চিকিৎসা", "subtitle": "আপনার পরিবারের স্বাস্থ্য রেকর্ড", "medicines": "ওষুধ", "vitals": "ভাইটাল", "doctors": "ডাক্তার", "add_medicine": "ওষুধ যোগ করুন", "add_vital": "ভাইটাল যোগ করুন", "add_doctor": "ডাক্তার যোগ করুন", "no_medicines": "কোনো ওষুধ রেকর্ড নেই", "no_vitals": "কোনো ভাইটাল রেকর্ড নেই", "no_doctors": "কোনো ডাক্তার রেকর্ড নেই", "ongoing": "চলমান", "dosage": "ডোজ", "frequency": "কতবার" },
+  "calendar": { "title": "ক্যালেন্ডার", "add_event": "ইভেন্ট যোগ করুন", "no_events": "আজ কোনো ইভেন্ট নেই", "birthday": "জন্মদিন", "anniversary": "বার্ষিকী", "appointment": "অ্যাপয়েন্টমেন্ট" },
+  "onboarding": { "welcome": "Arkive-এ স্বাগতম", "tagline": "আপনার পরিবারের এনক্রিপ্টেড ভল্ট", "create_family": "পরিবার তৈরি করুন", "join_family": "পরিবারে যোগ দিন", "family_name": "পরিবারের নাম", "your_name": "আপনার নাম", "recovery_phrase": "পুনরুদ্ধার বাক্যাংশ", "recovery_warning": "এটি লিখে নিন এবং নিরাপদে রাখুন।", "recovery_confirm": "আমি আমার পুনরুদ্ধার বাক্যাংশ লিখে নিয়েছি" },
+  "family": { "title": "পরিবার", "members": "সদস্যরা", "devices": "ডিভাইস", "add_member": "সদস্য যোগ করুন", "invite_member": "সদস্যকে আমন্ত্রণ জানান", "admin": "অ্যাডমিন", "member": "সদস্য", "dependent": "নির্ভরশীল" },
+  "subscription": { "title": "সিঙ্ক", "subtitle": "সব ফিচার বিনামূল্যে", "active": "সক্রিয়", "free": "বিনামূল্যে", "current_plan": "বর্তমান পরিকল্পনা", "tier_local": "স্থানীয় ও LAN", "tier_managed": "পরিচালিত রিলে", "tier_self_hosted": "স্ব-হোস্টেড", "subscribe_web": "ওয়েবে সাবস্ক্রাইব করুন", "deploy_relay": "নিজের রিলে ডিপ্লয় করুন", "billing_note": "বিলিং শুধুমাত্র ওয়েবে।", "refreshing": "সাবস্ক্রিপশন স্ট্যাটাস যাচাই করা হচ্ছে…" }
+}

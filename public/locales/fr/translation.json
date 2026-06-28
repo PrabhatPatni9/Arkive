@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": [] },
+  "common": { "save": "Enregistrer", "cancel": "Annuler", "delete": "Supprimer", "confirm": "Confirmer", "loading": "Chargement…", "back": "Retour", "add": "Ajouter", "edit": "Modifier", "done": "Terminé", "error": "Erreur", "yes": "Oui", "no": "Non", "unknown": "Inconnu", "none": "Aucun" },
+  "nav": { "home": "Accueil", "family": "Famille", "vault": "Documents", "medical": "Médical", "emergency": "Urgence" },
+  "home": {
+    "greeting_morning": "Bonjour", "greeting_afternoon": "Bon après-midi", "greeting_evening": "Bonsoir",
+    "your_family_vault": "Votre coffre familial", "encrypted_badge": "Chiffrement de bout en bout",
+    "privacy_note": "L'opérateur ne voit jamais vos données. Toutes les clés résident sur votre appareil.",
+    "emergency_access": "Accès d'urgence", "emergency_desc": "Groupes sanguins, allergies, médicaments — toujours hors ligne",
+    "quick_access": "Accès rapide", "coming_up": "À venir", "see_all": "Tout voir",
+    "overdue_reminders_one": "{{count}} rappel en retard", "overdue_reminders_other": "{{count}} rappels en retard",
+    "upcoming_reminders_one": "{{count}} rappel à venir", "upcoming_reminders_other": "{{count}} rappels à venir",
+    "no_reminders": "Aucun rappel pour l'instant",
+    "doc_quick_desc": "Passeport, carte d'identité, testaments", "medical_quick_desc": "Médicaments, constantes, médecins", "calendar_quick_desc": "Anniversaires et rendez-vous"
+  },
+  "emergency": {
+    "title": "Accès d'urgence", "subtitle": "Informations de santé critiques — lisibles hors ligne",
+    "blood_group": "Groupe sanguin", "allergies": "Allergies", "conditions": "Conditions médicales",
+    "medications": "Médicaments", "emergency_contacts": "Contacts d'urgence",
+    "no_data": "Aucune donnée critique enregistrée",
+    "no_allergies": "Aucune allergie enregistrée", "no_conditions": "Aucune condition enregistrée", "no_medications": "Aucun médicament enregistré", "tap_to_add": "Appuyez pour ajouter"
+  },
+  "settings": {
+    "title": "Paramètres", "subtitle": "Apparence, sécurité et plus", "appearance": "Apparence",
+    "theme": "Thème", "theme_light": "Clair", "theme_dark": "Sombre", "accent_colour": "Couleur d'accent",
+    "language": "Langue", "select_language": "Sélectionner la langue", "subscription": "Abonnement", "manage_plan": "Gérer le plan",
+    "recovery": "Récupération", "view_recovery": "Voir la phrase de récupération", "trusted_contacts": "Contacts de confiance",
+    "shamir_backup": "Sauvegarde Shamir", "security": "Sécurité", "biometric_lock": "Verrou biométrique",
+    "key_rotation": "Rotation des clés", "manage_devices": "Gérer les appareils", "data_privacy": "Données et confidentialité",
+    "export_delete": "Exporter / supprimer mes données", "leave_family": "Quitter / supprimer le coffre familial",
+    "about": "À propos", "version": "Version", "encryption": "Chiffrement",
+    "language_review_warning": "Certaines chaînes dans cette langue nécessitent une révision humaine."
+  },
+  "vault": { "title": "Documents", "subtitle": "Votre espace de stockage chiffré", "add_document": "Ajouter un document", "no_documents": "Aucun document pour l'instant", "no_documents_hint": "Ajoutez votre passeport, carte d'identité ou dossiers médicaux", "expired": "Expiré", "expiring_soon": "Expire bientôt", "all": "Tous", "delete_confirm": "Supprimer ce document ?", "downloading": "Déchiffrement…" },
+  "medical": { "title": "Médical", "subtitle": "Dossiers de santé de votre famille", "medicines": "Médicaments", "vitals": "Constantes vitales", "doctors": "Médecins", "add_medicine": "Ajouter un médicament", "add_vital": "Ajouter une constante", "add_doctor": "Ajouter un médecin", "no_medicines": "Aucun médicament enregistré", "no_vitals": "Aucune constante enregistrée", "no_doctors": "Aucun médecin enregistré", "ongoing": "En cours", "dosage": "Posologie", "frequency": "Fréquence" },
+  "calendar": { "title": "Calendrier", "add_event": "Ajouter un événement", "no_events": "Aucun événement aujourd'hui", "birthday": "Anniversaire", "anniversary": "Anniversaire de mariage", "appointment": "Rendez-vous" },
+  "onboarding": { "welcome": "Bienvenue sur Arkive", "tagline": "Le coffre chiffré de votre famille", "create_family": "Créer une famille", "join_family": "Rejoindre une famille", "family_name": "Nom de famille", "your_name": "Votre nom", "recovery_phrase": "Phrase de récupération", "recovery_warning": "Notez-la et gardez-la en sécurité. Vous en aurez besoin si tous les appareils sont perdus.", "recovery_confirm": "J'ai noté ma phrase de récupération" },
+  "family": { "title": "Famille", "members": "Membres", "devices": "Appareils", "add_member": "Ajouter un membre", "invite_member": "Inviter un membre", "admin": "Administrateur", "member": "Membre", "dependent": "Dépendant" },
+  "subscription": { "title": "Synchronisation", "subtitle": "Toutes les fonctionnalités gratuites", "active": "Actif", "free": "Gratuit", "current_plan": "Plan actuel", "tier_local": "Local et LAN", "tier_managed": "Relais géré", "tier_self_hosted": "Auto-hébergé", "subscribe_web": "S'abonner sur le web", "deploy_relay": "Déployer votre propre relais", "billing_note": "La facturation est uniquement sur le web.", "refreshing": "Vérification de l'abonnement…" }
+}

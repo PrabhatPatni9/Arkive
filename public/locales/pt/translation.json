@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": [] },
+  "common": { "save": "Salvar", "cancel": "Cancelar", "delete": "Excluir", "confirm": "Confirmar", "loading": "Carregando…", "back": "Voltar", "add": "Adicionar", "edit": "Editar", "done": "Concluído", "error": "Erro", "yes": "Sim", "no": "Não", "unknown": "Desconhecido", "none": "Nenhum" },
+  "nav": { "home": "Início", "family": "Família", "vault": "Documentos", "medical": "Médico", "emergency": "Emergência" },
+  "home": {
+    "greeting_morning": "Bom dia", "greeting_afternoon": "Boa tarde", "greeting_evening": "Boa noite",
+    "your_family_vault": "Seu cofre familiar", "encrypted_badge": "Criptografia de ponta a ponta",
+    "privacy_note": "O operador nunca vê seus dados. Todas as chaves ficam no seu dispositivo.",
+    "emergency_access": "Acesso de emergência", "emergency_desc": "Tipos sanguíneos, alergias, medicamentos — sempre offline",
+    "quick_access": "Acesso rápido", "coming_up": "Em breve", "see_all": "Ver tudo",
+    "overdue_reminders_one": "{{count}} lembrete atrasado", "overdue_reminders_other": "{{count}} lembretes atrasados",
+    "upcoming_reminders_one": "{{count}} lembrete próximo", "upcoming_reminders_other": "{{count}} lembretes próximos",
+    "no_reminders": "Ainda sem lembretes",
+    "doc_quick_desc": "RG, passaporte, testamentos", "medical_quick_desc": "Medicamentos, sinais vitais, médicos", "calendar_quick_desc": "Aniversários e consultas"
+  },
+  "emergency": {
+    "title": "Acesso de emergência", "subtitle": "Informações de saúde críticas — legíveis offline",
+    "blood_group": "Tipo sanguíneo", "allergies": "Alergias", "conditions": "Condições médicas",
+    "medications": "Medicamentos", "emergency_contacts": "Contatos de emergência",
+    "no_data": "Nenhum dado crítico registrado",
+    "no_allergies": "Sem alergias registradas", "no_conditions": "Sem condições registradas", "no_medications": "Sem medicamentos registrados", "tap_to_add": "Toque para adicionar"
+  },
+  "settings": {
+    "title": "Configurações", "subtitle": "Aparência, segurança e mais", "appearance": "Aparência",
+    "theme": "Tema", "theme_light": "Claro", "theme_dark": "Escuro", "accent_colour": "Cor de destaque",
+    "language": "Idioma", "select_language": "Selecionar idioma", "subscription": "Assinatura", "manage_plan": "Gerenciar plano",
+    "recovery": "Recuperação", "view_recovery": "Ver frase de recuperação", "trusted_contacts": "Contatos de confiança",
+    "shamir_backup": "Backup Shamir", "security": "Segurança", "biometric_lock": "Bloqueio biométrico",
+    "key_rotation": "Rotação de chaves", "manage_devices": "Gerenciar dispositivos", "data_privacy": "Dados e privacidade",
+    "export_delete": "Exportar / excluir meus dados", "leave_family": "Sair / excluir cofre familiar",
+    "about": "Sobre", "version": "Versão", "encryption": "Criptografia",
+    "language_review_warning": "Algumas strings neste idioma precisam de revisão humana."
+  },
+  "vault": { "title": "Documentos", "subtitle": "Seu armazenamento criptografado de documentos", "add_document": "Adicionar documento", "no_documents": "Ainda sem documentos", "no_documents_hint": "Adicione seu RG, passaporte ou prontuários médicos", "expired": "Vencido", "expiring_soon": "Vence em breve", "all": "Todos", "delete_confirm": "Excluir este documento?", "downloading": "Descriptografando…" },
+  "medical": { "title": "Médico", "subtitle": "Registros de saúde da sua família", "medicines": "Medicamentos", "vitals": "Sinais vitais", "doctors": "Médicos", "add_medicine": "Adicionar medicamento", "add_vital": "Adicionar sinal vital", "add_doctor": "Adicionar médico", "no_medicines": "Sem medicamentos registrados", "no_vitals": "Sem sinais vitais registrados", "no_doctors": "Sem médicos registrados", "ongoing": "Em andamento", "dosage": "Dosagem", "frequency": "Frequência" },
+  "calendar": { "title": "Calendário", "add_event": "Adicionar evento", "no_events": "Sem eventos hoje", "birthday": "Aniversário", "anniversary": "Aniversário de casamento", "appointment": "Consulta" },
+  "onboarding": { "welcome": "Bem-vindo ao Arkive", "tagline": "O cofre criptografado da sua família", "create_family": "Criar uma família", "join_family": "Entrar em uma família", "family_name": "Nome da família", "your_name": "Seu nome", "recovery_phrase": "Frase de recuperação", "recovery_warning": "Anote-a e guarde-a em segurança. Você precisará dela se perder todos os dispositivos.", "recovery_confirm": "Anotei minha frase de recuperação" },
+  "family": { "title": "Família", "members": "Membros", "devices": "Dispositivos", "add_member": "Adicionar membro", "invite_member": "Convidar membro", "admin": "Administrador", "member": "Membro", "dependent": "Dependente" },
+  "subscription": { "title": "Sincronização", "subtitle": "Todos os recursos gratuitos", "active": "Ativo", "free": "Gratuito", "current_plan": "Plano atual", "tier_local": "Local e LAN", "tier_managed": "Relay gerenciado", "tier_self_hosted": "Auto-hospedado", "subscribe_web": "Assinar na web", "deploy_relay": "Implantar seu próprio relay", "billing_note": "O faturamento é apenas na web.", "refreshing": "Verificando status da assinatura…" }
+}

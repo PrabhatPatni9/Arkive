@@ -70,7 +70,7 @@ export function createOp(
   return { ...op, hash: hashOp(op) }
 }
 
-export function verifyOp(op: Op, signingPublicKey: Uint8Array): boolean {
+export function verifyOp(op: Op & { hash?: string }, signingPublicKey: Uint8Array): boolean {
   try {
     const msg = sodium.from_string(signedFields(op))
     const sig = sodium.from_base64(op.signature)

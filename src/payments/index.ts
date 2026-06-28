@@ -1,12 +1,12 @@
-export { PLANS } from './plans'
-export type { Plan, PlanId } from './plans'
-export { createOrder, openRazorpayCheckout } from './checkout'
+export { SYNC_TIERS } from './plans'
+export type { SyncTier, SyncTierId } from './plans'
+export { createRelayOrder, openRazorpayCheckout } from './checkout'
 export type { CheckoutResult, LoadOrderResponse } from './checkout'
 export {
-  createSubscriptionOp,
-  isSubscriptionActive,
-  canAddMember,
-  isOcrAllowed,
-  isFinancialDashboardAllowed,
+  defaultEntitlement,
+  isManagedRelayActive,
+  getEffectiveSyncTier,
+  loadEntitlement,
+  saveEntitlement,
 } from './subscription'
-export type { SubscriptionState } from './subscription'
+export type { RelayEntitlement } from './subscription'

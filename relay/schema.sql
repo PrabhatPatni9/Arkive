@@ -22,3 +22,38 @@ CREATE TABLE IF NOT EXISTS op_index (
 );
 
 CREATE INDEX IF NOT EXISTS idx_op_index_family ON op_index (family_id, lamport_clock);
+
+-- Migration 2: per-device auth tokens and relay-assisted join handshakes
+CREATE TABLE IF NOT EXISTS device_tokens (
+  token       TEXT PRIMARY KEY,
+  device_id   TEXT NOT NULL,
+  family_id   TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_device_tokens_device ON device_tokens (device_id);
+
+CREATE TABLE IF NOT EXISTS join_handshakes (
+  request_id    TEXT PRIMARY KEY,
+  family_id     TEXT NOT NULL,
+  request_json  TEXT NOT NULL,
+  approval_json TEXT,
+  posted_at     TEXT NOT NULL,
+  approved_at   TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_join_handshakes_family ON join_handshakes (family_id, posted_at);
+
+-- Migration 3: WebRTC signaling (P2P + LAN peer discovery)
+CREATE TABLE IF NOT EXISTS signals (
+  id              TEXT PRIMARY KEY,
+  sender_id       TEXT NOT NULL,
+  recipient_id    TEXT NOT NULL,
+  family_id       TEXT NOT NULL,
+  type            TEXT NOT NULL,    -- 'offer' | 'answer' | 'ice' | 'presence'
+  payload         TEXT NOT NULL,
+  expires_at      INTEGER NOT NULL  -- unix epoch seconds
+);
+
+CREATE INDEX IF NOT EXISTS idx_signals_recipient ON signals (recipient_id, family_id, expires_at);
+CREATE INDEX IF NOT EXISTS idx_signals_presence  ON signals (family_id, type, expires_at);

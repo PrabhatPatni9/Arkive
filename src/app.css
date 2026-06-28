@@ -454,6 +454,22 @@ body {
 .mb-4  { margin-bottom: 16px; }
 .fw-bold { font-weight: 700; }
 
+/* ── Sync tier cards (SubscriptionScreen) ──────────────────── */
+.plan-features li { padding-left: 0; }
+
+/* ── Print styles for Emergency Card ──────────────────────── */
+@media print {
+  .bottom-nav,
+  .screen-header button,
+  header { display: none !important; }
+  #emergency-card-print {
+    border: 2px solid #000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  body { background: #fff; }
+}
+
 /* Icon wrapper utility */
 .icon-btn {
   display: flex;

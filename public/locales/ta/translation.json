@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": ["emergency.blood_group","emergency.allergies","emergency.conditions","emergency.medications","emergency.emergency_contacts"] },
+  "common": { "save": "சேமி", "cancel": "ரத்துசெய்", "delete": "நீக்கு", "confirm": "உறுதிசெய்", "loading": "ஏற்றுகிறது…", "back": "பின்செல்", "add": "சேர்", "edit": "திருத்து", "done": "முடிந்தது", "error": "பிழை", "yes": "ஆம்", "no": "இல்லை", "unknown": "தெரியாத", "none": "எதுவுமில்லை" },
+  "nav": { "home": "முகப்பு", "family": "குடும்பம்", "vault": "ஆவணங்கள்", "medical": "மருத்துவம்", "emergency": "அவசரநிலை" },
+  "home": {
+    "greeting_morning": "காலை வணக்கம்", "greeting_afternoon": "மதிய வணக்கம்", "greeting_evening": "மாலை வணக்கம்",
+    "your_family_vault": "உங்கள் குடும்ப பெட்டகம்", "encrypted_badge": "இறுதி-முதல்-இறுதி குறியாக்கம்",
+    "privacy_note": "இயக்குனர் உங்கள் தரவைப் பார்க்க முடியாது.",
+    "emergency_access": "அவசர அணுகல்", "emergency_desc": "இரத்த வகை, ஒவ்வாமை, மருந்துகள் — எப்போதும் ஆஃப்லைன்",
+    "quick_access": "விரைவு அணுகல்", "coming_up": "வரவிருக்கும்", "see_all": "அனைத்தும் காண்",
+    "overdue_reminders_one": "{{count}} தாமதமான நினைவூட்டல்", "overdue_reminders_other": "{{count}} தாமதமான நினைவூட்டல்கள்",
+    "upcoming_reminders_one": "{{count}} நினைவூட்டல் வருகிறது", "upcoming_reminders_other": "{{count}} நினைவூட்டல்கள் வருகின்றன",
+    "no_reminders": "இன்னும் நினைவூட்டல்கள் இல்லை",
+    "doc_quick_desc": "ஆதார், பாஸ்போர்ட், விருப்பம்", "medical_quick_desc": "மருந்துகள், உயிரணுக்கள், மருத்துவர்கள்", "calendar_quick_desc": "பிறந்தநாள் மற்றும் சந்திப்புகள்"
+  },
+  "emergency": {
+    "title": "அவசர அணுகல்", "subtitle": "முக்கியமான உடல்நல தகவல் — ஆஃப்லைனில் படிக்கலாம்",
+    "blood_group": "இரத்த வகை", "allergies": "ஒவ்வாமை", "conditions": "உடல் நிலைகள்",
+    "medications": "மருந்துகள்", "emergency_contacts": "அவசர தொடர்புகள்",
+    "no_data": "முக்கியமான தரவு பதிவு இல்லை",
+    "no_allergies": "ஒவ்வாமை பதிவு இல்லை", "no_conditions": "நிலைகள் பதிவு இல்லை", "no_medications": "மருந்துகள் பதிவு இல்லை", "tap_to_add": "சேர்க்க தட்டவும்"
+  },
+  "settings": {
+    "title": "அமைப்புகள்", "subtitle": "தோற்றம், பாதுகாப்பு மற்றும் மேலும்", "appearance": "தோற்றம்",
+    "theme": "தீம்", "theme_light": "வெளிர்", "theme_dark": "இருள்", "accent_colour": "சிறப்பு நிறம்",
+    "language": "மொழி", "select_language": "மொழியைத் தேர்ந்தெடுங்கள்", "subscription": "சந்தா", "manage_plan": "திட்டத்தை நிர்வகி",
+    "recovery": "மீட்டெடுப்பு", "view_recovery": "மீட்டெடுப்பு சொற்றொடரைப் பார்க்கவும்", "trusted_contacts": "நம்பகமான தொடர்புகள்",
+    "shamir_backup": "ஷாமிர் காப்புப்பிரதி", "security": "பாதுகாப்பு", "biometric_lock": "உயிரியல் பூட்டு",
+    "key_rotation": "விசை சுழற்சி", "manage_devices": "சாதனங்களை நிர்வகி", "data_privacy": "தரவு மற்றும் தனியுரிமை",
+    "export_delete": "தரவை ஏற்றுமதி / நீக்கு", "leave_family": "குடும்பத்தை விட்டு வெளியேறு / பெட்டகத்தை நீக்கு",
+    "about": "பற்றி", "version": "பதிப்பு", "encryption": "குறியாக்கம்",
+    "language_review_warning": "இந்த மொழியில் சில சரங்களுக்கு மனித மதிப்பாய்வு தேவை."
+  },
+  "vault": { "title": "ஆவணங்கள்", "subtitle": "உங்கள் குறியாக்க ஆவண களஞ்சியம்", "add_document": "ஆவணம் சேர்க்கவும்", "no_documents": "இன்னும் ஆவணங்கள் இல்லை", "no_documents_hint": "உங்கள் ஆதார், பான் அல்லது மருத்துவ பதிவுகளை சேர்க்கவும்", "expired": "காலாவதியானது", "expiring_soon": "விரைவில் காலாவதியாகும்", "all": "அனைத்தும்", "delete_confirm": "இந்த ஆவணத்தை நீக்கவும்?", "downloading": "மறைகுறியாக்கப்படுகிறது…" },
+  "medical": { "title": "மருத்துவம்", "subtitle": "உங்கள் குடும்பத்தின் உடல்நல பதிவுகள்", "medicines": "மருந்துகள்", "vitals": "உயிரணுக்கள்", "doctors": "மருத்துவர்கள்", "add_medicine": "மருந்து சேர்க்கவும்", "add_vital": "உயிரணு சேர்க்கவும்", "add_doctor": "மருத்துவர் சேர்க்கவும்", "no_medicines": "மருந்துகள் பதிவு இல்லை", "no_vitals": "உயிரணுக்கள் பதிவு இல்லை", "no_doctors": "மருத்துவர்கள் பதிவு இல்லை", "ongoing": "தொடர்ந்து", "dosage": "மருந்தளவு", "frequency": "அதிர்வெண்" },
+  "calendar": { "title": "நாட்காட்டி", "add_event": "நிகழ்வு சேர்க்கவும்", "no_events": "இன்று நிகழ்வுகள் இல்லை", "birthday": "பிறந்தநாள்", "anniversary": "ஆண்டு நினைவு", "appointment": "சந்திப்பு" },
+  "onboarding": { "welcome": "Arkive-க்கு வரவேற்கிறோம்", "tagline": "உங்கள் குடும்பத்தின் குறியாக்க பெட்டகம்", "create_family": "குடும்பம் உருவாக்கவும்", "join_family": "குடும்பத்தில் சேரவும்", "family_name": "குடும்பப் பெயர்", "your_name": "உங்கள் பெயர்", "recovery_phrase": "மீட்டெடுப்பு சொற்றொடர்", "recovery_warning": "இதை எழுதி பாதுகாப்பாக வைக்கவும்.", "recovery_confirm": "என் மீட்டெடுப்பு சொற்றொடரை எழுதி வைத்தேன்" },
+  "family": { "title": "குடும்பம்", "members": "உறுப்பினர்கள்", "devices": "சாதனங்கள்", "add_member": "உறுப்பினர் சேர்க்கவும்", "invite_member": "உறுப்பினரை அழைக்கவும்", "admin": "நிர்வாகி", "member": "உறுப்பினர்", "dependent": "சார்பு நபர்" },
+  "subscription": { "title": "ஒத்திசைவு", "subtitle": "அனைத்து அம்சங்களும் இலவசம்", "active": "செயல்பாட்டில்", "free": "இலவசம்", "current_plan": "தற்போதைய திட்டம்", "tier_local": "உள்ளூர் மற்றும் LAN", "tier_managed": "நிர்வகிக்கப்பட்ட ரிலே", "tier_self_hosted": "சுய-வழங்கல்", "subscribe_web": "வலையில் சந்தா சேரவும்", "deploy_relay": "உங்கள் சொந்த ரிலே நிறுவவும்", "billing_note": "வில்லிங் வலையில் மட்டும்.", "refreshing": "சந்தா நிலையை சரிபார்க்கிறது…" }
+}

@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": [] },
+  "common": { "save": "Speichern", "cancel": "Abbrechen", "delete": "Löschen", "confirm": "Bestätigen", "loading": "Wird geladen…", "back": "Zurück", "add": "Hinzufügen", "edit": "Bearbeiten", "done": "Fertig", "error": "Fehler", "yes": "Ja", "no": "Nein", "unknown": "Unbekannt", "none": "Keine" },
+  "nav": { "home": "Startseite", "family": "Familie", "vault": "Dokumente", "medical": "Medizinisch", "emergency": "Notfall" },
+  "home": {
+    "greeting_morning": "Guten Morgen", "greeting_afternoon": "Guten Tag", "greeting_evening": "Guten Abend",
+    "your_family_vault": "Ihr Familien-Tresor", "encrypted_badge": "Ende-zu-Ende-verschlüsselt",
+    "privacy_note": "Der Betreiber sieht Ihre Daten nie. Alle Schlüssel liegen auf Ihrem Gerät.",
+    "emergency_access": "Notfallzugang", "emergency_desc": "Blutgruppen, Allergien, Medikamente — immer offline",
+    "quick_access": "Schnellzugriff", "coming_up": "Bevorstehend", "see_all": "Alle anzeigen",
+    "overdue_reminders_one": "{{count}} überfällige Erinnerung", "overdue_reminders_other": "{{count}} überfällige Erinnerungen",
+    "upcoming_reminders_one": "{{count}} bevorstehende Erinnerung", "upcoming_reminders_other": "{{count}} bevorstehende Erinnerungen",
+    "no_reminders": "Noch keine Erinnerungen",
+    "doc_quick_desc": "Ausweis, Reisepass, Testament", "medical_quick_desc": "Medikamente, Vitalwerte, Ärzte", "calendar_quick_desc": "Geburtstage & Termine"
+  },
+  "emergency": {
+    "title": "Notfallzugang", "subtitle": "Kritische Gesundheitsinformationen — offline lesbar",
+    "blood_group": "Blutgruppe", "allergies": "Allergien", "conditions": "Erkrankungen",
+    "medications": "Medikamente", "emergency_contacts": "Notfallkontakte",
+    "no_data": "Keine kritischen Daten erfasst",
+    "no_allergies": "Keine Allergien erfasst", "no_conditions": "Keine Erkrankungen erfasst", "no_medications": "Keine Medikamente erfasst", "tap_to_add": "Zum Hinzufügen tippen"
+  },
+  "settings": {
+    "title": "Einstellungen", "subtitle": "Erscheinungsbild, Sicherheit und mehr", "appearance": "Erscheinungsbild",
+    "theme": "Design", "theme_light": "Hell", "theme_dark": "Dunkel", "accent_colour": "Akzentfarbe",
+    "language": "Sprache", "select_language": "Sprache auswählen", "subscription": "Abonnement", "manage_plan": "Plan verwalten",
+    "recovery": "Wiederherstellung", "view_recovery": "Wiederherstellungsphrase anzeigen", "trusted_contacts": "Vertrauenswürdige Kontakte",
+    "shamir_backup": "Shamir-Backup", "security": "Sicherheit", "biometric_lock": "Biometrische Sperre",
+    "key_rotation": "Schlüsselrotation", "manage_devices": "Geräte verwalten", "data_privacy": "Daten & Datenschutz",
+    "export_delete": "Meine Daten exportieren / löschen", "leave_family": "Familie verlassen / Tresor löschen",
+    "about": "Über", "version": "Version", "encryption": "Verschlüsselung",
+    "language_review_warning": "Einige Zeichenketten in dieser Sprache benötigen eine menschliche Überprüfung."
+  },
+  "vault": { "title": "Dokumente", "subtitle": "Ihr verschlüsselter Dokumentenspeicher", "add_document": "Dokument hinzufügen", "no_documents": "Noch keine Dokumente", "no_documents_hint": "Fügen Sie Ihren Ausweis, Reisepass oder Krankenakte hinzu", "expired": "Abgelaufen", "expiring_soon": "Läuft bald ab", "all": "Alle", "delete_confirm": "Dieses Dokument löschen?", "downloading": "Entschlüsseln…" },
+  "medical": { "title": "Medizinisch", "subtitle": "Gesundheitsakten Ihrer Familie", "medicines": "Medikamente", "vitals": "Vitalwerte", "doctors": "Ärzte", "add_medicine": "Medikament hinzufügen", "add_vital": "Vitalwert hinzufügen", "add_doctor": "Arzt hinzufügen", "no_medicines": "Keine Medikamente erfasst", "no_vitals": "Keine Vitalwerte erfasst", "no_doctors": "Keine Ärzte erfasst", "ongoing": "Laufend", "dosage": "Dosis", "frequency": "Häufigkeit" },
+  "calendar": { "title": "Kalender", "add_event": "Termin hinzufügen", "no_events": "Heute keine Termine", "birthday": "Geburtstag", "anniversary": "Jahrestag", "appointment": "Termin" },
+  "onboarding": { "welcome": "Willkommen bei Arkive", "tagline": "Der verschlüsselte Tresor Ihrer Familie", "create_family": "Familie erstellen", "join_family": "Familie beitreten", "family_name": "Familienname", "your_name": "Ihr Name", "recovery_phrase": "Wiederherstellungsphrase", "recovery_warning": "Notieren Sie sie und bewahren Sie sie sicher auf. Sie benötigen sie, wenn alle Geräte verloren gehen.", "recovery_confirm": "Ich habe meine Wiederherstellungsphrase notiert" },
+  "family": { "title": "Familie", "members": "Mitglieder", "devices": "Geräte", "add_member": "Mitglied hinzufügen", "invite_member": "Mitglied einladen", "admin": "Administrator", "member": "Mitglied", "dependent": "Abhängiger" },
+  "subscription": { "title": "Synchronisierung", "subtitle": "Alle Funktionen kostenlos", "active": "Aktiv", "free": "Kostenlos", "current_plan": "Aktueller Plan", "tier_local": "Lokal & LAN", "tier_managed": "Verwaltetes Relay", "tier_self_hosted": "Selbst gehostet", "subscribe_web": "Im Web abonnieren", "deploy_relay": "Eigenes Relay einrichten", "billing_note": "Abrechnung nur im Web.", "refreshing": "Abonnementstatus wird geprüft…" }
+}

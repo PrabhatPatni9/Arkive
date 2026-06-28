@@ -1,0 +1,6 @@
+{
+	"appId": "com.arkive.app",
+	"appName": "Arkive",
+	"webDir": "dist",
+	"android": {}
+}

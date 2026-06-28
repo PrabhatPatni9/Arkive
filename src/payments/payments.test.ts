@@ -1,72 +1,89 @@
-import { describe, it, expect, beforeAll } from 'vitest'
-import { initSodium } from '../crypto/sodium'
-import { PLANS } from './plans'
-import {
-  isSubscriptionActive,
-  canAddMember,
-  isOcrAllowed,
-  isFinancialDashboardAllowed,
-} from './subscription'
-import type { SubscriptionState } from './subscription'
-
-beforeAll(async () => {
-  await initSodium()
-})
+import { describe, it, expect } from 'vitest'
+import { SYNC_TIERS } from './plans'
+import { isManagedRelayActive, getEffectiveSyncTier, defaultEntitlement } from './subscription'
+import type { RelayEntitlement } from './subscription'
 
 const future = () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 const past = () => new Date(Date.now() - 1000).toISOString()
 
-describe('plans', () => {
-  it('free plan has no cost', () => { expect(PLANS.free.priceInr).toBe(0) })
-  it('family plan caps at 6 members', () => { expect(PLANS.family.maxMembers).toBe(6) })
-  it('premium plan has OCR and financial dashboard', () => {
-    expect(PLANS.premium.ocrEnabled).toBe(true)
-    expect(PLANS.premium.financialDashboard).toBe(true)
+describe('sync tiers', () => {
+  it('all three tiers exist', () => {
+    expect(SYNC_TIERS.local_lan).toBeDefined()
+    expect(SYNC_TIERS.managed_relay).toBeDefined()
+    expect(SYNC_TIERS.self_hosted).toBeDefined()
   })
-  it('free plan has no OCR', () => { expect(PLANS.free.ocrEnabled).toBe(false) })
+
+  it('local_lan and self_hosted are free', () => {
+    expect(SYNC_TIERS.local_lan.priceInrPerYear).toBe(0)
+    expect(SYNC_TIERS.self_hosted.priceInrPerYear).toBe(0)
+  })
+
+  it('managed_relay costs 99 INR per year', () => {
+    expect(SYNC_TIERS.managed_relay.priceInrPerYear).toBe(99)
+  })
+
+  it('only managed_relay is managed', () => {
+    expect(SYNC_TIERS.local_lan.managed).toBe(false)
+    expect(SYNC_TIERS.managed_relay.managed).toBe(true)
+    expect(SYNC_TIERS.self_hosted.managed).toBe(false)
+  })
+
+  it('all tiers have features listed', () => {
+    for (const tier of Object.values(SYNC_TIERS)) {
+      expect(tier.features.length).toBeGreaterThan(0)
+    }
+  })
 })
 
-describe('subscription guards', () => {
-  const active = (planId: SubscriptionState['planId']): SubscriptionState => ({
-    planId, validUntil: future(), paymentId: 'pay_x', activatedAt: new Date().toISOString(),
+describe('relay entitlement', () => {
+  const active = (): RelayEntitlement => ({
+    syncTierId: 'managed_relay',
+    validUntil: future(),
+    paymentId: 'pay_x',
+    activatedAt: new Date().toISOString(),
   })
-  const expired = (planId: SubscriptionState['planId']): SubscriptionState => ({
-    planId, validUntil: past(), paymentId: 'pay_x', activatedAt: new Date().toISOString(),
+  const expired = (): RelayEntitlement => ({
+    syncTierId: 'managed_relay',
+    validUntil: past(),
+    paymentId: 'pay_x',
+    activatedAt: new Date().toISOString(),
   })
-
-  it('active subscription returns true', () => {
-    expect(isSubscriptionActive(active('family'))).toBe(true)
-  })
-
-  it('expired subscription returns false', () => {
-    expect(isSubscriptionActive(expired('family'))).toBe(false)
-  })
-
-  it('canAddMember respects family plan limit of 6', () => {
-    expect(canAddMember(active('family'), 5)).toBe(true)
-    expect(canAddMember(active('family'), 6)).toBe(false)
-  })
-
-  it('canAddMember respects premium plan limit of 20', () => {
-    expect(canAddMember(active('premium'), 19)).toBe(true)
-    expect(canAddMember(active('premium'), 20)).toBe(false)
+  const selfHosted = (): RelayEntitlement => ({
+    syncTierId: 'self_hosted',
+    validUntil: null,
+    paymentId: null,
+    activatedAt: null,
   })
 
-  it('isOcrAllowed is false on free plan', () => {
-    expect(isOcrAllowed(active('free'))).toBe(false)
+  it('active managed relay returns true', () => {
+    expect(isManagedRelayActive(active())).toBe(true)
   })
 
-  it('isOcrAllowed is true on family plan', () => {
-    expect(isOcrAllowed(active('family'))).toBe(true)
+  it('expired managed relay returns false', () => {
+    expect(isManagedRelayActive(expired())).toBe(false)
   })
 
-  it('isOcrAllowed falls back to free rules on expired subscription', () => {
-    expect(isOcrAllowed(expired('premium'))).toBe(false)
+  it('default entitlement is not managed relay', () => {
+    expect(isManagedRelayActive(defaultEntitlement())).toBe(false)
   })
 
-  it('isFinancialDashboardAllowed only on active premium', () => {
-    expect(isFinancialDashboardAllowed(active('premium'))).toBe(true)
-    expect(isFinancialDashboardAllowed(active('family'))).toBe(false)
-    expect(isFinancialDashboardAllowed(expired('premium'))).toBe(false)
+  it('self_hosted is not managed relay', () => {
+    expect(isManagedRelayActive(selfHosted())).toBe(false)
+  })
+
+  it('getEffectiveSyncTier returns managed_relay when active', () => {
+    expect(getEffectiveSyncTier(active())).toBe('managed_relay')
+  })
+
+  it('getEffectiveSyncTier falls back to local_lan on expiry', () => {
+    expect(getEffectiveSyncTier(expired())).toBe('local_lan')
+  })
+
+  it('getEffectiveSyncTier returns local_lan for default entitlement', () => {
+    expect(getEffectiveSyncTier(defaultEntitlement())).toBe('local_lan')
+  })
+
+  it('getEffectiveSyncTier returns self_hosted when set', () => {
+    expect(getEffectiveSyncTier(selfHosted())).toBe('self_hosted')
   })
 })

@@ -1,0 +1,40 @@
+{
+  "_meta": { "review_required": ["emergency.blood_group","emergency.allergies","emergency.conditions","emergency.medications","emergency.emergency_contacts"] },
+  "common": { "save": "保存", "cancel": "取消", "delete": "删除", "confirm": "确认", "loading": "加载中…", "back": "返回", "add": "添加", "edit": "编辑", "done": "完成", "error": "错误", "yes": "是", "no": "否", "unknown": "未知", "none": "无" },
+  "nav": { "home": "主页", "family": "家庭", "vault": "文件库", "medical": "医疗", "emergency": "紧急" },
+  "home": {
+    "greeting_morning": "早上好", "greeting_afternoon": "下午好", "greeting_evening": "晚上好",
+    "your_family_vault": "您的家庭保险箱", "encrypted_badge": "端到端加密",
+    "privacy_note": "运营商从不查看您的数据。所有密钥都在您的设备上。",
+    "emergency_access": "紧急访问", "emergency_desc": "血型、过敏症、药物 — 始终离线",
+    "quick_access": "快速访问", "coming_up": "即将到来", "see_all": "查看全部",
+    "overdue_reminders_one": "{{count}} 条逾期提醒", "overdue_reminders_other": "{{count}} 条逾期提醒",
+    "upcoming_reminders_one": "{{count}} 条即将到来的提醒", "upcoming_reminders_other": "{{count}} 条即将到来的提醒",
+    "no_reminders": "还没有提醒",
+    "doc_quick_desc": "身份证、护照、遗嘱", "medical_quick_desc": "药物、生命体征、医生", "calendar_quick_desc": "生日和预约"
+  },
+  "emergency": {
+    "title": "紧急访问", "subtitle": "关键健康信息 — 可离线阅读",
+    "blood_group": "血型", "allergies": "过敏症", "conditions": "健康状况",
+    "medications": "药物", "emergency_contacts": "紧急联系人",
+    "no_data": "未记录关键数据",
+    "no_allergies": "未记录过敏症", "no_conditions": "未记录健康状况", "no_medications": "未记录药物", "tap_to_add": "点击添加"
+  },
+  "settings": {
+    "title": "设置", "subtitle": "外观、安全及更多", "appearance": "外观",
+    "theme": "主题", "theme_light": "浅色", "theme_dark": "深色", "accent_colour": "强调色",
+    "language": "语言", "select_language": "选择语言", "subscription": "订阅", "manage_plan": "管理方案",
+    "recovery": "恢复", "view_recovery": "查看恢复短语", "trusted_contacts": "受信任的联系人",
+    "shamir_backup": "沙密尔备份", "security": "安全", "biometric_lock": "生物识别锁",
+    "key_rotation": "密钥轮换", "manage_devices": "管理设备", "data_privacy": "数据和隐私",
+    "export_delete": "导出 / 删除我的数据", "leave_family": "离开 / 删除家庭保险箱",
+    "about": "关于", "version": "版本", "encryption": "加密",
+    "language_review_warning": "此语言中的某些字符串需要人工审核。紧急医疗术语可能不准确。"
+  },
+  "vault": { "title": "文件库", "subtitle": "您的加密文件存储", "add_document": "添加文件", "no_documents": "还没有文件", "no_documents_hint": "添加您的身份证、护照或病历", "expired": "已过期", "expiring_soon": "即将过期", "all": "全部", "delete_confirm": "删除此文件？", "downloading": "解密中…" },
+  "medical": { "title": "医疗", "subtitle": "您家庭的健康记录", "medicines": "药物", "vitals": "生命体征", "doctors": "医生", "add_medicine": "添加药物", "add_vital": "添加生命体征", "add_doctor": "添加医生", "no_medicines": "未记录药物", "no_vitals": "未记录生命体征", "no_doctors": "未记录医生", "ongoing": "持续中", "dosage": "剂量", "frequency": "频率" },
+  "calendar": { "title": "日历", "add_event": "添加事件", "no_events": "今天没有事件", "birthday": "生日", "anniversary": "周年纪念", "appointment": "预约" },
+  "onboarding": { "welcome": "欢迎使用 Arkive", "tagline": "您家庭的加密保险箱", "create_family": "创建家庭", "join_family": "加入家庭", "family_name": "家庭名称", "your_name": "您的姓名", "recovery_phrase": "恢复短语", "recovery_warning": "请记录下来并安全保存。如果所有设备丢失，您将需要它来恢复家庭保险箱。", "recovery_confirm": "我已记录我的恢复短语" },
+  "family": { "title": "家庭", "members": "成员", "devices": "设备", "add_member": "添加成员", "invite_member": "邀请成员", "admin": "管理员", "member": "成员", "dependent": "受抚养人" },
+  "subscription": { "title": "同步", "subtitle": "所有功能免费 — 仅为托管中继付费", "active": "已激活", "free": "免费", "current_plan": "当前方案", "tier_local": "本地和局域网", "tier_managed": "托管中继", "tier_self_hosted": "自托管", "subscribe_web": "在网页上订阅", "deploy_relay": "部署自己的中继", "billing_note": "结算仅在网页上进行。", "refreshing": "正在检查订阅状态…" }
+}
