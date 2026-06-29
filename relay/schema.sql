@@ -57,3 +57,18 @@ CREATE TABLE IF NOT EXISTS signals (
 
 CREATE INDEX IF NOT EXISTS idx_signals_recipient ON signals (recipient_id, family_id, expires_at);
 CREATE INDEX IF NOT EXISTS idx_signals_presence  ON signals (family_id, type, expires_at);
+
+-- Migration 4: family registry + anonymous intent events
+CREATE TABLE IF NOT EXISTS families (
+  family_id   TEXT PRIMARY KEY,
+  created_at  TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS intent_events (
+  id          TEXT PRIMARY KEY,
+  family_id   TEXT NOT NULL,
+  event_name  TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_intent_events_family ON intent_events (family_id, created_at);

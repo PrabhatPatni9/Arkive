@@ -183,3 +183,51 @@ export async function purgeExpiredSignals(env: Env): Promise<void> {
 }
 
 export { SIGNAL_TTL_SECONDS }
+
+// --- Family lifecycle ---
+
+export async function insertFamily(env: Env, familyId: string): Promise<void> {
+  await env.DB.prepare(
+    'INSERT OR IGNORE INTO families (family_id, created_at) VALUES (?,?)'
+  )
+    .bind(familyId, new Date().toISOString())
+    .run()
+}
+
+export async function deleteAllFamilyData(env: Env, familyId: string): Promise<void> {
+  // Purge D1 rows across all tables
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM op_index WHERE family_id=?').bind(familyId),
+    env.DB.prepare('DELETE FROM signals WHERE family_id=?').bind(familyId),
+    env.DB.prepare('DELETE FROM join_handshakes WHERE family_id=?').bind(familyId),
+    env.DB.prepare('DELETE FROM intent_events WHERE family_id=?').bind(familyId),
+    env.DB.prepare('DELETE FROM device_tokens WHERE family_id=?').bind(familyId),
+    env.DB.prepare('DELETE FROM devices WHERE family_id=?').bind(familyId),
+    env.DB.prepare('DELETE FROM families WHERE family_id=?').bind(familyId),
+  ])
+
+  // Purge R2 blobs (list and delete all objects prefixed family_id/)
+  let cursor: string | undefined
+  do {
+    const listed = await env.OPS_BUCKET.list({
+      prefix: `${familyId}/`,
+      limit: 500,
+      cursor,
+    })
+    if (listed.objects.length > 0) {
+      await Promise.all(listed.objects.map(obj => env.OPS_BUCKET.delete(obj.key)))
+    }
+    cursor = listed.truncated ? listed.cursor : undefined
+  } while (cursor)
+}
+
+// --- Intent events ---
+
+export async function insertIntentEvent(env: Env, familyId: string, eventName: string): Promise<void> {
+  const id = crypto.randomUUID()
+  await env.DB.prepare(
+    'INSERT INTO intent_events (id, family_id, event_name, created_at) VALUES (?,?,?,?)'
+  )
+    .bind(id, familyId, eventName, new Date().toISOString())
+    .run()
+}

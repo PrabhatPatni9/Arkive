@@ -22,6 +22,7 @@
     "@capacitor/core": "^6.0.0",
     "@capacitor/filesystem": "^6.0.0",
     "@capacitor/network": "^8.0.1",
+    "@capacitor/push-notifications": "^8.1.1",
     "i18next": "^23.0.0",
     "i18next-http-backend": "^2.0.0",
     "libsodium-wrappers": "^0.7.15",

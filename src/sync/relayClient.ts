@@ -1,5 +1,13 @@
 import type { FamilyState } from '../family/familyStore'
 
+const RELAY_URL_BASE = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
+
+function enforceHttps(url: string): void {
+  if (url && !url.startsWith('https://')) {
+    throw new Error(`Relay URL must use HTTPS — got: ${url}`)
+  }
+}
+
 export interface EntitlementResult {
   active: boolean
   tier: string
@@ -15,16 +23,22 @@ export interface PendingJoinEntry {
 
 export async function registerWithRelay(
   relayUrl: string,
-  family: FamilyState
+  family: FamilyState,
+  pushSubscription?: PushSubscriptionJSON
 ): Promise<string> {
+  enforceHttps(relayUrl)
+  const body: Record<string, unknown> = {
+    device_id: family.deviceId,
+    family_id: family.familyId,
+    sign_public_key: family.deviceSigKeypair.publicKey,
+  }
+  if (pushSubscription) {
+    body.push_subscription = pushSubscription
+  }
   const res = await fetch(`${relayUrl}/devices`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      device_id: family.deviceId,
-      family_id: family.familyId,
-      sign_public_key: family.deviceSigKeypair.publicKey,
-    }),
+    body: JSON.stringify(body),
   })
   if (!res.ok) throw new Error(`Device registration failed: ${res.status}`)
   const data = await res.json() as { ok: boolean; token: string }
@@ -36,6 +50,7 @@ export async function lookupEntitlement(
   relayUrl: string,
   token: string
 ): Promise<EntitlementResult> {
+  enforceHttps(relayUrl)
   const res = await fetch(`${relayUrl}/entitlement`, {
     headers: { Authorization: `Bearer ${token}` },
   })
@@ -49,6 +64,7 @@ export async function postJoinRequest(
   requestId: string,
   requestJson: string
 ): Promise<void> {
+  enforceHttps(relayUrl)
   const res = await fetch(`${relayUrl}/join/requests`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -61,6 +77,7 @@ export async function pollJoinApproval(
   relayUrl: string,
   requestId: string
 ): Promise<string | null> {
+  enforceHttps(relayUrl)
   const res = await fetch(
     `${relayUrl}/join/approvals/${encodeURIComponent(requestId)}`
   )
@@ -74,6 +91,7 @@ export async function getPendingJoinRequests(
   relayUrl: string,
   token: string
 ): Promise<PendingJoinEntry[]> {
+  enforceHttps(relayUrl)
   const res = await fetch(`${relayUrl}/join/requests`, {
     headers: { Authorization: `Bearer ${token}` },
   })
@@ -88,6 +106,7 @@ export async function postJoinApproval(
   requestId: string,
   approvalJson: string
 ): Promise<void> {
+  enforceHttps(relayUrl)
   const res = await fetch(`${relayUrl}/join/approvals`, {
     method: 'POST',
     headers: {
@@ -99,6 +118,20 @@ export async function postJoinApproval(
   if (!res.ok) throw new Error(`Post approval failed: ${res.status}`)
 }
 
+export async function deleteFamily(
+  relayUrl: string,
+  token: string
+): Promise<void> {
+  enforceHttps(relayUrl)
+  const res = await fetch(`${relayUrl}/family`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Family purge failed: ${res.status}`)
+  }
+}
+
 export async function logEvent(
   relayUrl: string,
   token: string,
@@ -106,10 +139,13 @@ export async function logEvent(
   familyId: string
 ): Promise<void> {
   try {
-    await fetch(`${relayUrl}/events`, {
+    enforceHttps(relayUrl)
+    await fetch(`${relayUrl}/event`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ event: eventName, family_id: familyId }),
     })
   } catch { /* fire-and-forget; ignore errors */ }
 }
+
+void RELAY_URL_BASE

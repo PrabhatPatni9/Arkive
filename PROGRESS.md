@@ -1,6 +1,6 @@
 # Arkive Build Progress
 
-## Current Phase: 7 (Feature-Flagged Modules) — COMPLETE; Phase 8 is next
+## Current Phase: 8 (V1 Hardening) — COMPLETE; all planned V1 phases done
 
 ---
 
@@ -214,7 +214,29 @@
 - Phase 5 transport: 21/21 ✅
 - Phase 6 i18n + billing: 19/19 ✅
 - Phase 7 modules: 34/34 ✅
+- Phase 8 hardening: 202/202 (no regressions) ✅
 - Total: 202/202 runnable ✅
+
+## Phase 8 — V1 Hardening (COMPLETE)
+
+### Done:
+- **Certificate pinning (HC §8):** `android/app/src/main/res/xml/network_security_config.xml` — pin-set structure for relay-arkive.punyakosh.in (placeholder hashes with instructions; owner must fill from a machine not behind a proxy). Wired via `android:networkSecurityConfig` in AndroidManifest.xml. `cleartextTrafficPermitted=false` for all domains.
+- **HTTPS enforcement:** `relayClient.ts` `enforceHttps()` guard on every relay call — throws on non-HTTPS relay URL.
+- **`DELETE /family` relay endpoint (HC §16 3rd operation):** `relay/src/routes/family.ts` + `deleteAllFamilyData()` in `d1.ts` — purges all D1 rows (op_index, signals, join_handshakes, intent_events, device_tokens, devices, families) and all R2 blobs for the family. Called from DataPrivacyScreen on admin vault deletion.
+- **`/event` endpoint (brief spec fix):** renamed from `/events` to `/event` in both relay and client. New `relay/src/routes/events.ts` handler stores anonymous intent events in D1 `intent_events` table.
+- **Schema migration 4:** `families` table + `intent_events` table in `relay/schema.sql`.
+- **Web Push + FCM (VAPID):** `relay/src/push.ts` — full VAPID JWT signing (ES256 via WebCrypto) + content-free POST to push endpoint. `relay/src/push/notify.ts` updated to use proper VAPID. `src/push/pushService.ts` — `initPush()` handles both PWA (browser Push API) and native Android (`@capacitor/push-notifications`). `public/sw.js` — minimal service worker for web push wake signals. Push subscription sent to relay at device registration.
+- **Service worker registration:** `App.tsx` registers `/sw.js` on startup.
+- **APK updater implemented (HC §12):** `src/updater/index.ts` — full `checkForUpdate()` (fetches manifest, verifies Ed25519 signature), `downloadAndVerify()` (SHA-256 integrity + Ed25519), `installUpdate()` (Capacitor Filesystem + FileOpener). No longer a skeleton.
+- **README (§12):** comprehensive README covering privacy posture, exact metadata list, sync tiers, crypto primitives, threat model + residual risks, self-host instructions, VAPID key generation, cert pinning procedure, AGPL-3.0 license, trademark notice, security review invitation.
+- **@capacitor/push-notifications** installed.
+
+### Owner action required before release:
+1. Replace placeholder hashes in `network_security_config.xml` with real SPKI hashes (instructions in file and README)
+2. Generate VAPID keys (`npx web-push generate-vapid-keys`) and set as Worker secrets + `VITE_VAPID_PUBLIC_KEY`
+3. Set `VITE_UPDATE_PUBKEY` (Ed25519 public key for APK signing)
+4. Run schema migration 4 on D1: `wrangler d1 execute arkive-relay --file=relay/schema.sql`
+5. Deploy updated relay Worker
 
 ## Owner Checklist
 
