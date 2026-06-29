@@ -1,8 +1,11 @@
 import { useState, useCallback } from 'react'
-import { ChevronRight, Moon, Sun, CreditCard, Shield, Download, Globe, AlertTriangle } from 'lucide-react'
+import { ChevronRight, Moon, Sun, CreditCard, Shield, Download, Globe, AlertTriangle, ToggleLeft, ToggleRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { SUPPORTED_LANGUAGES, type SupportedLocale, saveLocale, needsReview } from '../i18n/config'
+import { MODULE_REGISTRY } from '../modules/types'
+import { isModuleEnabled, setModuleEnabled, getAllModuleStates } from '../modules/store'
+import type { ModuleId } from '../modules/types'
 
 const ACCENT_OPTIONS = [
   { key: 'blue',   hex: '#4f8ef7', label: 'Blue (default)' },
@@ -24,6 +27,7 @@ export function SettingsScreen() {
   const [accent, setAccent] = useState(() => getStored('arkive_accent', 'blue'))
   const [showLangPicker, setShowLangPicker] = useState(false)
   const currentLocale = i18n.language as SupportedLocale
+  const [moduleStates, setModuleStates] = useState(() => getAllModuleStates())
 
   const applyLanguage = useCallback((locale: SupportedLocale) => {
     void i18n.changeLanguage(locale)
@@ -35,6 +39,12 @@ export function SettingsScreen() {
     setTheme(t)
     localStorage.setItem('arkive_theme', t)
     document.documentElement.setAttribute('data-theme', t)
+  }, [])
+
+  const toggleModule = useCallback((id: ModuleId) => {
+    const next = !isModuleEnabled(id)
+    setModuleEnabled(id, next)
+    setModuleStates(getAllModuleStates())
   }, [])
 
   const applyAccent = useCallback((a: string) => {
@@ -150,6 +160,23 @@ export function SettingsScreen() {
               {ACCENT_OPTIONS.find(o => o.key === accent)?.label ?? 'Blue'}
             </p>
           </div>
+        </div>
+
+        {/* Modules */}
+        <div className="settings-section">
+          <p className="settings-group-label">{t('settings.modules')}</p>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', padding: '0 0 8px 0' }}>
+            {t('settings.modules_subtitle')}
+          </p>
+          {MODULE_REGISTRY.map(m => (
+            <div key={m.id} className="settings-row" style={{ cursor: 'pointer' }} onClick={() => toggleModule(m.id)}>
+              <span className="settings-row-label">{t(m.labelKey)}</span>
+              {moduleStates[m.id]
+                ? <ToggleRight size={22} color="var(--accent)" aria-label="Enabled" />
+                : <ToggleLeft size={22} color="var(--text-muted)" aria-label="Disabled" />
+              }
+            </div>
+          ))}
         </div>
 
         {/* Subscription */}

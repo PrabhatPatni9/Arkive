@@ -1,5 +1,13 @@
 {
-  "_meta": { "review_required": ["emergency.blood_group","emergency.allergies","emergency.conditions","emergency.medications","emergency.emergency_contacts"] },
+  "_meta": {
+    "review_required": [
+      "emergency.blood_group",
+      "emergency.allergies",
+      "emergency.conditions",
+      "emergency.medications",
+      "emergency.emergency_contacts"
+    ]
+  },
   "common": {
     "save": "सहेजें",
     "cancel": "रद्द करें",
@@ -14,7 +22,11 @@
     "yes": "हाँ",
     "no": "नहीं",
     "unknown": "अज्ञात",
-    "none": "कोई नहीं"
+    "none": "कोई नहीं",
+    "all": "सभी",
+    "notes": "नोट्स",
+    "email": "ईमेल",
+    "see_all": "सभी देखें"
   },
   "nav": {
     "home": "होम",
@@ -42,7 +54,10 @@
     "no_reminders": "अभी कोई अनुस्मारक नहीं — शुरू करने के लिए दस्तावेज़ की समाप्ति तिथियाँ जोड़ें",
     "doc_quick_desc": "आधार, पासपोर्ट, वसीयत",
     "medical_quick_desc": "दवाइयाँ, स्वास्थ्य मापदंड, डॉक्टर",
-    "calendar_quick_desc": "जन्मदिन और अपॉइंटमेंट"
+    "calendar_quick_desc": "जन्मदिन और अपॉइंटमेंट",
+    "e2e_encrypted": "एंड-टू-एंड एन्क्रिप्टेड",
+    "modules": "मॉड्यूल",
+    "no_reminders_hint": "अभी कोई अनुस्मारक नहीं — शुरू करने के लिए दस्तावेज़ की समाप्ति तिथियाँ जोड़ें"
   },
   "emergency": {
     "title": "आपातकालीन पहुंच",
@@ -84,7 +99,9 @@
     "about": "के बारे में",
     "version": "संस्करण",
     "encryption": "एन्क्रिप्शन",
-    "language_review_warning": "इस भाषा में कुछ स्ट्रिंग्स को मानव समीक्षा की आवश्यकता है। आपातकालीन चिकित्सा शब्द गलत हो सकते हैं।"
+    "language_review_warning": "इस भाषा में कुछ स्ट्रिंग्स को मानव समीक्षा की आवश्यकता है। आपातकालीन चिकित्सा शब्द गलत हो सकते हैं।",
+    "modules": "मॉड्यूल",
+    "modules_subtitle": "वैकल्पिक सुविधाएं सक्षम या अक्षम करें"
   },
   "vault": {
     "title": "दस्तावेज़",
@@ -156,5 +173,123 @@
     "deploy_relay": "अपना रिले तैनात करें",
     "billing_note": "बिलिंग केवल वेब पर — ऐप स्टोर नियमों के अनुसार, इन-ऐप सदस्यताएं नहीं बेची जाती हैं।",
     "refreshing": "सदस्यता स्थिति जांच रहे हैं…"
+  },
+  "modules": {
+    "insurance": "बीमा",
+    "vehicles": "वाहन",
+    "expenses": "खर्च",
+    "milk": "दूध ट्रैकर",
+    "contacts": "संपर्क",
+    "home_devices": "घरेलू उपकरण",
+    "identity": "पहचान"
+  },
+  "insurance": {
+    "title": "बीमा",
+    "subtitle": "पॉलिसी रजिस्ट्री",
+    "add_policy": "पॉलिसी जोड़ें",
+    "no_policies": "अभी कोई पॉलिसी नहीं",
+    "insurer": "बीमाकर्ता",
+    "policy_number": "पॉलिसी नंबर",
+    "policy_type": "पॉलिसी प्रकार",
+    "sum_insured": "बीमित राशि",
+    "premium": "प्रीमियम",
+    "premium_cycle": "प्रीमियम चक्र",
+    "start_date": "प्रारंभ तिथि",
+    "expiry": "समाप्ति",
+    "renew": "नवीनीकरण",
+    "renew_coming_soon": "ऐप से नवीनीकरण — जल्द आ रहा है",
+    "health": "स्वास्थ्य",
+    "life": "जीवन",
+    "vehicle": "वाहन",
+    "home": "घर",
+    "other": "अन्य",
+    "monthly": "मासिक",
+    "quarterly": "त्रैमासिक",
+    "yearly": "वार्षिक",
+    "financial_admin_only": "केवल वित्तीय व्यवस्थापक बीमा पॉलिसी प्रबंधित कर सकते हैं"
+  },
+  "vehicles": {
+    "title": "वाहन",
+    "subtitle": "आपके परिवार के वाहन",
+    "add_vehicle": "वाहन जोड़ें",
+    "no_vehicles": "अभी कोई वाहन नहीं",
+    "name": "लेबल",
+    "make": "निर्माता",
+    "model": "मॉडल",
+    "year": "वर्ष",
+    "registration": "पंजीकरण संख्या",
+    "fuel_type": "ईंधन प्रकार",
+    "puc_expiry": "PUC समाप्ति",
+    "insurance_expiry": "बीमा समाप्ति",
+    "petrol": "पेट्रोल",
+    "diesel": "डीजल",
+    "electric": "बिजली",
+    "cng": "CNG",
+    "hybrid": "हाइब्रिड"
+  },
+  "expenses": {
+    "title": "खर्च",
+    "subtitle": "पारिवारिक खर्च ट्रैक करें",
+    "add_expense": "खर्च जोड़ें",
+    "no_expenses": "इस महीने कोई खर्च नहीं",
+    "category": "श्रेणी",
+    "amount": "राशि (₹)",
+    "date": "तिथि",
+    "petrol": "पेट्रोल",
+    "milk": "दूध",
+    "electricity": "बिजली",
+    "gas": "गैस",
+    "water": "पानी",
+    "other": "अन्य",
+    "this_month": "इस महीने",
+    "total": "कुल"
+  },
+  "milk": {
+    "title": "दूध ट्रैकर",
+    "subtitle": "दैनिक दूध लॉग",
+    "add_entry": "एंट्री जोड़ें",
+    "no_entries": "इस महीने कोई एंट्री नहीं",
+    "litres": "लीटर",
+    "price_per_litre": "मूल्य / लीटर (₹)",
+    "monthly_total": "मासिक कुल",
+    "monthly_cost": "मासिक लागत"
+  },
+  "contacts": {
+    "title": "संपर्क",
+    "subtitle": "पारिवारिक निर्देशिका",
+    "add_contact": "संपर्क जोड़ें",
+    "no_contacts": "अभी कोई संपर्क नहीं",
+    "name": "नाम",
+    "category": "श्रेणी",
+    "phone": "फोन",
+    "doctor": "डॉक्टर",
+    "plumber": "प्लंबर",
+    "electrician": "इलेक्ट्रीशियन",
+    "mechanic": "मैकेनिक",
+    "lawyer": "वकील",
+    "school": "स्कूल",
+    "other": "अन्य"
+  },
+  "home_devices": {
+    "title": "घरेलू उपकरण",
+    "subtitle": "उपकरण और उपकरण",
+    "add_device": "उपकरण जोड़ें",
+    "no_devices": "अभी कोई उपकरण नहीं",
+    "name": "नाम",
+    "category": "श्रेणी",
+    "brand": "ब्रांड",
+    "model": "मॉडल",
+    "purchase_date": "खरीद तिथि",
+    "warranty_expiry": "वारंटी समाप्ति",
+    "appliance": "उपकरण",
+    "electronics": "इलेक्ट्रॉनिक्स",
+    "furniture": "फर्नीचर",
+    "tool": "औजार",
+    "other": "अन्य"
+  },
+  "identity": {
+    "title": "पहचान",
+    "subtitle": "आपके पहचान दस्तावेज़",
+    "no_docs": "अभी कोई पहचान दस्तावेज़ नहीं"
   }
 }

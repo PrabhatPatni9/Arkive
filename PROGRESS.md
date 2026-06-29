@@ -1,6 +1,6 @@
 # Arkive Build Progress
 
-## Current Phase: 6 (i18n + Billing) — COMPLETE; Phase 7 is next
+## Current Phase: 7 (Feature-Flagged Modules) — COMPLETE; Phase 8 is next
 
 ---
 
@@ -171,8 +171,26 @@
 - **`src/i18n/i18n.test.ts`:** 19 tests covering: language count, locale list, `getStoredLocale`, `saveLocale`, `needsReview`, `REVIEW_REQUIRED_KEYS`, entitlement mapping (managed_relay, unknown tier → local_lan, network failure → null).
 - **Tests: 168/168 passing** ✅
 
-## Phase 7 — Feature-Flagged Modules — NOT STARTED
-- Insurance registry + dummy renew button, vehicles, expenses, milk, contacts — all via module pattern
+## Phase 7 — Feature-Flagged Modules (COMPLETE)
+
+### Done:
+- **`src/modules/types.ts`:** `ModuleId` union + `ModuleMeta` interface + `MODULE_REGISTRY` (7 modules: insurance, vehicles, expenses, milk, contacts, home_devices, identity). `identity` on by default, rest off.
+- **`src/modules/store.ts`:** `isModuleEnabled`, `setModuleEnabled`, `getAllModuleStates` — backed by `localStorage` key `arkive_modules_v1`. Dead-code bug fixed.
+- **Insurance module:** `types.ts` (InsurancePolicy, PolicyType, PremiumCycle) + `store.ts` (CRUD + `isPolicyExpiringSoon`). `InsuranceScreen.tsx` — list + add modal; dummy renew button fires `logEvent('renew_clicked')` fire-and-forget on managed relay accounts then shows coming-soon alert (HC compliance); auto-creates insurance_renewal reminder 30d before expiry; gated to `isFinancialAdmin` for writes.
+- **Vehicles module:** `types.ts` (Vehicle, FuelType) + `store.ts` (CRUD + `isVehicleDocExpiringSoon`). `VehiclesScreen.tsx` — PUC/insurance expiry warnings.
+- **Expenses module:** `types.ts` (Expense, ExpenseCategory) + `store.ts` (CRUD + `sumByCategory`). `ExpensesScreen.tsx` — monthly view with prev/next nav, category breakdown totals.
+- **Milk module:** `types.ts` (MilkEntry) + `store.ts` (CRUD + upsert-by-date + `monthlyMilkTotal`). `MilkScreen.tsx` — monthly view, summary card (litres + cost).
+- **Contacts module:** `types.ts` (Contact, ContactCategory) + `store.ts` (CRUD). `ContactsScreen.tsx` — category filter chips, tel: links.
+- **Home Devices module:** `types.ts` (HomeDevice, DeviceCategory) + `store.ts` (CRUD + `isWarrantyExpiringSoon`). `HomeDevicesScreen.tsx` — warranty/purchase date cards with expiry warnings.
+- **Identity module:** `IdentityScreen.tsx` — read-only, filters vault docs by type (aadhaar, pan, passport, driving_licence), links to `/vault/doc/:docId`. No separate store needed.
+- **`src/family/familyStore.ts`:** Added `isFinancialAdmin?: boolean` to `FamilyMember`.
+- **`src/sync/relayClient.ts`:** Added `logEvent()` fire-and-forget event reporter.
+- **`src/App.tsx`:** 7 new module routes wired.
+- **`src/screens/HomeScreen.tsx`:** `MODULE_CARDS` array; renders enabled modules in "Modules" section below core cards.
+- **`src/screens/SettingsScreen.tsx`:** Module toggle section with `ToggleLeft`/`ToggleRight` per module.
+- **i18n:** All new keys added to `public/locales/en/translation.json`; all 14 other locales updated via Node script (hi, mr, kn, bn, ta, te, gu, es, fr, de, pt, zh, ja, id).
+- **`src/modules/modules.test.ts`:** 34 tests covering feature-flag store, insurance CRUD + `isPolicyExpiringSoon`, vehicles + `isVehicleDocExpiringSoon`, expenses `sumByCategory`, milk upsert + `monthlyMilkTotal`, contacts CRUD, home devices CRUD + `isWarrantyExpiringSoon`.
+- **Tests: 34/34 passing** (202/202 total runnable) ✅
 
 ---
 
@@ -195,7 +213,8 @@
 - Phase 4 medical: 14/14 ✅
 - Phase 5 transport: 21/21 ✅
 - Phase 6 i18n + billing: 19/19 ✅
-- Total: 168/168 ✅
+- Phase 7 modules: 34/34 ✅
+- Total: 202/202 runnable ✅
 
 ## Owner Checklist
 

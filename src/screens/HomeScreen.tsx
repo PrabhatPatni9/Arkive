@@ -1,7 +1,9 @@
-import { FileText, Heart, Shield, AlertTriangle, Bell, ChevronRight, Calendar } from 'lucide-react'
+import { FileText, Heart, Shield, AlertTriangle, Bell, ChevronRight, Calendar, ShieldCheck, Car, Wallet, Droplets, BookOpen, Cpu, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getFamily } from '../family/familyStore'
 import { getReminders, isOverdue, isDueSoon } from '../reminders/engine'
+import { isModuleEnabled } from '../modules/store'
 
 function greetingForHour(h: number) {
   if (h < 12) return 'Good morning'
@@ -9,22 +11,34 @@ function greetingForHour(h: number) {
   return 'Good evening'
 }
 
-const QUICK_CARDS = [
-  { icon: FileText, title: 'Documents', desc: 'Aadhaar, passport, wills', to: '/vault' },
-  { icon: Heart,    title: 'Medical',   desc: 'Medicines, vitals, doctors', to: '/medical' },
-  { icon: Calendar, title: 'Calendar',  desc: 'Birthdays & appointments', to: '/calendar' },
+const CORE_CARDS = [
+  { icon: FileText,    title: 'Documents', desc: 'Aadhaar, passport, wills', to: '/vault' },
+  { icon: Heart,       title: 'Medical',   desc: 'Medicines, vitals, doctors', to: '/medical' },
+  { icon: Calendar,    title: 'Calendar',  desc: 'Birthdays & appointments', to: '/calendar' },
+]
+
+const MODULE_CARDS = [
+  { id: 'insurance'    as const, icon: ShieldCheck, title: 'Insurance',     desc: 'Policies & renewals',      to: '/insurance' },
+  { id: 'vehicles'     as const, icon: Car,          title: 'Vehicles',      desc: 'PUC, insurance, fuel',     to: '/vehicles' },
+  { id: 'expenses'     as const, icon: Wallet,       title: 'Expenses',      desc: 'Petrol, milk, bills',      to: '/expenses' },
+  { id: 'milk'         as const, icon: Droplets,     title: 'Milk Tracker',  desc: 'Daily log & cost',         to: '/milk' },
+  { id: 'contacts'     as const, icon: BookOpen,     title: 'Contacts',      desc: 'Doctors, services',        to: '/contacts' },
+  { id: 'home_devices' as const, icon: Cpu,          title: 'Home Devices',  desc: 'Appliances & warranties',  to: '/home-devices' },
+  { id: 'identity'     as const, icon: User,         title: 'Identity',      desc: 'Your ID documents',        to: '/identity' },
 ]
 
 export function HomeScreen() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const greeting = greetingForHour(new Date().getHours())
   const family = getFamily()
   const myName = family?.members.find(m => m.memberId === family.myMemberId)?.name ?? 'there'
 
-  // Upcoming reminders count
   const reminders = family ? getReminders(family.familyId) : []
   const overdueCount = reminders.filter(r => isOverdue(r)).length
   const soonCount = reminders.filter(r => !isOverdue(r) && isDueSoon(r, r.advanceNoticeDays)).length
+
+  const activeModules = MODULE_CARDS.filter(m => isModuleEnabled(m.id))
 
   return (
     <main className="screen">
@@ -47,12 +61,12 @@ export function HomeScreen() {
         <div style={{ marginTop: 16, marginBottom: 8 }}>
           <span className="section-badge">
             <Shield size={10} style={{ display: 'inline', marginRight: 4 }} />
-            End-to-end encrypted
+            {t('home.e2e_encrypted')}
           </span>
         </div>
 
         <p className="text-muted" style={{ marginBottom: 20, fontSize: 13 }}>
-          Operator never sees your data. All keys live on your device.
+          {t('home.privacy_note')}
         </p>
 
         {/* Emergency banner */}
@@ -74,18 +88,18 @@ export function HomeScreen() {
             <AlertTriangle size={20} color="var(--danger)" />
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--danger)' }}>Emergency Access</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--danger)' }}>{t('home.emergency_access')}</p>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-              Blood groups, allergies, medications — always offline
+              {t('home.emergency_desc')}
             </p>
           </div>
           <ChevronRight size={18} color="var(--danger)" />
         </button>
 
-        {/* Vault quick access */}
-        <p className="section-header" style={{ marginTop: 0 }}>Quick Access</p>
+        {/* Core quick access */}
+        <p className="section-header" style={{ marginTop: 0 }}>{t('home.quick_access')}</p>
         <div className="card-grid">
-          {QUICK_CARDS.map(({ icon: Icon, title, desc, to }) => (
+          {CORE_CARDS.map(({ icon: Icon, title, desc, to }) => (
             <button
               key={title}
               className="feature-card"
@@ -93,24 +107,44 @@ export function HomeScreen() {
               type="button"
               style={{ textAlign: 'left', border: 'none' }}
             >
-              <div className="feature-icon">
-                <Icon size={18} />
-              </div>
+              <div className="feature-icon"><Icon size={18} /></div>
               <h3>{title}</h3>
               <p>{desc}</p>
             </button>
           ))}
         </div>
 
-        {/* Reminders section */}
+        {/* Feature-flagged modules */}
+        {activeModules.length > 0 && (
+          <>
+            <p className="section-header" style={{ marginTop: 24 }}>{t('home.modules')}</p>
+            <div className="card-grid">
+              {activeModules.map(({ icon: Icon, title, desc, to }) => (
+                <button
+                  key={to}
+                  className="feature-card"
+                  onClick={() => navigate(to)}
+                  type="button"
+                  style={{ textAlign: 'left', border: 'none' }}
+                >
+                  <div className="feature-icon"><Icon size={18} /></div>
+                  <h3>{title}</h3>
+                  <p>{desc}</p>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Reminders */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '24px 0 10px' }}>
-          <p className="section-header" style={{ margin: 0 }}>Coming Up</p>
+          <p className="section-header" style={{ margin: 0 }}>{t('home.coming_up')}</p>
           <button
             type="button"
             style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 14, cursor: 'pointer', fontWeight: 600 }}
             onClick={() => navigate('/reminders')}
           >
-            See all
+            {t('common.see_all')}
           </button>
         </div>
 
@@ -154,7 +188,7 @@ export function HomeScreen() {
         {reminders.length === 0 && (
           <div className="card-row">
             <div className="empty-row">
-              No reminders yet — add document expiry dates to get started
+              {t('home.no_reminders_hint')}
             </div>
           </div>
         )}
