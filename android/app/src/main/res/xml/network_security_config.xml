@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Certificate pinning for relay-arkive.punyakosh.in (HC §8).
+
+  To regenerate pin hashes from your own machine (not behind a proxy):
+    openssl s_client -connect relay-arkive.punyakosh.in:443 -showcerts \
+      -servername relay-arkive.punyakosh.in 2>/dev/null \
+      | openssl x509 -noout -pubkey \
+      | openssl pkey -pubin -outform DER \
+      | openssl dgst -sha256 -binary \
+      | openssl enc -base64
+
+  Run the same command with 'sed -n 2p' of the PEM chain to get the
+  intermediate CA pin (required as backup so a leaf rotation does not
+  brick the app).
+
+  Update the expiration date to one month before the leaf cert renews.
+  Cloudflare rotates certs roughly every 90 days; check every 60 days.
+  Keep the old pin alongside the new one for the rotation window.
+-->
+<network-security-config>
+
+  <!-- Relay: TLS-only, cert pinned -->
+  <domain-config cleartextTrafficPermitted="false">
+    <domain includeSubdomains="false">relay-arkive.punyakosh.in</domain>
+    <pin-set expiration="2025-10-01">
+      <!--
+        Leaf certificate SPKI SHA-256 (base64).
+        OWNER ACTION REQUIRED: replace with value from the openssl command above,
+        run from a machine NOT behind a corporate/proxy HTTPS intercept.
+      -->
+      <pin digest="SHA-256">REPLACE_WITH_REAL_LEAF_SPKI_HASH=</pin>
+      <!--
+        Intermediate CA SPKI SHA-256 (backup pin — required by Android).
+        OWNER ACTION REQUIRED: replace with intermediate cert hash from chain position 2.
+      -->
+      <pin digest="SHA-256">REPLACE_WITH_REAL_INTERMEDIATE_SPKI_HASH=</pin>
+    </pin-set>
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </domain-config>
+
+  <!-- Cloudflare Pages web app — no pin (CDN rotates too fast), but TLS enforced -->
+  <domain-config cleartextTrafficPermitted="false">
+    <domain includeSubdomains="true">arkive-csk.pages.dev</domain>
+    <domain includeSubdomains="true">arkive.punyakosh.in</domain>
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </domain-config>
+
+  <!-- All other traffic: system CAs, no cleartext -->
+  <base-config cleartextTrafficPermitted="false">
+    <trust-anchors>
+      <certificates src="system" />
+    </trust-anchors>
+  </base-config>
+
+</network-security-config>

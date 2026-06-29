@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Download, LogOut, Trash2, AlertTriangle } from 'lucide-react'
 import { getFamily, exportFamilyData, leaveFamily, purgeAllData } from '../family/familyStore'
+import { deleteFamily } from '../sync/relayClient'
+
+const RELAY_URL = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
 
 export function DataPrivacyScreen() {
   const navigate = useNavigate()
@@ -35,7 +38,11 @@ export function DataPrivacyScreen() {
   }
 
   function handlePurge() {
-    if (purgeInput !== family!.familyName) return
+    if (!family || purgeInput !== family.familyName) return
+    // Best-effort relay purge (R2 blobs + D1 metadata) before wiping local state
+    if (RELAY_URL && family.relayDeviceToken) {
+      void deleteFamily(RELAY_URL, family.relayDeviceToken).catch(() => null)
+    }
     purgeAllData()
     navigate('/onboarding', { replace: true })
   }

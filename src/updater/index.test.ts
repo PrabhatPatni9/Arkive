@@ -10,9 +10,11 @@ const dummyManifest: UpdateManifest = {
   signedAt: new Date().toISOString(),
 }
 
-describe('updater skeleton', () => {
-  it('checkForUpdate throws until Phase 1 implementation lands', async () => {
-    await expect(checkForUpdate(1)).rejects.toThrow('not implemented')
+describe('updater', () => {
+  it('checkForUpdate returns null when VITE_RELAY_URL or VITE_UPDATE_PUBKEY is not set', async () => {
+    // In tests both env vars are unset — should fail-safe and return null
+    const result = await checkForUpdate(1)
+    expect(result).toBeNull()
   })
 
   it('downloadAndVerify throws when VITE_UPDATE_PUBKEY is not set', async () => {

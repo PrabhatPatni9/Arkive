@@ -4,6 +4,8 @@ import { handleJoin } from './routes/join'
 import { handleEntitlement } from './routes/entitlement'
 import { handleBlobs } from './routes/blobs'
 import { handleSignal } from './routes/signal'
+import { handleFamily } from './routes/family'
+import { handleEvent } from './routes/events'
 import type { Env } from './types'
 
 export default {
@@ -24,6 +26,10 @@ export default {
       response = await handleEntitlement(request, env)
     } else if (pathname === '/health') {
       response = new Response('ok', { status: 200 })
+    } else if (pathname === '/family') {
+      response = await handleFamily(request, env)
+    } else if (pathname === '/event') {
+      response = await handleEvent(request, env)
     } else if (pathname.startsWith('/join/')) {
       response = await handleJoin(request, env, pathname)
     } else if (pathname.startsWith('/blob/')) {

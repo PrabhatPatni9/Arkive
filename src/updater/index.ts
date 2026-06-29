@@ -1,72 +1,124 @@
 /**
- * Signed APK auto-update mechanism — Phase 0 skeleton.
+ * Signed APK auto-update (HC §12).
  *
- * Flow (implemented in Phase 1+):
- *   1. Fetch a signed UpdateManifest from GET /version on the relay.
- *   2. Compare buildNumber against the running build.
- *   3. If newer: download the APK, verify SHA-256, then verify the Ed25519
- *      signature against the pinned RELEASE_PUBKEY_B64.
- *   4. Only after both checks pass: hand the buffer to installUpdate.
+ * Flow:
+ *  1. GET ${RELAY_URL}/version → signed UpdateManifest
+ *  2. Verify Ed25519 manifest signature against VITE_UPDATE_PUBKEY
+ *  3. If buildNumber > current: download APK, verify SHA-256 + Ed25519 signature
+ *  4. Hand verified buffer to installUpdate — never install without both checks
  *
- * Hard constraint §12: a signature mismatch is fatal — never install.
- * Never remove or bypass the verification step.
+ * A signature mismatch or SHA-256 mismatch is always fatal — throws, never installs.
  */
 
-/** Shape of the signed manifest served at GET /version on the relay. */
+const RELAY_URL = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
+
+/** Ed25519 public key (base64) pinned at build time via VITE_UPDATE_PUBKEY. */
+const RELEASE_PUBKEY_B64: string = import.meta.env.VITE_UPDATE_PUBKEY ?? ''
+
 export interface UpdateManifest {
   version: string
   buildNumber: number
   apkUrl: string
   /** Hex-encoded SHA-256 of the APK binary. */
   sha256: string
-  /** Base64 Ed25519 signature over the canonical JSON of this manifest
-   *  (keys sorted, no extra whitespace), signed by the release private key. */
+  /**
+   * Base64 Ed25519 signature over the canonical JSON of this manifest
+   * (keys sorted alphabetically, no extra whitespace), excluding this field.
+   */
   ed25519Signature: string
   /** ISO-8601 timestamp this manifest was signed. */
   signedAt: string
 }
 
 /**
- * Pinned release public key (Ed25519, base64).
- * Set at build time via VITE_UPDATE_PUBKEY in .env.
- * An empty string causes downloadAndVerify to reject every update (safe default).
+ * Fetch the latest version manifest; return it if a newer build is available.
+ * Returns null when already on latest or when the check cannot be completed —
+ * always fail-safe, never blocks the app.
  */
-const RELEASE_PUBKEY_B64: string = import.meta.env.VITE_UPDATE_PUBKEY ?? ''
+export async function checkForUpdate(currentBuildNumber: number): Promise<UpdateManifest | null> {
+  if (!RELAY_URL || !RELEASE_PUBKEY_B64) return null
+  try {
+    const res = await fetch(`${RELAY_URL}/version`)
+    if (!res.ok) return null
+    const manifest = await res.json() as UpdateManifest
 
-/**
- * Fetch the latest version manifest and return it if a newer build is
- * available. Returns null when already on the latest version or when the
- * check cannot be completed (always fail-safe — never block the app).
- */
-export async function checkForUpdate(
-  _currentBuildNumber: number,
-): Promise<UpdateManifest | null> {
-  // TODO Phase 1+: GET ${VITE_RELAY_URL}/version, verify manifest signature,
-  // compare buildNumber against _currentBuildNumber.
-  throw new Error('checkForUpdate: not implemented — Phase 0 skeleton')
+    if (typeof manifest.buildNumber !== 'number' || manifest.buildNumber <= currentBuildNumber) return null
+
+    if (!await verifyManifestSignature(manifest)) return null
+    return manifest
+  } catch {
+    return null
+  }
 }
 
 /**
- * Download the APK at manifest.apkUrl, verify the SHA-256 integrity hash,
- * then verify the Ed25519 signature with libsodium crypto_sign_verify_detached
- * using RELEASE_PUBKEY_B64. Throws on any verification failure.
- * Never returns a buffer that has not passed both checks.
+ * Download the APK, verify SHA-256 integrity, then verify Ed25519 signature.
+ * Throws on any verification failure — never returns an unverified buffer.
  */
-export async function downloadAndVerify(
-  _manifest: UpdateManifest,
-): Promise<ArrayBuffer> {
+export async function downloadAndVerify(manifest: UpdateManifest): Promise<ArrayBuffer> {
   if (!RELEASE_PUBKEY_B64) {
     throw new Error('downloadAndVerify: VITE_UPDATE_PUBKEY is not configured')
   }
-  // TODO Phase 1+: fetch APK, SHA-256 check, libsodium signature verify.
-  throw new Error('downloadAndVerify: not implemented — Phase 0 skeleton')
+
+  const res = await fetch(manifest.apkUrl)
+  if (!res.ok) throw new Error(`APK download failed: ${res.status}`)
+  const buffer = await res.arrayBuffer()
+
+  // 1. SHA-256 integrity check
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
+  const hashHex = Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+  if (hashHex !== manifest.sha256.toLowerCase()) {
+    throw new Error('SHA-256 mismatch — APK is corrupted or tampered; refusing to install')
+  }
+
+  // 2. Ed25519 signature check
+  if (!await verifyManifestSignature(manifest)) {
+    throw new Error('Ed25519 signature invalid — APK manifest is tampered; refusing to install')
+  }
+
+  return buffer
 }
 
 /**
  * Install the verified APK via the Capacitor native bridge.
  * Only ever called after downloadAndVerify returns successfully.
  */
-export async function installUpdate(_apk: ArrayBuffer): Promise<void> {
-  // TODO Phase 1+: invoke Capacitor plugin / Android intent to sideload APK.
-  throw new Error('installUpdate: not implemented — Phase 0 skeleton')
+export async function installUpdate(apk: ArrayBuffer): Promise<void> {
+  // Persist the APK to a temporary file, then fire an Android install intent.
+  // Requires the FileOpener Capacitor plugin or equivalent.
+  const { Filesystem, Directory } = await import('@capacitor/filesystem')
+  const base64 = bufferToBase64(apk)
+  const path = 'arkive-update.apk'
+  await Filesystem.writeFile({ path, data: base64, directory: Directory.Cache })
+  const { uri } = await Filesystem.getUri({ path, directory: Directory.Cache })
+  const { FileOpener } = await import('@capacitor-community/file-opener')
+  await FileOpener.open({ filePath: uri, contentType: 'application/vnd.android.package-archive' })
+}
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+async function verifyManifestSignature(manifest: UpdateManifest): Promise<boolean> {
+  try {
+    const { sodium } = await import('../crypto/sodium')
+    const { ed25519Signature, ...rest } = manifest
+    const canonical = JSON.stringify(
+      Object.fromEntries(Object.entries(rest).sort(([a], [b]) => a.localeCompare(b)))
+    )
+    return sodium.crypto_sign_verify_detached(
+      sodium.from_base64(ed25519Signature),
+      sodium.from_string(canonical),
+      sodium.from_base64(RELEASE_PUBKEY_B64)
+    )
+  } catch {
+    return false
+  }
+}
+
+function bufferToBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf)
+  let binary = ''
+  for (const b of bytes) binary += String.fromCharCode(b)
+  return btoa(binary)
 }

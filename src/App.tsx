@@ -36,6 +36,7 @@ import { initSodium } from './crypto/sodium'
 import { MemoryOpLog } from './db/opLog'
 import { SyncEngine } from './sync/engine'
 import { refreshEntitlementFromRelay } from './payments/entitlement'
+import { initPush } from './push/pushService'
 import './app.css'
 
 const RELAY_URL = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
@@ -69,12 +70,17 @@ export default function App() {
       if (e.key === 'arkive_theme' || e.key === 'arkive_accent') applyTheme()
     }
     window.addEventListener('storage', onStorage)
+    // Register service worker for Web Push wake signals
+    if ('serviceWorker' in navigator) {
+      void navigator.serviceWorker.register('/sw.js')
+    }
     initSodium().then(() => {
       setReady(true)
-      // Best-effort: refresh billing entitlement from relay in the background
       const family = getFamily()
       if (RELAY_URL && family?.relayDeviceToken) {
         void refreshEntitlementFromRelay(RELAY_URL, family.relayDeviceToken)
+        // Best-effort: register push subscription so relay can send wake signals
+        void initPush().catch(() => null)
       }
     })
     return () => window.removeEventListener('storage', onStorage)
