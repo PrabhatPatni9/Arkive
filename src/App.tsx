@@ -17,6 +17,13 @@ import { AddMedicineScreen } from './screens/AddMedicineScreen'
 import { AddVitalScreen } from './screens/AddVitalScreen'
 import { AddDoctorScreen } from './screens/AddDoctorScreen'
 import { CalendarScreen } from './screens/CalendarScreen'
+import { InsuranceScreen } from './screens/InsuranceScreen'
+import { VehiclesScreen } from './screens/VehiclesScreen'
+import { ExpensesScreen } from './screens/ExpensesScreen'
+import { MilkScreen } from './screens/MilkScreen'
+import { ContactsScreen } from './screens/ContactsScreen'
+import { HomeDevicesScreen } from './screens/HomeDevicesScreen'
+import { IdentityScreen } from './screens/IdentityScreen'
 import { OnboardingScreen } from './screens/onboarding/OnboardingScreen'
 import { CreateFamilyScreen } from './screens/onboarding/CreateFamilyScreen'
 import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
@@ -147,6 +154,15 @@ export default function App() {
             <Route path="/emergency" element={<RequireFamily><EmergencyScreen /></RequireFamily>} />
             <Route path="/emergency/card/:memberId" element={<RequireFamily><EmergencyCardScreen /></RequireFamily>} />
             <Route path="/reminders" element={<RequireFamily><RemindersScreen /></RequireFamily>} />
+
+            {/* Feature-flagged module routes */}
+            <Route path="/insurance" element={<RequireFamily><InsuranceScreen /></RequireFamily>} />
+            <Route path="/vehicles" element={<RequireFamily><VehiclesScreen /></RequireFamily>} />
+            <Route path="/expenses" element={<RequireFamily><ExpensesScreen /></RequireFamily>} />
+            <Route path="/milk" element={<RequireFamily><MilkScreen /></RequireFamily>} />
+            <Route path="/contacts" element={<RequireFamily><ContactsScreen /></RequireFamily>} />
+            <Route path="/home-devices" element={<RequireFamily><HomeDevicesScreen /></RequireFamily>} />
+            <Route path="/identity" element={<RequireFamily><IdentityScreen /></RequireFamily>} />
           </Routes>
         </div>
         {hasFamily && <Nav />}

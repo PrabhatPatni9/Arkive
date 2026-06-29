@@ -34,6 +34,7 @@ export interface FamilyMember {
   encPublicKey: string
   sigPublicKey: string
   isDependent: boolean
+  isFinancialAdmin?: boolean
   // Emergency / health fields (stored locally, encrypted in ops on sync)
   bloodGroup?: string
   allergies?: string

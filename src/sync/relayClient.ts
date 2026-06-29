@@ -98,3 +98,18 @@ export async function postJoinApproval(
   })
   if (!res.ok) throw new Error(`Post approval failed: ${res.status}`)
 }
+
+export async function logEvent(
+  relayUrl: string,
+  token: string,
+  eventName: string,
+  familyId: string
+): Promise<void> {
+  try {
+    await fetch(`${relayUrl}/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ event: eventName, family_id: familyId }),
+    })
+  } catch { /* fire-and-forget; ignore errors */ }
+}
