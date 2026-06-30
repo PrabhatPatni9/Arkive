@@ -237,10 +237,14 @@
 | Resource | Value |
 |----------|-------|
 | Relay Worker | **LIVE** `https://relay-arkive.punyakosh.in` |
-| Web app | **LIVE** `https://arkive-csk.pages.dev` / `arkive.punyakosh.in` |
-| D1 database | `arkive-relay` — `d050374e-99db-4d1d-9ff4-ce593233f5c4` (APAC) |
+| Web app | **LIVE** `https://arkive-csk.pages.dev` (custom domain `arkive.punyakosh.in` not yet attached — no DNS record) |
+| D1 database | `arkive-relay` — id in local infra note (gitignored), not committed |
 | R2 bucket | `arkive-ops` |
-| Cloudflare account | `df08a4524c6b150c79348335a7211040` |
+| Cloudflare account | id in local infra note (gitignored), not committed |
+
+> Infra IDs (Cloudflare account id, D1 UUID) are intentionally kept out of this committed file.
+> Keep them in a local, gitignored `docs/INFRA.local.md`. CI reads the account id from the
+> `CLOUDFLARE_ACCOUNT_ID` GitHub secret; `wrangler.toml` no longer hard-codes it.
 
 ## Test status (as of this session)
 - Phase 1 crypto: 71/71 ✅
@@ -304,7 +308,7 @@ Go to: `https://github.com/prabhatpatni9/arkive/settings/secrets/actions`
 | Secret | Value |
 |--------|-------|
 | `CLOUDFLARE_API_TOKEN` | Rotate after use — get from Cloudflare dashboard |
-| `CLOUDFLARE_ACCOUNT_ID` | `df08a4524c6b150c79348335a7211040` |
+| `CLOUDFLARE_ACCOUNT_ID` | In Cloudflare dashboard / local infra note — not committed |
 | `VITE_RELAY_URL` | `https://relay-arkive.punyakosh.in` |
 | `VITE_UPDATE_PUBKEY` | `1/wonvmbgkndSvPIvUhPhygNbVNdPbkHLu9gfqkVEX8=` |
 | `VITE_VAPID_PUBLIC_KEY` | `BEZtPXL5k8gXRrikVSezaj9osQVsUReRvHzo-6ZQLxqYqlbwjXcEtOsLbpMZOBdFrfzRPby-iUNDk5AmpFNYE6k` |

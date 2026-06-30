@@ -2,7 +2,8 @@ name = "arkive-relay"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-account_id = "df08a4524c6b150c79348335a7211040"
+# account_id is supplied at deploy time via CLOUDFLARE_ACCOUNT_ID (CI action input / env),
+# so it is not hard-coded here. Local deploy: `CLOUDFLARE_ACCOUNT_ID=... npx wrangler deploy`.
 
 [[d1_databases]]
 binding = "DB"

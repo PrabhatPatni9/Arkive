@@ -9,6 +9,9 @@ dist/
 .env.local
 .env.*.local
 
+# Local-only infra notes (Cloudflare account id, D1 UUID, etc.) — never commit
+docs/INFRA.local.md
+
 # Editor
 .vscode/
 .idea/
