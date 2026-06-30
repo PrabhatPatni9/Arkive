@@ -5,8 +5,8 @@ const store: Record<string, string> = {}
 const localStorageMock = {
   getItem: (k: string) => store[k] ?? null,
   setItem: (k: string, v: string) => { store[k] = v },
-  removeItem: (k: string) => { delete store[k] },
-  clear: () => { for (const k in store) delete store[k] },
+  removeItem: (k: string) => { Reflect.deleteProperty(store, k) },
+  clear: () => { Object.keys(store).forEach(k => Reflect.deleteProperty(store, k)) },
   length: 0,
   key: () => null,
 } as unknown as Storage

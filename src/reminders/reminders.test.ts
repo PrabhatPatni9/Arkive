@@ -20,14 +20,14 @@ const store: Record<string, string> = {}
 globalThis.localStorage = {
   getItem: (k: string) => store[k] ?? null,
   setItem: (k: string, v: string) => { store[k] = v },
-  removeItem: (k: string) => { delete store[k] },
-  clear: () => { for (const k in store) delete store[k] },
+  removeItem: (k: string) => { Reflect.deleteProperty(store, k) },
+  clear: () => { Object.keys(store).forEach(k => Reflect.deleteProperty(store, k)) },
   key: (i: number) => Object.keys(store)[i] ?? null,
   length: 0,
 }
 
 beforeEach(() => {
-  for (const k in store) delete store[k]
+  Object.keys(store).forEach(k => Reflect.deleteProperty(store, k))
 })
 
 const FAM = 'fam-001'
@@ -110,7 +110,8 @@ describe('computeNextDue', () => {
       recurrence: { unit: 'monthly', interval: 1, end: { type: 'never' } },
     })
     const next = computeNextDue(r, parseLocalDate('2030-01-01'))
-    expect(formatDate(next!)).toBe('2030-02-01')
+    expect(next).not.toBeNull()
+    expect(formatDate(next as Date)).toBe('2030-02-01')
   })
 
   it('computes next weekly due date', () => {
@@ -119,7 +120,8 @@ describe('computeNextDue', () => {
       recurrence: { unit: 'weekly', interval: 1, end: { type: 'never' } },
     })
     const next = computeNextDue(r, parseLocalDate('2030-01-01'))
-    expect(formatDate(next!)).toBe('2030-01-08')
+    expect(next).not.toBeNull()
+    expect(formatDate(next as Date)).toBe('2030-01-08')
   })
 
   it('computes next yearly due date', () => {
@@ -128,7 +130,8 @@ describe('computeNextDue', () => {
       recurrence: { unit: 'yearly', interval: 1, end: { type: 'never' } },
     })
     const next = computeNextDue(r, parseLocalDate('2030-06-15'))
-    expect(formatDate(next!)).toBe('2031-06-15')
+    expect(next).not.toBeNull()
+    expect(formatDate(next as Date)).toBe('2031-06-15')
   })
 
   it('returns null when after_n completions exceeded', () => {
