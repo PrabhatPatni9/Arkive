@@ -4,6 +4,44 @@
 
 ---
 
+## Session — V1 release polish & security review
+
+### Docs
+- Split the README into three: a short root `README.md` landing page, `README.technical.md`
+  (in-depth, devs), and `README.nontechnical.md` (family/user flows, what's possible vs not,
+  data usage, offline behavior). Removed the `security@arkive.app` email and the trademark
+  ownership claim per owner (no domain, no trademark, no public security contact yet).
+
+### APK distribution
+- Added a **GitHub Release** publish step to `build-apk.yml` so there is now a stable public
+  download link: `https://github.com/prabhatpatni9/arkive/releases/latest/download/arkive.apk`
+  (asset always named `arkive.apk`; job granted `contents: write`). Previously the only outputs
+  were login-gated Actions artifacts and hash-keyed R2 objects — no shareable link.
+
+### Security review (full sweep)
+- **No secrets in repo or git history** — scanned working tree + all commits for the live CF
+  token, GitHub PAT, R2 key, `rzp_live_`, admin token. Only doc placeholders found.
+- `wrangler.toml` exposes only non-secret config + the **public** VAPID key. `.wrangler/` and
+  `.env*` are untracked/ignored. No keystore or signing passwords in `android/`.
+- All relay write/read routes require a per-device bearer token; admin route (`PUT /version`)
+  gated by `RELAY_ADMIN_TOKEN`. Device registration is open **by design** (`family_id` is a
+  128-bit secret capability; relay is blind; integrity comes from client-side `verifyOp` +
+  `verifyChainLink`). No eval/exec/backdoors/hardcoded bypasses.
+- Android: cleartext disabled app-wide, `allowBackup=false`, only `MainActivity` exported,
+  FileProvider not exported.
+- **Fixed** a misleading comment in `sync/engine.ts` P2P handler (it implied trusting
+  relay-verified sigs); the handler is a no-op and now documents the verify-before-apply invariant.
+- **Fixed** a latent relay type error in `push.ts` (`bufferToBase64url` now accepts
+  `ArrayBuffer | Uint8Array`); relay is not typechecked in CI so it had gone unnoticed.
+
+### Open owner action (the one remaining v1 security gate)
+- **Certificate pins are placeholders** and the `pin-set` expiration is intentionally in the
+  past, so pinning is currently inert (TLS still enforced via system CAs). Owner must generate
+  real leaf + intermediate SPKI hashes from a non-proxied machine and set a future expiration
+  before claiming cert pinning (HC §8). Cannot be done from this proxied sandbox.
+
+---
+
 ## Phase 0 — Scaffold (COMPLETE)
 - TypeScript strict, Vite + React 18 + Capacitor 6
 - GitHub Actions: `lint-and-test` (all branches), `build-apk` (main only)

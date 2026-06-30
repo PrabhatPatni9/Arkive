@@ -76,8 +76,8 @@ function b64url(str: string): string {
   return bufferToBase64url(new TextEncoder().encode(str))
 }
 
-function bufferToBase64url(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf)
+function bufferToBase64url(buf: ArrayBuffer | Uint8Array): string {
+  const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf)
   let binary = ''
   const CHUNK = 8192
   for (let i = 0; i < bytes.length; i += CHUNK) {

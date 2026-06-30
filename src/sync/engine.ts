@@ -121,9 +121,12 @@ export class SyncEngine {
   private async handleP2PPacket(packet: SyncPacket, peerId: string): Promise<void> {
     void peerId
     if (packet.type === 'ops' && packet.ops) {
-      // Apply received ops to our local log
-      // (Full verify + apply is in puller; for P2P we trust the relay already verified sigs)
-      // TODO: verify signatures here too before applying
+      // SECURITY INVARIANT: ops arriving over P2P are NOT applied here. A LAN peer is
+      // an untrusted source — never apply an op without verifying its Ed25519 signature
+      // and hash-chain link first (the relay's verification does not transfer to P2P).
+      // P2P op ingestion is intentionally unimplemented for v1; the relay pull path in
+      // puller.ts (verifyOp + verifyChainLink) is the only path that applies ops. If this
+      // is ever implemented, it MUST run the same verification before applying.
     }
     if (packet.type === 'pull_request' && packet.since !== undefined) {
       // Peer is asking us for our ops — send what we have since their cursor
