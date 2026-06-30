@@ -17,4 +17,4 @@ bucket_name = "arkive-ops"
 # (not via wrangler routes — avoids needing Zone:Edit scope on the deploy token)
 
 [vars]
-VAPID_PUBLIC_KEY = "BCBktjdyAXfYbKs28Onbbo6CacxevBMcFxQvGmXkIfEsV3JdIdGxqnYdx_vGGtlb1FvK5J1XfgyUyxLxi6VPPWU"
+VAPID_PUBLIC_KEY = "BEZtPXL5k8gXRrikVSezaj9osQVsUReRvHzo-6ZQLxqYqlbwjXcEtOsLbpMZOBdFrfzRPby-iUNDk5AmpFNYE6k"
