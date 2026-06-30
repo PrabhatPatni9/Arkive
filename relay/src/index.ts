@@ -6,6 +6,8 @@ import { handleBlobs } from './routes/blobs'
 import { handleSignal } from './routes/signal'
 import { handleFamily } from './routes/family'
 import { handleEvent } from './routes/events'
+import { handleVersion } from './routes/version'
+import { handleRelease } from './routes/release'
 import type { Env } from './types'
 
 export default {
@@ -30,6 +32,11 @@ export default {
       response = await handleFamily(request, env)
     } else if (pathname === '/event') {
       response = await handleEvent(request, env)
+    } else if (pathname === '/version') {
+      response = await handleVersion(request, env)
+    } else if (pathname.startsWith('/release/')) {
+      const sha256 = pathname.slice('/release/'.length)
+      response = await handleRelease(request, env, sha256)
     } else if (pathname.startsWith('/join/')) {
       response = await handleJoin(request, env, pathname)
     } else if (pathname.startsWith('/blob/')) {

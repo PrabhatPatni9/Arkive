@@ -28,6 +28,7 @@ jobs:
         env:
           VITE_RELAY_URL: ${{ secrets.VITE_RELAY_URL }}
           VITE_UPDATE_PUBKEY: ${{ secrets.VITE_UPDATE_PUBKEY }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
           VITE_RAZORPAY_KEY: ${{ secrets.VITE_RAZORPAY_KEY }}
 
       - name: Deploy to Cloudflare Pages

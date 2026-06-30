@@ -53,6 +53,11 @@ jobs:
 
       - name: Build web assets
         run: npm run build
+        env:
+          VITE_RELAY_URL: ${{ secrets.VITE_RELAY_URL }}
+          VITE_UPDATE_PUBKEY: ${{ secrets.VITE_UPDATE_PUBKEY }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+          VITE_RAZORPAY_KEY: ${{ secrets.VITE_RAZORPAY_KEY }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -100,8 +105,28 @@ jobs:
           path: ${{ steps.sign.outputs.signedReleaseFile }}
           retention-days: 30
 
-      # The relay's /version endpoint serves a signed UpdateManifest.
-      # Phase 1+ will populate this step with the manifest signing script.
-      - name: Publish version manifest (stub)
+      - name: Upload APK to R2 release store
         run: |
-          echo "TODO Phase 1+: sign and upload UpdateManifest to relay /version"
+          APK="${{ steps.sign.outputs.signedReleaseFile }}"
+          SHA256=$(sha256sum "$APK" | cut -d' ' -f1)
+          echo "SIGNED_APK_PATH=$APK" >> "$GITHUB_ENV"
+          echo "APK_SHA256=$SHA256" >> "$GITHUB_ENV"
+          # Store at _release/<sha256> in R2; relay serves it at GET /release/<sha256>
+          npx wrangler r2 object put "arkive-ops/_release/$SHA256" \
+            --file="$APK" \
+            --content-type="application/vnd.android.package-archive" \
+            --remote
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        working-directory: relay
+
+      - name: Sign and publish UpdateManifest
+        run: node scripts/sign-manifest.mjs
+        env:
+          APK_SIGNING_SEED: ${{ secrets.APK_SIGNING_SEED }}
+          RELAY_URL: ${{ secrets.VITE_RELAY_URL }}
+          RELAY_ADMIN_TOKEN: ${{ secrets.RELAY_ADMIN_TOKEN }}
+          APK_PATH: ${{ env.SIGNED_APK_PATH }}
+          BUILD_NUMBER: ${{ github.run_number }}
+          APP_VERSION: ${{ github.ref_name }}

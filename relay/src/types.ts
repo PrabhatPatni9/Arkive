@@ -3,6 +3,7 @@ export interface Env {
   OPS_BUCKET: R2Bucket
   VAPID_PUBLIC_KEY: string
   VAPID_PRIVATE_KEY: string
+  RELAY_ADMIN_TOKEN: string
 }
 
 export interface DeviceRow {
