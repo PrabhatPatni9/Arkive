@@ -231,7 +231,15 @@
 - **README (§12):** comprehensive README covering privacy posture, exact metadata list, sync tiers, crypto primitives, threat model + residual risks, self-host instructions, VAPID key generation, cert pinning procedure, AGPL-3.0 license, trademark notice, security review invitation.
 - **@capacitor/push-notifications** installed.
 
-### Phase 8 deployment status (as of 2026-06-30):
+### Phase 8 deployment status (as of 2026-06-30, final):
+- ✅ **`/version` relay endpoint** — `GET /version` serves UpdateManifest from R2; `PUT /version` protected by `RELAY_ADMIN_TOKEN` for CI upload
+- ✅ **`/release/<sha256>` relay endpoint** — public no-auth APK download from R2 `_release/<sha256>`
+- ✅ **`RELAY_ADMIN_TOKEN` set** as Worker secret; also needs adding to GitHub Secrets as `RELAY_ADMIN_TOKEN`
+- ✅ **Relay redeployed** — version `3671c427`; both new endpoints live
+- ✅ **`scripts/sign-manifest.mjs`** — CI script: SHA-256 APK hash, Ed25519 manifest sign, PUT /version upload
+- ✅ **CI workflows updated** — `build-apk.yml` passes `VITE_VAPID_PUBLIC_KEY`/`VITE_UPDATE_PUBKEY`/`VITE_RAZORPAY_KEY` to Vite build; implements real APK upload (wrangler r2) + manifest signing; `deploy-pages.yml` passes `VITE_VAPID_PUBLIC_KEY`
+
+### Phase 8 deployment status (as of 2026-06-30, initial):
 - ✅ **VAPID keypair generated** — new consistent pair:
   - Public key (in wrangler.toml): `BEZtPXL5k8gXRrikVSezaj9osQVsUReRvHzo-6ZQLxqYqlbwjXcEtOsLbpMZOBdFrfzRPby-iUNDk5AmpFNYE6k`
   - Private key set as `VAPID_PRIVATE_KEY` Cloudflare Worker secret ✅
@@ -242,10 +250,13 @@
 - ✅ **Relay Worker deployed** — Version `c877d7e4-f6f5-47ce-a08c-0c5c079c8d7b`; workers.dev at `https://arkive-relay.organizedchaos745.workers.dev`; custom domain `relay-arkive.punyakosh.in` routes to same worker via Cloudflare Workers Domains
 
 ### Owner action still required before release:
-1. **Replace placeholder hashes** in `network_security_config.xml` with real SPKI hashes (instructions in file and README)
-2. **Set `VITE_UPDATE_PUBKEY`** in GitHub Actions secrets: `1/wonvmbgkndSvPIvUhPhygNbVNdPbkHLu9gfqkVEX8=`
-3. **Set `VITE_VAPID_PUBLIC_KEY`** in GitHub Actions secrets: `BEZtPXL5k8gXRrikVSezaj9osQVsUReRvHzo-6ZQLxqYqlbwjXcEtOsLbpMZOBdFrfzRPby-iUNDk5AmpFNYE6k`
-4. **Keep APK signing private seed safe** — add as `APK_SIGNING_SEED` GitHub Secret, then delete from any chat history
+1. **Replace placeholder cert pin hashes** in `network_security_config.xml` with real SPKI hashes (instructions in file and README)
+2. **Add these GitHub Actions Secrets** (Settings → Secrets → Actions):
+   - `VITE_UPDATE_PUBKEY` = `1/wonvmbgkndSvPIvUhPhygNbVNdPbkHLu9gfqkVEX8=`
+   - `VITE_VAPID_PUBLIC_KEY` = `BEZtPXL5k8gXRrikVSezaj9osQVsUReRvHzo-6ZQLxqYqlbwjXcEtOsLbpMZOBdFrfzRPby-iUNDk5AmpFNYE6k`
+   - `RELAY_ADMIN_TOKEN` = already deployed as Worker secret; copy value from scratchpad
+   - `APK_SIGNING_SEED` — keep private seed offline; delete from any chat history after adding
+3. **Razorpay** — add `VITE_RAZORPAY_KEY` once live key is available
 
 ## Owner Checklist
 
@@ -260,6 +271,7 @@ Go to: `https://github.com/prabhatpatni9/arkive/settings/secrets/actions`
 | `VITE_UPDATE_PUBKEY` | `1/wonvmbgkndSvPIvUhPhygNbVNdPbkHLu9gfqkVEX8=` |
 | `VITE_VAPID_PUBLIC_KEY` | `BEZtPXL5k8gXRrikVSezaj9osQVsUReRvHzo-6ZQLxqYqlbwjXcEtOsLbpMZOBdFrfzRPby-iUNDk5AmpFNYE6k` |
 | `APK_SIGNING_SEED` | Ed25519 private seed — share out-of-band (keep offline); do NOT store in code |
+| `RELAY_ADMIN_TOKEN` | Already set as Worker secret — retrieve value out-of-band (scratchpad) |
 | `VITE_RAZORPAY_KEY` | Razorpay live key (`rzp_live_...`) |
 | `KEY_ALIAS` | `arkive-release` |
 | `KEY_STORE_PASSWORD` | Shared out-of-band during setup |
