@@ -17,8 +17,8 @@ const store: Record<string, string> = {}
 globalThis.localStorage = {
   getItem: (k: string) => store[k] ?? null,
   setItem: (k: string, v: string) => { store[k] = v },
-  removeItem: (k: string) => { delete store[k] },
-  clear: () => { for (const k in store) delete store[k] },
+  removeItem: (k: string) => { Reflect.deleteProperty(store, k) },
+  clear: () => { Object.keys(store).forEach(k => Reflect.deleteProperty(store, k)) },
   key: (i: number) => Object.keys(store)[i] ?? null,
   length: 0,
 }
@@ -29,7 +29,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   clearFamily()
-  for (const k in store) delete store[k]
+  Object.keys(store).forEach(k => Reflect.deleteProperty(store, k))
 })
 
 describe('wordlist', () => {
@@ -98,7 +98,7 @@ describe('createFamily', () => {
   it('generates distinct family IDs', () => {
     const s1 = createFamily({ familyName: 'F1', myName: 'A', familyType: 'nuclear', recoveryPhrase: 'x' })
     clearFamily()
-    for (const k in store) delete store[k]
+    Object.keys(store).forEach(k => Reflect.deleteProperty(store, k))
     const s2 = createFamily({ familyName: 'F2', myName: 'B', familyType: 'nuclear', recoveryPhrase: 'x' })
     expect(s1.familyId).not.toBe(s2.familyId)
   })
@@ -119,7 +119,7 @@ describe('createFamily', () => {
 describe('join handshake', () => {
   it('admin derives same verification code as requester', () => {
     // Admin has a family
-    const adminState = createFamily({
+    createFamily({
       familyName: 'Admin Family',
       myName: 'Admin',
       familyType: 'nuclear',
@@ -130,13 +130,13 @@ describe('join handshake', () => {
     const pending = createJoinRequest('New Member')
 
     // Admin derives code from requester enc pub + admin enc pub
+    const adminFamily = getFamily()
+    if (!adminFamily) throw new Error('family not set up')
     const adminCode = deriveHandshakeCode(
       pending.request.deviceEncPublicKey,
-      adminState.deviceEncKeypair.publicKey
+      adminFamily.deviceEncKeypair.publicKey
     )
 
-    // Clear store (simulate requester's device, which doesn't have the family)
-    // Re-derive code from requester side (using admin enc pub from approval)
     // Both should match because it's the same function with same inputs
     expect(adminCode).toHaveLength(6)
     expect(/^\d{6}$/.test(adminCode)).toBe(true)
@@ -154,7 +154,9 @@ describe('join handshake', () => {
 
     // Both derive verification code from the same inputs
     const requesterCode = deriveHandshakeCode(pending.request.deviceEncPublicKey, approval.adminEncPublicKey)
-    const adminCode = deriveHandshakeCode(pending.request.deviceEncPublicKey, getFamily()!.deviceEncKeypair.publicKey)
+    const currentFamily = getFamily()
+    if (!currentFamily) throw new Error('family not set up')
+    const adminCode = deriveHandshakeCode(pending.request.deviceEncPublicKey, currentFamily.deviceEncKeypair.publicKey)
 
     expect(requesterCode).toBe(adminCode)
   })
@@ -171,7 +173,7 @@ describe('join handshake', () => {
 
     // Simulate requester's perspective: clear admin state, complete join
     clearFamily()
-    for (const k in store) delete store[k]
+    Object.keys(store).forEach(k => Reflect.deleteProperty(store, k))
 
     const joined = completeJoin(pending, approval)
     expect(joined.familyKey.bytes).toBe(originalKeyBytes)
@@ -192,7 +194,7 @@ describe('join handshake', () => {
 
     // Try to use joiner 2's keys with joiner 1's approval
     clearFamily()
-    for (const k in store) delete store[k]
+    Object.keys(store).forEach(k => Reflect.deleteProperty(store, k))
 
     expect(() => completeJoin(pending2, approval)).toThrow()
   })

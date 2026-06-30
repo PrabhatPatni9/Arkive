@@ -69,11 +69,12 @@ export function EmergencyCardScreen() {
 
   // Render QR to canvas when enabled
   useEffect(() => {
-    if (!isEnabled || !canvasRef.current) return
+    const canvas = canvasRef.current
+    if (!isEnabled || !canvas) return
     setQrReady(false)
     const compact = JSON.stringify(cardData)
     import('qrcode').then(QRCode => {
-      QRCode.toCanvas(canvasRef.current!, compact, { width: 200, margin: 2 }, (err) => {
+      QRCode.toCanvas(canvas, compact, { width: 200, margin: 2 }, (err) => {
         if (!err) setQrReady(true)
       })
     }).catch(() => {

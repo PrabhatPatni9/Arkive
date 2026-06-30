@@ -36,7 +36,7 @@ function ReminderCard({ reminder, onDone }: { reminder: Reminder; onDone: () => 
   const soon = isDueSoon(reminder, reminder.advanceNoticeDays)
 
   let statusColor = 'var(--text-muted)'
-  let statusLabel = days === 0 ? 'Today' : days > 0 ? `In ${days} day${days === 1 ? '' : 's'}` : `${Math.abs(days)}d overdue`
+  const statusLabel = days === 0 ? 'Today' : days > 0 ? `In ${days} day${days === 1 ? '' : 's'}` : `${Math.abs(days)}d overdue`
   if (overdue) statusColor = 'var(--danger)'
   else if (soon) statusColor = 'var(--warning)'
   else statusColor = 'var(--success)'
@@ -165,10 +165,12 @@ export function RemindersScreen() {
 
   if (!family) { navigate('/onboarding', { replace: true }); return null }
 
-  function reload() { setReminders(getReminders(family!.familyId)); setShowAdd(false) }
+  const { familyId, myMemberId } = family
+
+  function reload() { setReminders(getReminders(familyId)); setShowAdd(false) }
 
   function handleDone(reminderId: string) {
-    markDone(reminderId, family!.myMemberId)
+    markDone(reminderId, myMemberId)
     reload()
   }
 
