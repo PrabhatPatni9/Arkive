@@ -121,6 +121,9 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         working-directory: relay
 
+      - name: Read app version from package.json
+        run: echo "APP_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+
       - name: Sign and publish UpdateManifest
         run: node scripts/sign-manifest.mjs
         env:
@@ -129,4 +132,4 @@ jobs:
           RELAY_ADMIN_TOKEN: ${{ secrets.RELAY_ADMIN_TOKEN }}
           APK_PATH: ${{ env.SIGNED_APK_PATH }}
           BUILD_NUMBER: ${{ github.run_number }}
-          APP_VERSION: ${{ github.ref_name }}
+          APP_VERSION: ${{ env.APP_VERSION }}

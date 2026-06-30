@@ -119,6 +119,9 @@ async function verifyManifestSignature(manifest: UpdateManifest): Promise<boolea
 function bufferToBase64(buf: ArrayBuffer): string {
   const bytes = new Uint8Array(buf)
   let binary = ''
-  for (const b of bytes) binary += String.fromCharCode(b)
+  const CHUNK = 8192
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK))
+  }
   return btoa(binary)
 }

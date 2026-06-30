@@ -5,14 +5,20 @@ const FLAGS_KEY = 'arkive_modules_v1'
 
 type FlagMap = Record<string, boolean>
 
+// Module-level cache so repeated calls in the same render don't re-parse localStorage.
+let _flagsCache: FlagMap | null = null
+
 function loadFlags(): FlagMap {
+  if (_flagsCache) return _flagsCache
   try {
     const raw = localStorage.getItem(FLAGS_KEY)
-    return raw ? (JSON.parse(raw) as FlagMap) : {}
-  } catch { return {} }
+    _flagsCache = raw ? (JSON.parse(raw) as FlagMap) : {}
+  } catch { _flagsCache = {} }
+  return _flagsCache
 }
 
 function saveFlags(flags: FlagMap): void {
+  _flagsCache = flags
   localStorage.setItem(FLAGS_KEY, JSON.stringify(flags))
 }
 

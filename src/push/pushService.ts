@@ -1,19 +1,16 @@
 /**
  * Push notification service — handles both Web Push (PWA) and FCM (native Android).
  *
- * For native Android: uses @capacitor/push-notifications to get the FCM token.
- * For PWA/web: uses the browser Push API with VAPID.
+ * Native Android: uses @capacitor/push-notifications to get the FCM token.
+ * PWA/web: uses the browser Push API with VAPID (key from VITE_VAPID_PUBLIC_KEY).
  *
- * In both cases the subscription is sent to the relay at device registration
- * so the relay can send a content-free wake signal when new ops arrive.
- *
- * The VAPID public key is served by the relay at GET /vapid-public-key, or
- * set as VITE_VAPID_PUBLIC_KEY at build time.
+ * The subscription JSON is sent to the relay at device registration so the relay
+ * can send a content-free wake signal whenever new ops arrive for the family.
  */
 
 const VAPID_PUBLIC_KEY = (import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined) ?? ''
 
-const NATIVE_AVAILABLE = typeof window !== 'undefined' && !!(window as unknown as Record<string, unknown>).Capacitor
+const NATIVE_AVAILABLE = typeof window !== 'undefined' && !!(window as Window & { Capacitor?: unknown }).Capacitor
 
 export async function initPush(): Promise<PushSubscriptionJSON | null> {
   if (NATIVE_AVAILABLE) {

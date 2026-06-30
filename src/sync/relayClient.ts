@@ -1,7 +1,5 @@
 import type { FamilyState } from '../family/familyStore'
 
-const RELAY_URL_BASE = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
-
 function enforceHttps(url: string): void {
   if (url && !url.startsWith('https://')) {
     throw new Error(`Relay URL must use HTTPS — got: ${url}`)
@@ -147,5 +145,3 @@ export async function logEvent(
     })
   } catch { /* fire-and-forget; ignore errors */ }
 }
-
-void RELAY_URL_BASE
