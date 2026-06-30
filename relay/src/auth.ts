@@ -16,3 +16,10 @@ export async function requireAuth(
   if (!token) return null
   return getDeviceByToken(env, token)
 }
+
+export function requireAdminAuth(request: Request, env: Env): boolean {
+  const auth = request.headers.get('Authorization')
+  if (!auth?.startsWith('Bearer ')) return false
+  const token = auth.slice(7).trim()
+  return !!env.RELAY_ADMIN_TOKEN && token === env.RELAY_ADMIN_TOKEN
+}

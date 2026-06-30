@@ -40,6 +40,8 @@ jobs:
     needs: lint-and-test
     # Only sign on pushes to main (not on PRs, not on feature branches)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write   # required to publish the signed APK as a GitHub Release asset
     steps:
       - uses: actions/checkout@v4
 
@@ -121,6 +123,9 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         working-directory: relay
 
+      - name: Read app version from package.json
+        run: echo "APP_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+
       - name: Sign and publish UpdateManifest
         run: node scripts/sign-manifest.mjs
         env:
@@ -129,4 +134,24 @@ jobs:
           RELAY_ADMIN_TOKEN: ${{ secrets.RELAY_ADMIN_TOKEN }}
           APK_PATH: ${{ env.SIGNED_APK_PATH }}
           BUILD_NUMBER: ${{ github.run_number }}
-          APP_VERSION: ${{ github.ref_name }}
+          APP_VERSION: ${{ env.APP_VERSION }}
+
+      - name: Stage APK as arkive.apk
+        run: cp "$SIGNED_APK_PATH" arkive.apk
+
+      - name: Publish signed APK as a GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # Stable tag per build so releases/latest always resolves to the newest signed APK.
+          # The asset is always named arkive.apk, so the download URL never changes:
+          #   https://github.com/${{ github.repository }}/releases/latest/download/arkive.apk
+          tag_name: v${{ env.APP_VERSION }}-build.${{ github.run_number }}
+          name: Arkive v${{ env.APP_VERSION }} (build ${{ github.run_number }})
+          body: |
+            Signed Android APK for Arkive v${{ env.APP_VERSION }} (build ${{ github.run_number }}).
+
+            - SHA-256: `${{ env.APK_SHA256 }}`
+            - Sideload only (not on Play Store). On first install, allow "install unknown apps".
+            - The app verifies its own future updates with an Ed25519-signed manifest.
+          files: arkive.apk
+          make_latest: true

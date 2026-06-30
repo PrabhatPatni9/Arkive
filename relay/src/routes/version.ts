@@ -1,4 +1,5 @@
 import type { Env } from '../types'
+import { requireAdminAuth } from '../auth'
 
 const VERSION_KEY = '_version.json'
 
@@ -19,15 +20,13 @@ async function getVersion(env: Env): Promise<Response> {
 }
 
 async function putVersion(request: Request, env: Env): Promise<Response> {
-  const authHeader = request.headers.get('Authorization') ?? ''
-  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
-  if (!env.RELAY_ADMIN_TOKEN || token !== env.RELAY_ADMIN_TOKEN) {
+  if (!requireAdminAuth(request, env)) {
     return new Response('Unauthorized', { status: 401 })
   }
 
   const body = await request.text()
   try {
-    JSON.parse(body) // validate it's valid JSON before storing
+    JSON.parse(body) // validate it's well-formed before storing
   } catch {
     return new Response('Invalid JSON', { status: 400 })
   }

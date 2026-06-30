@@ -29,6 +29,23 @@ export async function sendWakePush(env: Env, device: DeviceRow): Promise<void> {
   }
 }
 
+// Cached CryptoKey so importKey runs at most once per Worker cold start.
+let _vapidKey: CryptoKey | null = null
+let _vapidKeySource = ''
+
+async function getVapidKey(privateKeyB64url: string): Promise<CryptoKey> {
+  if (_vapidKey && _vapidKeySource === privateKeyB64url) return _vapidKey
+  _vapidKey = await crypto.subtle.importKey(
+    'raw',
+    base64urlToBuffer(privateKeyB64url),
+    { name: 'ECDSA', namedCurve: 'P-256' },
+    false,
+    ['sign'],
+  )
+  _vapidKeySource = privateKeyB64url
+  return _vapidKey
+}
+
 async function buildVapidHeaders(
   publicKeyB64url: string,
   privateKeyB64url: string,
@@ -41,14 +58,7 @@ async function buildVapidHeaders(
   const payload = b64url(JSON.stringify({ aud: audience, exp, sub: 'mailto:ops@arkive.app' }))
   const signingInput = `${header}.${payload}`
 
-  const privateKey = await crypto.subtle.importKey(
-    'raw',
-    base64urlToBuffer(privateKeyB64url),
-    { name: 'ECDSA', namedCurve: 'P-256' },
-    false,
-    ['sign'],
-  )
-
+  const privateKey = await getVapidKey(privateKeyB64url)
   const sig = await crypto.subtle.sign(
     { name: 'ECDSA', hash: 'SHA-256' },
     privateKey,
@@ -66,9 +76,14 @@ function b64url(str: string): string {
   return bufferToBase64url(new TextEncoder().encode(str))
 }
 
-function bufferToBase64url(buf: ArrayBuffer): string {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+function bufferToBase64url(buf: ArrayBuffer | Uint8Array): string {
+  const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf)
+  let binary = ''
+  const CHUNK = 8192
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK))
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }
 
 function base64urlToBuffer(b64url: string): ArrayBuffer {
