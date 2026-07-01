@@ -1,6 +1,38 @@
 # Arkive Build Progress
 
-## Current Phase: 8 (V1 Hardening) — COMPLETE; all planned V1 phases done
+## Current Phase: v2 Phase A (Security Remediation) — COMPLETE; Phase B (data model) next
+
+---
+
+## Session — v2 Phase A security remediation (COMPLETE)
+
+Audit delivered in `docs/AUDIT.md` (the v2 brief §0 gate). All 8 Phase A items done, verified
+(relay tsc + app lint + 205 tests), committed, and pushed to `main` (relay auto-deploys via CI):
+
+1. **Keys out of localStorage (CRITICAL)** — `src/family/secureStore.ts`: AES-GCM under a
+   non-extractable WebCrypto key in IndexedDB; only ciphertext persisted. `familyStore.ts`
+   uses an in-memory cache (getFamily stays sync) + `hydrateFamilyStore()` at boot, migrating
+   and overwrite-wiping any legacy plaintext.
+2. **CORS allowlist** — `relay/src/index.ts` no longer reflects arbitrary origins.
+3. **Server-side hash recompute** — ops (BLAKE2b via `blakejs`) + blobs (SHA-256), reject on
+   mismatch.
+4. **Token expiry + revocation** — 90-day TTL + `revoked` flag (`relay/migrations/005`),
+   `POST /devices/revoke`; code degrades gracefully until the migration is applied.
+5. **Join hardening** — unknown-family reject + pending-request cap.
+6. **Payload cap** — 10 MB ceiling in `envelope.ts`.
+7. **Recipient binding** — wrap records + unwrap verifies recipient (constant-time).
+8. **Encrypted export** — passphrase-sealed (`sealWithPassphrase`), UI prompt + warning.
+9. `verifyChainLink` uses `sodium.memcmp`.
+
+### Open owner actions
+- Apply `relay/migrations/005_token_expiry.sql` to the live D1 (activates token expiry/revoke).
+- Replace cert-pin placeholders before a pinning-claimed release.
+- Attach `arkive.punyakosh.in` custom domain in Cloudflare Pages (webapp currently at
+  `https://arkive-csk.pages.dev`).
+- Rotate the build-session Cloudflare API token.
+
+### Next: Phase B — Owner/Entity model, granular typed medical records, managed-identity
+isolation, three-tier crypto enforcement (see ARKIVE_BUILD_BRIEF.md / v2 brief §2–§6).
 
 ---
 
