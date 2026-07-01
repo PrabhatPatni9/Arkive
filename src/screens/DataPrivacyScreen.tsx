@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Download, LogOut, Trash2, AlertTriangle } from 'lucide-react'
-import { getFamily, exportFamilyData, leaveFamily, purgeAllData } from '../family/familyStore'
+import { getFamily, exportFamilyDataEncrypted, leaveFamily, purgeAllData } from '../family/familyStore'
 import { deleteFamily } from '../sync/relayClient'
 
 const RELAY_URL = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
@@ -21,12 +21,25 @@ export function DataPrivacyScreen() {
   }
 
   function handleExport() {
-    const json = exportFamilyData()
+    // The export carries plaintext health data, so it is always encrypted under a
+    // passphrase the user supplies — never written to disk in the clear.
+    const passphrase = window.prompt(
+      'Set a passphrase to encrypt this export (min 8 characters).\n' +
+      'You will need it to restore the data. If you lose it, the export is unrecoverable.'
+    )
+    if (passphrase === null) return // user cancelled
+    let json: string
+    try {
+      json = exportFamilyDataEncrypted(passphrase)
+    } catch (err) {
+      window.alert(err instanceof Error ? err.message : 'Export failed')
+      return
+    }
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `arkive-export-${new Date().toISOString().slice(0, 10)}.json`
+    a.download = `arkive-export-${new Date().toISOString().slice(0, 10)}.enc.json`
     a.click()
     URL.revokeObjectURL(url)
     setExported(true)
@@ -74,12 +87,12 @@ export function DataPrivacyScreen() {
               <div>
                 <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>Export my data</p>
                 <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.5 }}>
-                  Downloads a JSON file with your family members, health info, and reminders. Keys are not exported.
+                  Downloads a passphrase-encrypted file with your family members, health info, and reminders. You choose the passphrase; keep it safe — it cannot be recovered. Keys are not exported.
                 </p>
               </div>
             </div>
             <button className="btn btn-outline" type="button" onClick={handleExport}>
-              {exported ? 'Downloaded — export again?' : 'Download JSON export'}
+              {exported ? 'Downloaded — export again?' : 'Download encrypted export'}
             </button>
           </div>
         </div>

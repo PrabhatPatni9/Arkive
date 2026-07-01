@@ -7,7 +7,7 @@ import {
   unwrapKey,
 } from '../crypto/keys'
 import type { EncryptionKeypair, SigningKeypair, ScopeKey } from '../crypto/keys'
-import { createRecoveryPackage, moderateParams } from '../crypto/recovery'
+import { createRecoveryPackage, moderateParams, sealWithPassphrase } from '../crypto/recovery'
 import { deriveVerificationCode } from '../crypto/handshake'
 import { generateRecoveryPhrase } from './wordlist'
 
@@ -437,6 +437,21 @@ export function exportFamilyData(): string {
     } : null,
     reminders,
   }, null, 2)
+}
+
+/**
+ * Passphrase-encrypted export. The export contains plaintext health data (blood groups,
+ * allergies, medications, policy numbers), so it must never leave the device in the clear.
+ * The result is an Argon2id + XChaCha20-Poly1305 sealed blob restorable only with the
+ * passphrase. Choose a strong passphrase — losing it means the export is unrecoverable.
+ */
+export function exportFamilyDataEncrypted(passphrase: string): string {
+  if (passphrase.length < 8) {
+    throw new Error('Export passphrase must be at least 8 characters')
+  }
+  const plaintext = sodium.from_string(exportFamilyData())
+  const sealed = sealWithPassphrase(plaintext, passphrase)
+  return JSON.stringify({ format: 'arkive-export-encrypted', ...sealed }, null, 2)
 }
 
 export function leaveFamily(): void {
