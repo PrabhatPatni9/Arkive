@@ -6,6 +6,7 @@ export type ModuleId =
   | 'contacts'
   | 'home_devices'
   | 'identity'
+  | 'entities'
 
 export interface ModuleMeta {
   id: ModuleId
@@ -22,4 +23,5 @@ export const MODULE_REGISTRY: ModuleMeta[] = [
   { id: 'contacts',     route: '/contacts',     labelKey: 'modules.contacts',     defaultEnabled: false },
   { id: 'home_devices', route: '/home-devices', labelKey: 'modules.home_devices', defaultEnabled: false },
   { id: 'identity',     route: '/identity',     labelKey: 'modules.identity',     defaultEnabled: true  },
+  { id: 'entities',     route: '/entities',     labelKey: 'modules.entities',     defaultEnabled: false },
 ]

@@ -1,4 +1,4 @@
-import { FileText, Heart, Shield, AlertTriangle, Bell, ChevronRight, Calendar, ShieldCheck, Car, Wallet, Droplets, BookOpen, Cpu, User } from 'lucide-react'
+import { FileText, Heart, Shield, AlertTriangle, Bell, ChevronRight, Calendar, ShieldCheck, Car, Wallet, Droplets, BookOpen, Cpu, User, Building2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getFamily } from '../family/familyStore'
@@ -25,6 +25,7 @@ const MODULE_CARDS = [
   { id: 'contacts'     as const, icon: BookOpen,     title: 'Contacts',      desc: 'Doctors, services',        to: '/contacts' },
   { id: 'home_devices' as const, icon: Cpu,          title: 'Home Devices',  desc: 'Appliances & warranties',  to: '/home-devices' },
   { id: 'identity'     as const, icon: User,         title: 'Identity',      desc: 'Your ID documents',        to: '/identity' },
+  { id: 'entities'     as const, icon: Building2,    title: 'Entities',      desc: 'HUFs, companies, trusts',  to: '/entities' },
 ]
 
 export function HomeScreen() {
