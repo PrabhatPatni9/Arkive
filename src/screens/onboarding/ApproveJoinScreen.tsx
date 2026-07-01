@@ -74,6 +74,7 @@ export function ApproveJoinScreen() {
   }
 
   function handleSelectRelayRequest(entry: PendingJoinEntry) {
+    if (!family) return
     try {
       const parsed = JSON.parse(entry.requestJson) as JoinRequest
       if (!parsed.deviceEncPublicKey || !parsed.requesterName || !parsed.requestId) {
@@ -91,7 +92,7 @@ export function ApproveJoinScreen() {
   }
 
   async function handleApprove() {
-    if (!request) return
+    if (!request || !family) return
     setError('')
     try {
       const appr = approveJoinRequest(request)
@@ -113,6 +114,7 @@ export function ApproveJoinScreen() {
   }
 
   function handleParseRequest() {
+    if (!family) return
     setError('')
     try {
       const parsed = JSON.parse(requestJson.trim()) as JoinRequest

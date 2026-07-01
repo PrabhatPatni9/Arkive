@@ -44,7 +44,6 @@ export function isPrefetched(hash: string): boolean {
 async function prefetchBlob(
   relayUrl: string,
   token: string,
-  familyId: string,
   hash: string
 ): Promise<void> {
   if (isPrefetched(hash)) return
@@ -82,7 +81,7 @@ export async function prefetchOnWifi(relayUrl: string, token: string): Promise<v
   // Prefetch in background, one at a time to not hammer the relay
   for (const doc of ordered) {
     if (!isPrefetched(doc.hash)) {
-      await prefetchBlob(relayUrl, token, family.familyId, doc.hash)
+      await prefetchBlob(relayUrl, token, doc.hash)
       // Brief pause to be polite to Cloudflare
       await new Promise(r => setTimeout(r, 100))
     }

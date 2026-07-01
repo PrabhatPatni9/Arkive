@@ -35,7 +35,7 @@ export function VaultDocumentScreen() {
 
     try {
       const bytes = decryptDocumentBytes(doc, keypair)
-      const blob = new Blob([bytes], { type: doc.mimeType })
+      const blob = new Blob([bytes as BlobPart], { type: doc.mimeType })
       const url = URL.createObjectURL(blob)
       setObjectUrl(url)
       return () => URL.revokeObjectURL(url)
