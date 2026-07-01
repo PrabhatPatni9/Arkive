@@ -28,6 +28,8 @@ export {
   openRecoveryPackage,
   interactiveParams,
   moderateParams,
+  sealWithPassphrase,
+  openWithPassphrase,
 } from './recovery'
-export type { RecoveryPackage, ArgonParams } from './recovery'
+export type { RecoveryPackage, ArgonParams, PassphraseSealed } from './recovery'
 export { deriveVerificationCode, codesMatch } from './handshake'

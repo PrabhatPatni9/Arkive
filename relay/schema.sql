@@ -28,10 +28,13 @@ CREATE TABLE IF NOT EXISTS device_tokens (
   token       TEXT PRIMARY KEY,
   device_id   TEXT NOT NULL,
   family_id   TEXT NOT NULL,
-  created_at  TEXT NOT NULL
+  created_at  TEXT NOT NULL,
+  expires_at  INTEGER,                    -- migration 5: unix epoch seconds; NULL = legacy no-expiry
+  revoked     INTEGER NOT NULL DEFAULT 0  -- migration 5: 1 = revoked (stolen/lost device)
 );
 
 CREATE INDEX IF NOT EXISTS idx_device_tokens_device ON device_tokens (device_id);
+CREATE INDEX IF NOT EXISTS idx_device_tokens_family ON device_tokens (family_id);
 
 CREATE TABLE IF NOT EXISTS join_handshakes (
   request_id    TEXT PRIMARY KEY,

@@ -57,3 +57,31 @@ server-side hash recomputation, token expiry/revocation/rate-limit, join hardeni
 limits, recipient binding, encrypted export. Phases B–D (Owner/Entity model, granular medical
 records, managed-identity isolation, three-tier crypto enforcement, on-device Emergency Medical
 Summary PDF) follow A.
+
+## D. Phase A status — COMPLETE ✅
+
+| # | Item | Status | Where |
+|---|------|--------|-------|
+| 1 | Keys out of localStorage | ✅ Done | `src/family/secureStore.ts` (AES-GCM + non-extractable WebCrypto key in IndexedDB), `familyStore.ts` cache + `hydrateFamilyStore()`, boot migration + overwrite-on-wipe |
+| 2 | CORS allowlist | ✅ Done | `relay/src/index.ts` — explicit allowlist, no origin reflection |
+| 3 | Server-side hash recompute | ✅ Done | ops: BLAKE2b (`blakejs`); blobs: SHA-256; reject on mismatch |
+| 4 | Token expiry + revocation | ✅ Done (needs migration 005 applied) | `d1.ts` (90-day TTL, `revoked`), `POST /devices/revoke`, `relay/migrations/005_token_expiry.sql` |
+| 5 | Join hardening | ✅ Done | `join.ts` — unknown-family reject + pending-request cap |
+| 6 | Payload cap | ✅ Done | `envelope.ts` 10 MB ceiling |
+| 7 | Recipient binding | ✅ Done | `keys.ts` wrap records + unwrap verifies recipient (constant-time) |
+| 8 | Encrypted export | ✅ Done | `recovery.ts` `sealWithPassphrase`; `DataPrivacyScreen` passphrase prompt |
+| 9 | memcmp on prev_hash | ✅ Done | `ops.ts` `verifyChainLink` |
+
+**Open owner actions (cannot be done from the sandbox):**
+- Apply `relay/migrations/005_token_expiry.sql` to the live D1 to activate token
+  expiry/revocation (code degrades gracefully until then — no breakage).
+- Replace the placeholder cert pins before any pinning-claimed release.
+- Attach `arkive.punyakosh.in` as a Pages custom domain (or use the pages.dev URL).
+- Rotate the build-session Cloudflare API token.
+
+Rate limiting (item 4, the throughput-limit part): the join queue is now capped and unknown
+families rejected; production per-IP/per-route rate limiting should be added as a Cloudflare
+edge rule (dashboard) — noted as ops config, not code.
+
+Next: **Phase B** — Owner/Entity model, granular typed medical records, managed-identity
+isolation, three-tier crypto enforcement.

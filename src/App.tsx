@@ -30,7 +30,7 @@ import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
 import { JoinFamilyScreen } from './screens/onboarding/JoinFamilyScreen'
 import { ApproveJoinScreen } from './screens/onboarding/ApproveJoinScreen'
 import { Nav } from './components/Nav'
-import { getFamily } from './family/familyStore'
+import { getFamily, hydrateFamilyStore } from './family/familyStore'
 import { sodium } from './crypto/sodium'
 import { initSodium } from './crypto/sodium'
 import { MemoryOpLog } from './db/opLog'
@@ -74,7 +74,9 @@ export default function App() {
     if ('serviceWorker' in navigator) {
       void navigator.serviceWorker.register('/sw.js')
     }
-    initSodium().then(() => {
+    // Hydrate the encrypted family store (and migrate any legacy plaintext) alongside sodium,
+    // before rendering — every screen reads getFamily() synchronously once ready is set.
+    Promise.all([initSodium(), hydrateFamilyStore()]).then(() => {
       setReady(true)
       const family = getFamily()
       if (RELAY_URL && family?.relayDeviceToken) {

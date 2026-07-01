@@ -86,5 +86,10 @@ export function decryptOpPayload(op: Op, scopeKeyBytes: Uint8Array): Uint8Array 
 }
 
 export function verifyChainLink(op: Op, prevOpHash: string): boolean {
-  return op.prev_hash === prevOpHash
+  // prev_hash is not secret, so this is hygiene rather than a real side-channel fix, but a
+  // constant-time compare costs nothing and keeps the crypto layer consistent.
+  const a = sodium.from_string(op.prev_hash)
+  const b = sodium.from_string(prevOpHash)
+  if (a.length !== b.length) return false
+  return sodium.memcmp(a, b)
 }

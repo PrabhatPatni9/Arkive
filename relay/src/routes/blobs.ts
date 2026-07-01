@@ -23,6 +23,14 @@ async function putBlob(request: Request, env: Env, hash: string): Promise<Respon
   if (body.byteLength === 0) return new Response('Empty body', { status: 400 })
   if (body.byteLength > 10 * 1024 * 1024) return new Response('Blob too large (10 MB max)', { status: 413 })
 
+  // Defense-in-depth: recompute the content hash and reject if the client lied about it.
+  // The blob is content-addressed by SHA-256, so a mismatched hash would corrupt the
+  // address space (one key serving different bytes across devices).
+  const actualHash = await sha256Hex(body)
+  if (actualHash !== hash.toLowerCase()) {
+    return new Response('Blob hash mismatch', { status: 400 })
+  }
+
   const key = `blobs/${ctx.familyId}/${hash}`
   await env.OPS_BUCKET.put(key, body, {
     httpMetadata: { contentType: 'application/octet-stream' },
@@ -33,6 +41,13 @@ async function putBlob(request: Request, env: Env, hash: string): Promise<Respon
     status: 201,
     headers: { 'Content-Type': 'application/json' },
   })
+}
+
+async function sha256Hex(data: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return Array.from(new Uint8Array(digest))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
 async function getBlob(request: Request, env: Env, hash: string): Promise<Response> {

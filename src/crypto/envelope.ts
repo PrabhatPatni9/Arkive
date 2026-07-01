@@ -3,6 +3,13 @@ import { sodium } from './sodium'
 export const ENVELOPE_VERSION = 0x01 as const
 export const ALGO = { XCHACHA20_POLY1305: 0x01 as const } as const
 
+/**
+ * Hard ceiling on a single envelope's payload (10 MB), enforced on both encrypt and
+ * decrypt. Bounds memory use and stops a malformed/hostile envelope from forcing a huge
+ * allocation. Large files belong in chunked/streamed blobs, not a single envelope.
+ */
+export const MAX_PAYLOAD_BYTES = 10 * 1024 * 1024
+
 // Layout: [version:1][algo:1][nonce:24][ciphertext+poly1305_tag]
 const VERSION_OFFSET = 0
 const ALGO_OFFSET = 1
@@ -11,6 +18,9 @@ const NONCE_BYTES = 24
 const HEADER_BYTES = 2 + NONCE_BYTES // 26
 
 export function sealEnvelope(key: Uint8Array, plaintext: Uint8Array): Uint8Array {
+  if (plaintext.length > MAX_PAYLOAD_BYTES) {
+    throw new Error(`Envelope payload too large: ${plaintext.length} > ${MAX_PAYLOAD_BYTES}`)
+  }
   const nonce = sodium.randombytes_buf(NONCE_BYTES)
   const ciphertext = sodium.crypto_aead_xchacha20poly1305_ietf_encrypt(
     plaintext,
@@ -30,6 +40,9 @@ export function sealEnvelope(key: Uint8Array, plaintext: Uint8Array): Uint8Array
 export function openEnvelope(key: Uint8Array, envelope: Uint8Array): Uint8Array {
   if (envelope.length < HEADER_BYTES + 1) {
     throw new Error('Envelope too short')
+  }
+  if (envelope.length > HEADER_BYTES + MAX_PAYLOAD_BYTES + 16 /* poly1305 tag */) {
+    throw new Error('Envelope too large')
   }
   const version = envelope[VERSION_OFFSET]
   if (version !== ENVELOPE_VERSION) {

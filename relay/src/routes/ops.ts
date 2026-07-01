@@ -1,8 +1,19 @@
+import { blake2bHex } from 'blakejs'
 import type { Env, PostOpBody } from '../types'
 import { getDevice, indexOp, getOpsSince } from '../db/d1'
 import { requireAuth } from '../auth'
 import { verifyEd25519Signature, canonicalJson } from '../crypto'
 import { notifyFamilyDevices } from '../push/notify'
+
+/**
+ * Recompute an op's content hash exactly as the client does: BLAKE2b-256 over the
+ * canonical JSON of every field except `hash` (the signature IS included). Lets the
+ * relay reject an op whose claimed `hash` does not match its bytes.
+ */
+function recomputeOpHash(opWithoutHash: Record<string, unknown>): string {
+  const canonical = canonicalJson(opWithoutHash)
+  return blake2bHex(new TextEncoder().encode(canonical), undefined, 32)
+}
 
 export async function handleOps(request: Request, env: Env): Promise<Response> {
   if (request.method === 'POST') return postOp(request, env)
@@ -31,10 +42,17 @@ async function postOp(request: Request, env: Env): Promise<Response> {
   const device = await getDevice(env, ctx.deviceId)
   if (!device) return new Response('Unknown device', { status: 401 })
 
-  const { hash: _h, signature, ...signedFieldsObj } = op
+  const { hash: clientHash, signature, ...signedFieldsObj } = op
   const signedMessage = canonicalJson(signedFieldsObj as Record<string, unknown>)
   const valid = await verifyEd25519Signature(device.sign_public_key, signedMessage, signature)
   if (!valid) return new Response('Invalid signature', { status: 401 })
+
+  // Defense-in-depth: recompute the content hash so a malicious client cannot poison the
+  // shared op log with a mismatched address. The client puller also verifies on pull.
+  const recomputed = recomputeOpHash({ ...signedFieldsObj, signature })
+  if (recomputed !== clientHash.toLowerCase()) {
+    return new Response('Op hash mismatch', { status: 400 })
+  }
 
   await env.OPS_BUCKET.put(
     `ops/${ctx.familyId}/${op.hash}`,

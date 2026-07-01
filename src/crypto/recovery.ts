@@ -86,3 +86,45 @@ export function openRecoveryPackage(
     bytes: sodium.from_base64(parsed.bytes),
   }
 }
+
+/**
+ * A blob encrypted under a user passphrase. The Argon2id parameters and salt are stored
+ * alongside the ciphertext so it can be decrypted on any device with only the passphrase,
+ * and so a future params change does not strand old exports.
+ */
+export interface PassphraseSealed {
+  v: 1
+  alg: 'argon2id13'
+  opsLimit: number
+  memLimit: number
+  salt: string      // base64
+  envelope: string  // base64 — XChaCha20-Poly1305 envelope
+}
+
+/** Derive a 32-byte key from a passphrase and seal `plaintext` under it. */
+export function sealWithPassphrase(
+  plaintext: Uint8Array,
+  passphrase: string,
+  params: ArgonParams = moderateParams()
+): PassphraseSealed {
+  const salt = sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES)
+  const key = deriveKeyFromCode(passphrase, salt, params)
+  return {
+    v: 1,
+    alg: 'argon2id13',
+    opsLimit: params.opsLimit,
+    memLimit: params.memLimit,
+    salt: sodium.to_base64(salt),
+    envelope: sodium.to_base64(sealEnvelope(key, plaintext)),
+  }
+}
+
+/** Reverse of {@link sealWithPassphrase}. Throws if the passphrase is wrong (auth-tag fail). */
+export function openWithPassphrase(sealed: PassphraseSealed, passphrase: string): Uint8Array {
+  const salt = sodium.from_base64(sealed.salt)
+  const key = deriveKeyFromCode(passphrase, salt, {
+    opsLimit: sealed.opsLimit,
+    memLimit: sealed.memLimit,
+  })
+  return openEnvelope(key, sodium.from_base64(sealed.envelope))
+}

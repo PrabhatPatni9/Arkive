@@ -7,9 +7,10 @@ import {
   unwrapKey,
 } from '../crypto/keys'
 import type { EncryptionKeypair, SigningKeypair, ScopeKey } from '../crypto/keys'
-import { createRecoveryPackage, moderateParams } from '../crypto/recovery'
+import { createRecoveryPackage, moderateParams, sealWithPassphrase } from '../crypto/recovery'
 import { deriveVerificationCode } from '../crypto/handshake'
 import { generateRecoveryPhrase } from './wordlist'
+import { secureSave, secureLoad, secureRemove } from './secureStore'
 
 const STORAGE_KEY = 'arkive_family_v1'
 const PENDING_JOIN_KEY = 'arkive_pending_join_v1'
@@ -98,35 +99,80 @@ export interface PendingJoin {
   myName: string
 }
 
+// In-memory caches. These keep getFamily()/getPendingJoin() synchronous (the whole app reads
+// them during render) while the durable copy lives encrypted in secureStore. The caches are
+// populated by hydrateFamilyStore() at boot, before any screen renders.
+let familyCache: FamilyState | null = null
+let pendingJoinCache: PendingJoin | null = null
+
 export function getFamily(): FamilyState | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as FamilyState) : null
-  } catch { return null }
+  return familyCache
 }
 
 export function saveFamily(state: FamilyState): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  familyCache = state
+  void secureSave(STORAGE_KEY, JSON.stringify(state))
 }
 
 export function clearFamily(): void {
-  localStorage.removeItem(STORAGE_KEY)
-  localStorage.removeItem(PENDING_JOIN_KEY)
+  familyCache = null
+  pendingJoinCache = null
+  void secureRemove(STORAGE_KEY)
+  void secureRemove(PENDING_JOIN_KEY)
+  wipeLegacyPlaintext(STORAGE_KEY)
+  wipeLegacyPlaintext(PENDING_JOIN_KEY)
 }
 
 export function getPendingJoin(): PendingJoin | null {
-  try {
-    const raw = localStorage.getItem(PENDING_JOIN_KEY)
-    return raw ? (JSON.parse(raw) as PendingJoin) : null
-  } catch { return null }
+  return pendingJoinCache
 }
 
 export function savePendingJoin(pj: PendingJoin): void {
-  localStorage.setItem(PENDING_JOIN_KEY, JSON.stringify(pj))
+  pendingJoinCache = pj
+  void secureSave(PENDING_JOIN_KEY, JSON.stringify(pj))
 }
 
 export function clearPendingJoin(): void {
-  localStorage.removeItem(PENDING_JOIN_KEY)
+  pendingJoinCache = null
+  void secureRemove(PENDING_JOIN_KEY)
+}
+
+/**
+ * Overwrite a legacy plaintext value before removing it, so the sensitive bytes do not linger
+ * in the storage backing after deletion. No-op if the key or localStorage is absent.
+ */
+function wipeLegacyPlaintext(key: string): void {
+  try {
+    if (typeof localStorage === 'undefined') return
+    const existing = localStorage.getItem(key)
+    if (existing != null) {
+      localStorage.setItem(key, '0'.repeat(existing.length))
+    }
+    localStorage.removeItem(key)
+  } catch { /* ignore */ }
+}
+
+/** Move any legacy plaintext value into the secure store, then wipe the plaintext. */
+async function migrateLegacyPlaintext(key: string): Promise<string | null> {
+  if (typeof localStorage === 'undefined') return null
+  const legacy = localStorage.getItem(key)
+  if (legacy == null) return null
+  await secureSave(key, legacy)
+  wipeLegacyPlaintext(key)
+  return legacy
+}
+
+/**
+ * Load family + pending-join state from the encrypted secure store into the in-memory caches.
+ * Migrates any pre-existing plaintext localStorage copy (from before encrypted storage) on
+ * first run. Call once at app boot, before rendering. Safe to call more than once.
+ */
+export async function hydrateFamilyStore(): Promise<void> {
+  const famRaw = (await secureLoad(STORAGE_KEY)) ?? (await migrateLegacyPlaintext(STORAGE_KEY))
+  familyCache = famRaw ? (JSON.parse(famRaw) as FamilyState) : null
+
+  const pjRaw = (await secureLoad(PENDING_JOIN_KEY)) ?? (await migrateLegacyPlaintext(PENDING_JOIN_KEY))
+  pendingJoinCache = pjRaw ? (JSON.parse(pjRaw) as PendingJoin) : null
 }
 
 export function makePhrase(): string {
@@ -439,6 +485,21 @@ export function exportFamilyData(): string {
   }, null, 2)
 }
 
+/**
+ * Passphrase-encrypted export. The export contains plaintext health data (blood groups,
+ * allergies, medications, policy numbers), so it must never leave the device in the clear.
+ * The result is an Argon2id + XChaCha20-Poly1305 sealed blob restorable only with the
+ * passphrase. Choose a strong passphrase — losing it means the export is unrecoverable.
+ */
+export function exportFamilyDataEncrypted(passphrase: string): string {
+  if (passphrase.length < 8) {
+    throw new Error('Export passphrase must be at least 8 characters')
+  }
+  const plaintext = sodium.from_string(exportFamilyData())
+  const sealed = sealWithPassphrase(plaintext, passphrase)
+  return JSON.stringify({ format: 'arkive-export-encrypted', ...sealed }, null, 2)
+}
+
 export function leaveFamily(): void {
   clearFamily()
   localStorage.removeItem('arkive_reminders_v1')
@@ -452,6 +513,11 @@ export function setRelayDeviceToken(token: string): void {
 }
 
 export function purgeAllData(): void {
+  // Clear the encrypted secure store (family + pending join) and every legacy arkive_* key.
+  familyCache = null
+  pendingJoinCache = null
+  void secureRemove(STORAGE_KEY)
+  void secureRemove(PENDING_JOIN_KEY)
   const keys = Object.keys(localStorage).filter(k => k.startsWith('arkive_'))
-  keys.forEach(k => localStorage.removeItem(k))
+  keys.forEach(k => wipeLegacyPlaintext(k))
 }

@@ -1,5 +1,6 @@
 import type { Env, RegisterDeviceBody } from '../types'
-import { upsertDevice, createDeviceToken } from '../db/d1'
+import { upsertDevice, createDeviceToken, revokeDeviceTokens } from '../db/d1'
+import { requireAuth } from '../auth'
 
 function randomHex(bytes: number): string {
   const arr = new Uint8Array(bytes)
@@ -40,6 +41,29 @@ export async function handleDevices(request: Request, env: Env): Promise<Respons
   })
 
   return json({ ok: true, token }, 201)
+}
+
+/**
+ * Remote-revoke a device (the "kill a stolen/lost phone" flow). Any authenticated device in
+ * the family can revoke a device_id in the SAME family — the family scope comes from the
+ * caller's own token, so one family can never revoke another's devices.
+ */
+export async function handleRevokeDevice(request: Request, env: Env): Promise<Response> {
+  if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 })
+
+  const ctx = await requireAuth(request, env)
+  if (!ctx) return new Response('Unauthorized', { status: 401 })
+
+  let body: { device_id?: string }
+  try {
+    body = await request.json() as { device_id?: string }
+  } catch {
+    return new Response('Invalid JSON', { status: 400 })
+  }
+  if (!body.device_id) return new Response('Missing device_id', { status: 400 })
+
+  await revokeDeviceTokens(env, ctx.familyId, body.device_id)
+  return new Response(null, { status: 204 })
 }
 
 function json(data: unknown, status = 200): Response {
