@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { getFamily } from '../family/familyStore'
 import { getPolicies, addPolicy, deletePolicy, isPolicyExpiringSoon } from '../modules/insurance/store'
 import type { InsurancePolicy, PolicyInput, PolicyType, PremiumCycle } from '../modules/insurance/types'
+import { POLICY_TYPES } from '../modules/insurance/types'
+import { getEntities } from '../modules/owners/store'
+import type { Owner, SharingTier } from '../modules/owners/types'
 import { addReminder } from '../reminders/engine'
 import { logEvent } from '../sync/relayClient'
 import { loadEntitlement, isManagedRelayActive } from '../payments/subscription'
@@ -16,10 +19,12 @@ function formatDate(d: string): string {
 
 function PolicyCard({
   policy,
+  holderLabel,
   onDelete,
   onRenew,
 }: {
   policy: InsurancePolicy
+  holderLabel?: string
   onDelete: () => void
   onRenew: () => void
 }) {
@@ -37,6 +42,11 @@ function PolicyCard({
           <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
             {t(`insurance.${policy.policyType}`)} · {policy.policyNumber}
           </p>
+          {holderLabel && (
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+              Held by: {holderLabel}
+            </p>
+          )}
           <p style={{ fontSize: 12, color: expired ? 'var(--danger)' : expiringSoon ? 'var(--warning)' : 'var(--text-muted)', marginTop: 4 }}>
             {t('insurance.expiry')}: {formatDate(policy.expiryDate)}
             {expired && ' ⚠ Expired'}
@@ -85,6 +95,8 @@ function AddPolicyModal({ familyId, memberId, onClose }: { familyId: string; mem
     insurer: '',
     policyNumber: '',
     policyType: 'health' as PolicyType,
+    // Policyholder encoded as `person:<memberId>` or `entity:<entityId>`; defaults to self.
+    policyholder: `person:${memberId}`,
     sumInsured: '',
     premium: '',
     premiumCycle: 'yearly' as PremiumCycle,
@@ -93,14 +105,39 @@ function AddPolicyModal({ familyId, memberId, onClose }: { familyId: string; mem
     notes: '',
   })
 
+  // Policyholder options: every family member (Person) plus every Entity (HUF, company, …).
+  const family = getFamily()
+  const entities = getEntities(familyId)
+  const ownerOptions = [
+    ...(family?.members ?? []).map(m => ({ value: `person:${m.memberId}`, label: m.name })),
+    ...entities.map(e => ({ value: `entity:${e.entityId}`, label: `${e.name} (entity)` })),
+  ]
+
   const handleSubmit = useCallback(() => {
     if (!form.insurer || !form.policyNumber || !form.expiryDate) return
+
+    // Resolve the selected policyholder into an Owner + a default sharing tier. memberId stays
+    // set (legacy field) to the holder when a Person, or the current member as a fallback.
+    const [kind, id] = form.policyholder.split(':')
+    let policyholder: Owner
+    let holderMemberId = memberId
+    let sharingTier: SharingTier = 'self'
+    if (kind === 'entity') {
+      policyholder = { kind: 'entity', entityId: id }
+      sharingTier = getEntities(familyId).find(e => e.entityId === id)?.defaultTier ?? 'family'
+    } else {
+      policyholder = { kind: 'person', memberId: id }
+      holderMemberId = id
+    }
+
     const input: PolicyInput = {
       familyId,
-      memberId,
+      memberId: holderMemberId,
       insurer: form.insurer,
       policyNumber: form.policyNumber,
       policyType: form.policyType,
+      policyholder,
+      sharingTier,
       sumInsured: parseFloat(form.sumInsured) || 0,
       premium: parseFloat(form.premium) || 0,
       premiumCycle: form.premiumCycle,
@@ -157,13 +194,10 @@ function AddPolicyModal({ familyId, memberId, onClose }: { familyId: string; mem
         </div>
         {field(t('insurance.insurer'), 'insurer')}
         {field(t('insurance.policy_number'), 'policyNumber')}
-        {field(t('insurance.policy_type'), 'policyType', 'text', [
-          { value: 'health', label: t('insurance.health') },
-          { value: 'life', label: t('insurance.life') },
-          { value: 'vehicle', label: t('insurance.vehicle') },
-          { value: 'home', label: t('insurance.home') },
-          { value: 'other', label: t('insurance.other') },
-        ])}
+        {field(t('insurance.policy_type'), 'policyType', 'text',
+          POLICY_TYPES.map(tp => ({ value: tp, label: t(`insurance.${tp}`) }))
+        )}
+        {field('Policyholder', 'policyholder', 'text', ownerOptions)}
         {field(t('insurance.sum_insured'), 'sumInsured', 'number')}
         {field(t('insurance.premium'), 'premium', 'number')}
         {field(t('insurance.premium_cycle'), 'premiumCycle', 'text', [
@@ -214,6 +248,16 @@ export function InsuranceScreen() {
   const isFinAdmin = myMember?.isFinancialAdmin ?? family.role === 'admin'
 
   const policies = getPolicies(family.familyId)
+  const entities = getEntities(family.familyId)
+  const members = family.members
+
+  // Resolve a policy's Owner (Person or Entity) to a display name for the card.
+  function holderLabelFor(policy: InsurancePolicy): string | undefined {
+    const owner = policy.policyholder
+    if (!owner) return undefined
+    if (owner.kind === 'entity') return entities.find(e => e.entityId === owner.entityId)?.name
+    return members.find(m => m.memberId === owner.memberId)?.name
+  }
 
   return (
     <main className="screen">
@@ -254,7 +298,7 @@ export function InsuranceScreen() {
         ) : (
           <div style={{ marginTop: 16 }}>
             {policies.map(p => (
-              <PolicyCard key={p.policyId} policy={p} onDelete={() => handleDelete(p.policyId)} onRenew={handleRenew} />
+              <PolicyCard key={p.policyId} policy={p} holderLabel={holderLabelFor(p)} onDelete={() => handleDelete(p.policyId)} onRenew={handleRenew} />
             ))}
           </div>
         )}

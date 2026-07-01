@@ -102,7 +102,8 @@
     "contacts": "Contacts",
     "home_devices": "Home Devices",
     "identity": "Identity",
-    "entities": "Entities & Owners"
+    "entities": "Entities & Owners",
+    "assets": "Assets"
   },
   "insurance": {
     "title": "Insurance",
@@ -127,7 +128,12 @@
     "monthly": "Monthly",
     "quarterly": "Quarterly",
     "yearly": "Yearly",
-    "financial_admin_only": "Only financial admins can manage insurance policies"
+    "financial_admin_only": "Only financial admins can manage insurance policies",
+    "motor": "Motor",
+    "property": "Property",
+    "asset": "Asset",
+    "business": "Business / Liability",
+    "travel": "Travel"
   },
   "vehicles": {
     "title": "Vehicles",

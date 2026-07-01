@@ -25,6 +25,7 @@ import { ContactsScreen } from './screens/ContactsScreen'
 import { HomeDevicesScreen } from './screens/HomeDevicesScreen'
 import { IdentityScreen } from './screens/IdentityScreen'
 import { EntitiesScreen } from './screens/EntitiesScreen'
+import { AssetsScreen } from './screens/AssetsScreen'
 import { OnboardingScreen } from './screens/onboarding/OnboardingScreen'
 import { CreateFamilyScreen } from './screens/onboarding/CreateFamilyScreen'
 import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
@@ -173,6 +174,7 @@ export default function App() {
             <Route path="/home-devices" element={<RequireFamily><HomeDevicesScreen /></RequireFamily>} />
             <Route path="/identity" element={<RequireFamily><IdentityScreen /></RequireFamily>} />
             <Route path="/entities" element={<RequireFamily><EntitiesScreen /></RequireFamily>} />
+            <Route path="/assets" element={<RequireFamily><AssetsScreen /></RequireFamily>} />
           </Routes>
         </div>
         {hasFamily && <Nav />}
