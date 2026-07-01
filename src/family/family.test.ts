@@ -84,7 +84,7 @@ describe('createFamily', () => {
     expect(state.members[0].role).toBe('admin')
   })
 
-  it('persists to localStorage', () => {
+  it('persists the family so getFamily returns it', () => {
     createFamily({
       familyName: 'Persisted Family',
       myName: 'Priya',
