@@ -29,7 +29,7 @@ export async function postSignal(
     body: JSON.stringify({ recipient_device_id: recipientDeviceId, type, payload }),
   })
   if (!res.ok) throw new Error(`Signal POST failed: ${res.status}`)
-  const { id } = await res.json<{ id: string }>()
+  const { id } = await res.json() as { id: string }
   return id
 }
 
@@ -41,7 +41,7 @@ export async function pollSignals(
     headers: { 'Authorization': `Bearer ${token}` },
   })
   if (!res.ok) throw new Error(`Signal GET failed: ${res.status}`)
-  const { signals } = await res.json<{ signals: SignalMessage[] }>()
+  const { signals } = await res.json() as { signals: SignalMessage[] }
   return signals
 }
 
@@ -74,6 +74,6 @@ export async function getOnlineDevices(
     headers: { 'Authorization': `Bearer ${token}` },
   })
   if (!res.ok) return []
-  const { online } = await res.json<{ online: PresenceEntry[] }>()
+  const { online } = await res.json() as { online: PresenceEntry[] }
   return online
 }

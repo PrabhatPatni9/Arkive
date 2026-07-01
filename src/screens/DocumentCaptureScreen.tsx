@@ -60,7 +60,7 @@ export function DocumentCaptureScreen() {
 
       // Show preview
       if (mimeType.startsWith('image/')) {
-        const blob = new Blob([bytes], { type: mimeType })
+        const blob = new Blob([bytes as BlobPart], { type: mimeType })
         setPreviewUrl(URL.createObjectURL(blob))
       }
 

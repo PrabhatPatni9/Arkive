@@ -15,14 +15,15 @@
     "postinstall": "node -e \"const{cpSync}=require('fs');try{cpSync('node_modules/libsodium/dist/modules-esm/libsodium.mjs','node_modules/libsodium-wrappers/dist/modules-esm/libsodium.mjs')}catch(e){}\""
   },
   "dependencies": {
+    "@capacitor-community/file-opener": "^6.0.1",
     "@capacitor-community/sqlite": "^6.0.0",
     "@capacitor/android": "^6.0.0",
     "@capacitor/app": "^6.0.0",
     "@capacitor/camera": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/filesystem": "^6.0.0",
-    "@capacitor/network": "^8.0.1",
-    "@capacitor/push-notifications": "^8.1.1",
+    "@capacitor/network": "^6.0.4",
+    "@capacitor/push-notifications": "^6.0.5",
     "i18next": "^23.0.0",
     "i18next-http-backend": "^2.0.0",
     "libsodium-wrappers": "^0.7.15",
