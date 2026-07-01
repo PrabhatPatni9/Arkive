@@ -24,6 +24,7 @@ import { MilkScreen } from './screens/MilkScreen'
 import { ContactsScreen } from './screens/ContactsScreen'
 import { HomeDevicesScreen } from './screens/HomeDevicesScreen'
 import { IdentityScreen } from './screens/IdentityScreen'
+import { EntitiesScreen } from './screens/EntitiesScreen'
 import { OnboardingScreen } from './screens/onboarding/OnboardingScreen'
 import { CreateFamilyScreen } from './screens/onboarding/CreateFamilyScreen'
 import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
@@ -171,6 +172,7 @@ export default function App() {
             <Route path="/contacts" element={<RequireFamily><ContactsScreen /></RequireFamily>} />
             <Route path="/home-devices" element={<RequireFamily><HomeDevicesScreen /></RequireFamily>} />
             <Route path="/identity" element={<RequireFamily><IdentityScreen /></RequireFamily>} />
+            <Route path="/entities" element={<RequireFamily><EntitiesScreen /></RequireFamily>} />
           </Routes>
         </div>
         {hasFamily && <Nav />}
