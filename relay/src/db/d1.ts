@@ -19,25 +19,93 @@ export async function upsertDevice(env: Env, row: DeviceRow): Promise<void> {
     .run()
 }
 
+/** Device tokens live for 90 days; after that the device must re-register. */
+export const TOKEN_TTL_SECONDS = 90 * 24 * 60 * 60
+
 export async function createDeviceToken(env: Env, row: DeviceTokenRow): Promise<void> {
-  await env.DB.prepare(
-    'INSERT OR REPLACE INTO device_tokens (token,device_id,family_id,created_at) VALUES (?,?,?,?)'
-  )
-    .bind(row.token, row.device_id, row.family_id, row.created_at)
-    .run()
+  const expiresAt = Math.floor(Date.now() / 1000) + TOKEN_TTL_SECONDS
+  // Prefer the migration-005 schema (expires_at + revoked). Fall back to the base schema
+  // so the Worker keeps issuing tokens if migration 005 has not been applied yet.
+  try {
+    await env.DB.prepare(
+      'INSERT OR REPLACE INTO device_tokens (token,device_id,family_id,created_at,expires_at,revoked) VALUES (?,?,?,?,?,0)'
+    )
+      .bind(row.token, row.device_id, row.family_id, row.created_at, expiresAt)
+      .run()
+  } catch {
+    await env.DB.prepare(
+      'INSERT OR REPLACE INTO device_tokens (token,device_id,family_id,created_at) VALUES (?,?,?,?)'
+    )
+      .bind(row.token, row.device_id, row.family_id, row.created_at)
+      .run()
+  }
 }
 
 export async function getDeviceByToken(
   env: Env,
   token: string
 ): Promise<{ deviceId: string; familyId: string } | null> {
+  // Enforce expiry + revocation when migration 005 is present; degrade gracefully if not.
+  try {
+    const row = await env.DB.prepare(
+      'SELECT device_id, family_id, expires_at, revoked FROM device_tokens WHERE token = ?'
+    )
+      .bind(token)
+      .first<{ device_id: string; family_id: string; expires_at: number | null; revoked: number | null }>()
+    if (!row) return null
+    if (row.revoked) return null
+    if (row.expires_at != null && row.expires_at < Math.floor(Date.now() / 1000)) return null
+    return { deviceId: row.device_id, familyId: row.family_id }
+  } catch {
+    const row = await env.DB.prepare(
+      'SELECT device_id, family_id FROM device_tokens WHERE token = ?'
+    )
+      .bind(token)
+      .first<{ device_id: string; family_id: string }>()
+    if (!row) return null
+    return { deviceId: row.device_id, familyId: row.family_id }
+  }
+}
+
+/**
+ * Revoke every token for a device (remote "kill a stolen/lost device" flow). Prefers the
+ * migration-005 `revoked` flag; falls back to deleting the token rows on the base schema.
+ * Scoped to the caller's family so one family cannot revoke another's devices.
+ */
+export async function revokeDeviceTokens(env: Env, familyId: string, deviceId: string): Promise<void> {
+  try {
+    await env.DB.prepare(
+      'UPDATE device_tokens SET revoked=1 WHERE device_id=? AND family_id=?'
+    )
+      .bind(deviceId, familyId)
+      .run()
+  } catch {
+    await env.DB.prepare(
+      'DELETE FROM device_tokens WHERE device_id=? AND family_id=?'
+    )
+      .bind(deviceId, familyId)
+      .run()
+  }
+}
+
+/** True if the family has at least one registered device (used to reject join enumeration). */
+export async function familyExists(env: Env, familyId: string): Promise<boolean> {
   const row = await env.DB.prepare(
-    'SELECT device_id, family_id FROM device_tokens WHERE token = ?'
+    'SELECT 1 AS one FROM devices WHERE family_id=? LIMIT 1'
   )
-    .bind(token)
-    .first<{ device_id: string; family_id: string }>()
-  if (!row) return null
-  return { deviceId: row.device_id, familyId: row.family_id }
+    .bind(familyId)
+    .first<{ one: number }>()
+  return !!row
+}
+
+/** Count of unapproved join requests for a family (used to cap flooding). */
+export async function countPendingJoinRequests(env: Env, familyId: string): Promise<number> {
+  const row = await env.DB.prepare(
+    'SELECT COUNT(*) AS n FROM join_handshakes WHERE family_id=? AND approval_json IS NULL'
+  )
+    .bind(familyId)
+    .first<{ n: number }>()
+  return row?.n ?? 0
 }
 
 export async function indexOp(env: Env, row: OpIndexRow): Promise<void> {

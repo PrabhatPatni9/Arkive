@@ -4,8 +4,13 @@ import {
   getJoinHandshake,
   setJoinApproval,
   getPendingJoinRequests,
+  familyExists,
+  countPendingJoinRequests,
 } from '../db/d1'
 import { requireAuth } from '../auth'
+
+/** Cap on unapproved join requests per family — bounds flooding of the join queue. */
+const MAX_PENDING_JOIN_REQUESTS = 20
 
 export async function handleJoin(
   request: Request,
@@ -38,6 +43,18 @@ async function postJoinRequest(request: Request, env: Env): Promise<Response> {
 
   if (!body.family_id || !body.request_id || !body.request_json) {
     return new Response('Missing required fields: family_id, request_id, request_json', { status: 400 })
+  }
+
+  // Reject join requests to families that do not exist — stops enumeration of random
+  // family_ids and blind flooding of the join table. A real family always has ≥1 device
+  // (the admin registers on creation) before anyone can be invited to join it.
+  if (!await familyExists(env, body.family_id)) {
+    return new Response('Unknown family', { status: 404 })
+  }
+
+  // Bound the pending-request queue so a hostile client cannot flood a family with junk.
+  if (await countPendingJoinRequests(env, body.family_id) >= MAX_PENDING_JOIN_REQUESTS) {
+    return new Response('Too many pending join requests', { status: 429 })
   }
 
   await upsertJoinHandshake(env, {

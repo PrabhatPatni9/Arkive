@@ -1,5 +1,5 @@
 import { handleOps } from './routes/ops'
-import { handleDevices } from './routes/devices'
+import { handleDevices, handleRevokeDevice } from './routes/devices'
 import { handleJoin } from './routes/join'
 import { handleEntitlement } from './routes/entitlement'
 import { handleBlobs } from './routes/blobs'
@@ -38,6 +38,8 @@ export default {
     let response: Response
     if (pathname === '/ops') {
       response = await handleOps(request, env)
+    } else if (pathname === '/devices/revoke') {
+      response = await handleRevokeDevice(request, env)
     } else if (pathname === '/devices') {
       response = await handleDevices(request, env)
     } else if (pathname === '/entitlement') {

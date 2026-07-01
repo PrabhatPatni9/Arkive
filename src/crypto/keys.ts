@@ -48,6 +48,10 @@ export function wrapKeyTo(
     scope: scopeKey.scope,
     epoch: scopeKey.epoch,
     bytes: sodium.to_base64(scopeKey.bytes),
+    // Bind the wrap to the intended recipient. A sealed box already ensures only the holder
+    // of the matching secret key can open it, but recording the recipient lets the opener
+    // detect a wrap that was addressed to the wrong identity (e.g. an admin mistake).
+    recipient: sodium.to_base64(recipientPublicKey),
   })
   return sodium.crypto_box_seal(
     sodium.from_string(payload),
@@ -69,10 +73,19 @@ export function unwrapKey(
   )
   if (!rawBytes) throw new Error('unwrapKey: sealed box open failed')
   const parsed = JSON.parse(sodium.to_string(rawBytes)) as {
-    keyId: string; scope: KeyScope; epoch: number; bytes: string
+    keyId: string; scope: KeyScope; epoch: number; bytes: string; recipient?: string
   }
   if (parsed.keyId !== keyId || parsed.scope !== scope || parsed.epoch !== epoch) {
     throw new Error('unwrapKey: metadata mismatch')
+  }
+  // If the wrap recorded a recipient, verify (constant-time) that it was addressed to us.
+  // Older wraps without this field are still accepted for backward compatibility.
+  if (parsed.recipient !== undefined) {
+    const claimed = sodium.from_base64(parsed.recipient)
+    const ours = recipientKeypair.publicKey
+    if (claimed.length !== ours.length || !sodium.memcmp(claimed, ours)) {
+      throw new Error('unwrapKey: recipient mismatch')
+    }
   }
   return {
     keyId: parsed.keyId,

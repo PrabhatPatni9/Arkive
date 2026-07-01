@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { initSodium, sodium } from './sodium'
-import { sealEnvelope, openEnvelope, ENVELOPE_VERSION } from './envelope'
+import { sealEnvelope, openEnvelope, ENVELOPE_VERSION, MAX_PAYLOAD_BYTES } from './envelope'
 import {
   generateScopeKey,
   generateEncryptionKeypair,
@@ -17,7 +17,13 @@ import {
   GENESIS_HASH,
 } from './ops'
 import { computeThreshold, splitKey, reconstructKey } from './threshold'
-import { createRecoveryPackage, openRecoveryPackage, interactiveParams } from './recovery'
+import {
+  createRecoveryPackage,
+  openRecoveryPackage,
+  interactiveParams,
+  sealWithPassphrase,
+  openWithPassphrase,
+} from './recovery'
 import { deriveVerificationCode, codesMatch } from './handshake'
 import { MemoryOpLog } from '../db/opLog'
 
@@ -63,6 +69,12 @@ describe('envelope', () => {
     const bad = new Uint8Array(env)
     bad[0] = 0xff
     expect(() => openEnvelope(key, bad)).toThrow(/Unknown envelope version/)
+  })
+
+  it('rejects a payload over the size ceiling', () => {
+    const key = sodium.randombytes_buf(32)
+    const tooBig = new Uint8Array(MAX_PAYLOAD_BYTES + 1)
+    expect(() => sealEnvelope(key, tooBig)).toThrow(/too large/)
   })
 })
 
@@ -330,6 +342,21 @@ describe('recovery', () => {
         scope: 'family', epoch: 0, keyId: scopeKey.keyId,
       })
     ).toThrow()
+  })
+
+  it('passphrase seal round-trips with the correct passphrase', () => {
+    const plaintext = sodium.from_string('{"export":"sensitive health data"}')
+    const sealed = sealWithPassphrase(plaintext, 'correct horse battery', interactiveParams())
+    const opened = openWithPassphrase(sealed, 'correct horse battery')
+    expect(opened).toEqual(plaintext)
+    // KDF params travel with the ciphertext so it is self-describing.
+    expect(sealed.alg).toBe('argon2id13')
+    expect(sealed.salt.length).toBeGreaterThan(0)
+  })
+
+  it('passphrase seal throws on the wrong passphrase', () => {
+    const sealed = sealWithPassphrase(sodium.from_string('secret'), 'right one', interactiveParams())
+    expect(() => openWithPassphrase(sealed, 'wrong one')).toThrow()
   })
 })
 
