@@ -32,6 +32,7 @@ import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
 import { JoinFamilyScreen } from './screens/onboarding/JoinFamilyScreen'
 import { ApproveJoinScreen } from './screens/onboarding/ApproveJoinScreen'
 import { Nav } from './components/Nav'
+import { EmergencyFab } from './components/EmergencyFab'
 import { getFamily, hydrateFamilyStore } from './family/familyStore'
 import { isLockEnabled } from './security/appLock'
 import { LockScreen } from './screens/LockScreen'
@@ -195,6 +196,7 @@ export default function App() {
             <Route path="/assets" element={<RequireFamily><AssetsScreen /></RequireFamily>} />
           </Routes>
         </div>
+        {hasFamily && <EmergencyFab />}
         {hasFamily && <Nav />}
       </div>
     </BrowserRouter>
