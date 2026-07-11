@@ -1,18 +1,16 @@
 import type { Expense, ExpenseInput, ExpenseCategory } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 const KEY = 'arkive_expenses_v1'
 
 function randomId(): string { return Math.random().toString(36).slice(2, 18) }
 
 function loadAll(): Expense[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Expense[]) : []
-  } catch { return [] }
+  return loadArray<Expense>(KEY)
 }
 
 function saveAll(expenses: Expense[]): void {
-  localStorage.setItem(KEY, JSON.stringify(expenses))
+  saveArray(KEY, expenses)
 }
 
 export function getExpenses(familyId: string): Expense[] {

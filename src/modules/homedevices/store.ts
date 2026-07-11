@@ -1,18 +1,16 @@
 import type { HomeDevice, HomeDeviceInput } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 const KEY = 'arkive_homedevices_v1'
 
 function randomId(): string { return Math.random().toString(36).slice(2, 18) }
 
 function loadAll(): HomeDevice[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as HomeDevice[]) : []
-  } catch { return [] }
+  return loadArray<HomeDevice>(KEY)
 }
 
 function saveAll(devices: HomeDevice[]): void {
-  localStorage.setItem(KEY, JSON.stringify(devices))
+  saveArray(KEY, devices)
 }
 
 export function getHomeDevices(familyId: string): HomeDevice[] {

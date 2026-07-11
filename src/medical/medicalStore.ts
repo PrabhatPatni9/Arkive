@@ -1,4 +1,5 @@
 import type { Medicine, Vital, Doctor, MedicineFrequency, VitalType } from './types'
+import { loadArray, saveArray } from '../modules/secureModuleStore'
 
 const MEDS_KEY = 'arkive_medicines_v1'
 const VITALS_KEY = 'arkive_vitals_v1'
@@ -12,13 +13,12 @@ function randomId(): string {
 
 export function listMedicines(): Medicine[] {
   try {
-    const raw = localStorage.getItem(MEDS_KEY)
-    return raw ? (JSON.parse(raw) as Medicine[]) : []
+    return loadArray<Medicine>(MEDS_KEY)
   } catch { return [] }
 }
 
 function saveMedicines(meds: Medicine[]): void {
-  localStorage.setItem(MEDS_KEY, JSON.stringify(meds))
+  saveArray(MEDS_KEY, meds)
 }
 
 export function addMedicine(params: {
@@ -64,13 +64,12 @@ export function getMedicinesByMember(memberId: string): Medicine[] {
 
 export function listVitals(): Vital[] {
   try {
-    const raw = localStorage.getItem(VITALS_KEY)
-    return raw ? (JSON.parse(raw) as Vital[]) : []
+    return loadArray<Vital>(VITALS_KEY)
   } catch { return [] }
 }
 
 function saveVitals(vitals: Vital[]): void {
-  localStorage.setItem(VITALS_KEY, JSON.stringify(vitals))
+  saveArray(VITALS_KEY, vitals)
 }
 
 export function addVital(params: {
@@ -115,13 +114,12 @@ export function getLatestVitals(memberId: string): Record<string, Vital> {
 
 export function listDoctors(): Doctor[] {
   try {
-    const raw = localStorage.getItem(DOCTORS_KEY)
-    return raw ? (JSON.parse(raw) as Doctor[]) : []
+    return loadArray<Doctor>(DOCTORS_KEY)
   } catch { return [] }
 }
 
 function saveDoctors(doctors: Doctor[]): void {
-  localStorage.setItem(DOCTORS_KEY, JSON.stringify(doctors))
+  saveArray(DOCTORS_KEY, doctors)
 }
 
 export function addDoctor(params: {

@@ -1,18 +1,16 @@
 import type { Contact, ContactInput } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 const KEY = 'arkive_contacts_v1'
 
 function randomId(): string { return Math.random().toString(36).slice(2, 18) }
 
 function loadAll(): Contact[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Contact[]) : []
-  } catch { return [] }
+  return loadArray<Contact>(KEY)
 }
 
 function saveAll(contacts: Contact[]): void {
-  localStorage.setItem(KEY, JSON.stringify(contacts))
+  saveArray(KEY, contacts)
 }
 
 export function getContacts(familyId: string): Contact[] {

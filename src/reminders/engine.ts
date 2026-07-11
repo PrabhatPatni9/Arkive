@@ -1,16 +1,16 @@
 import type { Reminder, ReminderInput, Recurrence, ReminderCompletion } from './types'
+import { loadArray, saveArray } from '../modules/secureModuleStore'
 
 const STORAGE_KEY = 'arkive_reminders_v1'
 
 function loadAll(): Reminder[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as Reminder[]) : []
+    return loadArray<Reminder>(STORAGE_KEY)
   } catch { return [] }
 }
 
 function saveAll(reminders: Reminder[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reminders))
+  saveArray(STORAGE_KEY, reminders)
 }
 
 function randomId(): string {

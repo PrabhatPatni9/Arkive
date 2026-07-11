@@ -1,4 +1,5 @@
 import type { Entity, EntityInput } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 // Follows the same local-first store pattern as the other modules (insurance, vehicles, …):
 // family-scoped records keyed by a stable arkive_*_v1 localStorage key.
@@ -9,16 +10,11 @@ function randomId(): string {
 }
 
 function loadAll(): Entity[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Entity[]) : []
-  } catch {
-    return []
-  }
+  return loadArray<Entity>(KEY)
 }
 
 function saveAll(entities: Entity[]): void {
-  localStorage.setItem(KEY, JSON.stringify(entities))
+  saveArray(KEY, entities)
 }
 
 export function getEntities(familyId: string): Entity[] {

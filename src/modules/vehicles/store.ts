@@ -1,18 +1,16 @@
 import type { Vehicle, VehicleInput } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 const KEY = 'arkive_vehicles_v1'
 
 function randomId(): string { return Math.random().toString(36).slice(2, 18) }
 
 function loadAll(): Vehicle[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Vehicle[]) : []
-  } catch { return [] }
+  return loadArray<Vehicle>(KEY)
 }
 
 function saveAll(vehicles: Vehicle[]): void {
-  localStorage.setItem(KEY, JSON.stringify(vehicles))
+  saveArray(KEY, vehicles)
 }
 
 export function getVehicles(familyId: string): Vehicle[] {
