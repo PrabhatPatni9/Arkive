@@ -1,4 +1,5 @@
 import type { Asset, AssetInput } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 // Same local-first, family-scoped store pattern as the other modules.
 const KEY = 'arkive_assets_v1'
@@ -8,16 +9,11 @@ function randomId(): string {
 }
 
 function loadAll(): Asset[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as Asset[]) : []
-  } catch {
-    return []
-  }
+  return loadArray<Asset>(KEY)
 }
 
 function saveAll(assets: Asset[]): void {
-  localStorage.setItem(KEY, JSON.stringify(assets))
+  saveArray(KEY, assets)
 }
 
 export function getAssets(familyId: string): Asset[] {

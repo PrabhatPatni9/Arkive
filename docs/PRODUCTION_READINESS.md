@@ -54,13 +54,12 @@ relay cannot read or forge family data. What follows is the honest detail.
 - Relay routes are per-family authenticated; CORS is allow-listed; tokens can expire and be
   revoked; the join endpoint rejects unknown families and caps flooding.
 - The Android build disables cleartext, disables `allowBackup`, and exports only the main activity.
+- **All sensitive local data is encrypted at rest.** Family keys (non-extractable WebCrypto),
+  vault documents (per-doc keys), and every feature module + medical records + reminders (sealed
+  under the family key via `modules/secureModuleStore.ts`) — only ciphertext is written to
+  `localStorage`. Legacy plaintext migrates transparently on first edit.
 
 **Honest edges (unchanged truths, not new problems):**
-- **Module data at rest is not yet encrypted.** Family keys and vault *documents* are encrypted,
-  but the feature modules (insurance, contacts, assets, entities, vehicles, expenses, milk,
-  home-devices) store their records as plaintext in `localStorage`. This never reaches the relay
-  (modules are local-only), and on native Android it sits in the app's private sandbox — but on
-  web/PWA it is readable by any script on the origin. **Top recommended hardening** (see below).
 - **Cert pinning is inert until real pins are added** (owner action #8).
 - Traffic metadata, an unlocked stolen device, and what an existing member already saw remain
   outside the guarantee (as documented in the README).
@@ -93,14 +92,14 @@ intentionally a no-op; the relay is the sync path.
 
 ## Recommended before a wide public launch (engineering)
 
-1. **Encrypt module data at rest** — route the module stores through `secureStore` (or seal with
-   the family key) so nothing sensitive sits in plaintext `localStorage` on web. This is the
-   single highest-value remaining hardening.
+1. ✅ **Encrypt module data at rest** — DONE. All module stores + medical + reminders now seal
+   their records under the family key (`modules/secureModuleStore.ts`), with transparent
+   migration of legacy plaintext.
 2. Wire the **device-management** screen to the existing `/devices/revoke` endpoint (remote-kill
    a lost device).
 3. Build **key-rotation** and **Shamir social-recovery** UIs on top of the crypto that already
    exists.
 4. Add **edge rate-limiting** (Cloudflare rule) on `/ops`, `/blob`, `/join`.
 
-None of these five affect the core promise or block personal/family use; they harden the edges
+None of these affect the core promise or block personal/family use; they harden the edges
 for strangers.

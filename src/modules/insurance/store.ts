@@ -1,18 +1,16 @@
 import type { InsurancePolicy, PolicyInput } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 const KEY = 'arkive_insurance_v1'
 
 function randomId(): string { return Math.random().toString(36).slice(2, 18) }
 
 function loadAll(): InsurancePolicy[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as InsurancePolicy[]) : []
-  } catch { return [] }
+  return loadArray<InsurancePolicy>(KEY)
 }
 
 function saveAll(policies: InsurancePolicy[]): void {
-  localStorage.setItem(KEY, JSON.stringify(policies))
+  saveArray(KEY, policies)
 }
 
 export function getPolicies(familyId: string): InsurancePolicy[] {

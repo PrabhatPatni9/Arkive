@@ -1,18 +1,16 @@
 import type { MilkEntry, MilkEntryInput } from './types'
+import { loadArray, saveArray } from '../secureModuleStore'
 
 const KEY = 'arkive_milk_v1'
 
 function randomId(): string { return Math.random().toString(36).slice(2, 18) }
 
 function loadAll(): MilkEntry[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as MilkEntry[]) : []
-  } catch { return [] }
+  return loadArray<MilkEntry>(KEY)
 }
 
 function saveAll(entries: MilkEntry[]): void {
-  localStorage.setItem(KEY, JSON.stringify(entries))
+  saveArray(KEY, entries)
 }
 
 export function getMilkEntries(familyId: string): MilkEntry[] {
