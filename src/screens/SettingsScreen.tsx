@@ -6,6 +6,71 @@ import { SUPPORTED_LANGUAGES, type SupportedLocale, saveLocale, needsReview } fr
 import { MODULE_REGISTRY } from '../modules/types'
 import { isModuleEnabled, setModuleEnabled, getAllModuleStates } from '../modules/store'
 import type { ModuleId } from '../modules/types'
+import { isLockEnabled, setPin, disableLock } from '../security/appLock'
+
+/** Modal to enable (set a PIN) or disable the app lock. */
+function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => void }) {
+  const [pin, setPinValue] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', textAlign: 'center', letterSpacing: 6, fontSize: 18, marginBottom: 10,
+    padding: '10px 12px', borderRadius: 10, border: '1.5px solid var(--border)',
+    background: 'var(--bg)', color: 'var(--text)', outline: 'none', boxSizing: 'border-box',
+  }
+
+  async function handleEnable() {
+    if (pin.length < 4) { setError('PIN must be at least 4 digits'); return }
+    if (pin !== confirm) { setError('PINs do not match'); return }
+    setBusy(true)
+    try { await setPin(pin); onClose() }
+    catch (e) { setError(e instanceof Error ? e.message : 'Could not set PIN'); setBusy(false) }
+  }
+
+  async function handleDisable() {
+    setBusy(true)
+    await disableLock()
+    onClose()
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
+      <div style={{ background: 'var(--card-bg)', borderRadius: '16px 16px 0 0', padding: 20, width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>App lock</p>
+          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 20, cursor: 'pointer' }}>✕</button>
+        </div>
+        {enabled ? (
+          <>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+              The app lock is on. Turn it off to open Arkive without a PIN.
+            </p>
+            <button type="button" className="btn btn-primary" style={{ width: '100%' }} onClick={handleDisable} disabled={busy}>
+              Turn off app lock
+            </button>
+          </>
+        ) : (
+          <>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+              Set a numeric PIN. Arkive will ask for it on launch and after being in the background.
+              The PIN is stored encrypted and cannot be recovered — remember it.
+            </p>
+            <input type="password" inputMode="numeric" value={pin} placeholder="New PIN"
+              onChange={e => setPinValue(e.target.value.replace(/[^0-9]/g, ''))} style={inputStyle} />
+            <input type="password" inputMode="numeric" value={confirm} placeholder="Confirm PIN"
+              onChange={e => setConfirm(e.target.value.replace(/[^0-9]/g, ''))} style={inputStyle} />
+            {error && <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 10 }}>{error}</p>}
+            <button type="button" className="btn btn-primary" style={{ width: '100%' }} onClick={handleEnable} disabled={busy}>
+              Enable app lock
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
 
 const ACCENT_OPTIONS = [
   { key: 'blue',   hex: '#4f8ef7', label: 'Blue (default)' },
@@ -28,6 +93,8 @@ export function SettingsScreen() {
   const [showLangPicker, setShowLangPicker] = useState(false)
   const currentLocale = i18n.language as SupportedLocale
   const [moduleStates, setModuleStates] = useState(() => getAllModuleStates())
+  const [showLockModal, setShowLockModal] = useState(false)
+  const [lockOn, setLockOn] = useState(() => isLockEnabled())
 
   const applyLanguage = useCallback((locale: SupportedLocale) => {
     void i18n.changeLanguage(locale)
@@ -213,16 +280,15 @@ export function SettingsScreen() {
         {/* Security */}
         <div className="settings-section">
           <p className="settings-group-label">{t('settings.security')}</p>
-          {([
-            ['biometric_lock', t('settings.biometric_lock')],
-            ['key_rotation', t('settings.key_rotation')],
-            ['manage_devices', t('settings.manage_devices')],
-          ] as const).map(([key, label]) => (
-            <button key={key} className="settings-row" type="button">
-              <span className="settings-row-label">{label}</span>
+          <button className="settings-row" type="button" onClick={() => setShowLockModal(true)}>
+            <span className="settings-row-label">{t('settings.biometric_lock')}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 13, color: lockOn ? 'var(--success)' : 'var(--text-muted)' }}>
+                {lockOn ? 'On' : 'Off'}
+              </span>
               <ChevronRight size={17} style={{ color: 'var(--text-muted)' }} aria-hidden />
-            </button>
-          ))}
+            </span>
+          </button>
         </div>
 
         {/* Data & Privacy */}
@@ -265,6 +331,13 @@ export function SettingsScreen() {
           </div>
         </div>
       </div>
+
+      {showLockModal && (
+        <AppLockModal
+          enabled={lockOn}
+          onClose={() => { setShowLockModal(false); setLockOn(isLockEnabled()) }}
+        />
+      )}
     </main>
   )
 }

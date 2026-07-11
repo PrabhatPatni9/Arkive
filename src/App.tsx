@@ -33,6 +33,8 @@ import { JoinFamilyScreen } from './screens/onboarding/JoinFamilyScreen'
 import { ApproveJoinScreen } from './screens/onboarding/ApproveJoinScreen'
 import { Nav } from './components/Nav'
 import { getFamily, hydrateFamilyStore } from './family/familyStore'
+import { isLockEnabled } from './security/appLock'
+import { LockScreen } from './screens/LockScreen'
 import { sodium } from './crypto/sodium'
 import { initSodium } from './crypto/sodium'
 import { MemoryOpLog } from './db/opLog'
@@ -64,7 +66,18 @@ function RequireNoFamily({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const [ready, setReady] = useState(false)
+  // Start locked whenever the lock is enabled, so a fresh launch requires the PIN.
+  const [locked, setLocked] = useState(() => isLockEnabled())
   const engineRef = useRef<SyncEngine | null>(null)
+
+  // Auto-lock: re-lock whenever the app is backgrounded (tab hidden / app to background).
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden' && isLockEnabled()) setLocked(true)
+    }
+    document.addEventListener('visibilitychange', onHide)
+    return () => document.removeEventListener('visibilitychange', onHide)
+  }, [])
 
   useEffect(() => {
     applyTheme()
@@ -130,6 +143,11 @@ export default function App() {
         <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Initialising…</p>
       </div>
     )
+  }
+
+  // App lock (HC §10): if enabled and currently locked, gate the whole app behind the PIN.
+  if (locked && isLockEnabled()) {
+    return <LockScreen onUnlock={() => setLocked(false)} />
   }
 
   const hasFamily = !!getFamily()
