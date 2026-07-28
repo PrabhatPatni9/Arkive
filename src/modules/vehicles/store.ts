@@ -1,5 +1,6 @@
 import type { Vehicle, VehicleInput } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 const KEY = 'arkive_vehicles_v1'
 
@@ -10,7 +11,7 @@ function loadAll(): Vehicle[] {
 }
 
 function saveAll(vehicles: Vehicle[]): void {
-  saveArray(KEY, vehicles)
+  persistSynced(KEY, vehicles, 'vehicleId')
 }
 
 export function getVehicles(familyId: string): Vehicle[] {

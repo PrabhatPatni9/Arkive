@@ -1,5 +1,6 @@
 import type { Asset, AssetInput } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 // Same local-first, family-scoped store pattern as the other modules.
 const KEY = 'arkive_assets_v1'
@@ -13,7 +14,7 @@ function loadAll(): Asset[] {
 }
 
 function saveAll(assets: Asset[]): void {
-  saveArray(KEY, assets)
+  persistSynced(KEY, assets, 'assetId')
 }
 
 export function getAssets(familyId: string): Asset[] {

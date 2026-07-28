@@ -40,6 +40,7 @@ import { sodium } from './crypto/sodium'
 import { initSodium } from './crypto/sodium'
 import { MemoryOpLog } from './db/opLog'
 import { SyncEngine } from './sync/engine'
+import { initSyncContext, clearSyncContext } from './sync/syncContext'
 import { refreshEntitlementFromRelay } from './payments/entitlement'
 import { initPush } from './push/pushService'
 import './app.css'
@@ -130,9 +131,19 @@ export default function App() {
       },
       opLog
     )
+    // Connect the record stores to the op log: local edits emit ops (pushed by the engine),
+    // and pulled ops materialise back into the stores.
+    initSyncContext({
+      opLog,
+      scopeKeyBytes: sodium.from_base64(family.familyKey.bytes),
+      signingSecretKey: sodium.from_base64(family.deviceSigKeypair.secretKey),
+      deviceId: family.deviceId,
+      keyEpoch: family.familyKey.epoch,
+      onOp: (op) => engine.enqueuePush(op),
+    })
     engine.start()
     engineRef.current = engine
-    return () => engine.stop()
+    return () => { engine.stop(); clearSyncContext() }
   }, [ready])
 
   if (!ready) {

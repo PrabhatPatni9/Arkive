@@ -1,5 +1,6 @@
 import type { Entity, EntityInput } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 // Follows the same local-first store pattern as the other modules (insurance, vehicles, …):
 // family-scoped records keyed by a stable arkive_*_v1 localStorage key.
@@ -14,7 +15,7 @@ function loadAll(): Entity[] {
 }
 
 function saveAll(entities: Entity[]): void {
-  saveArray(KEY, entities)
+  persistSynced(KEY, entities, 'entityId')
 }
 
 export function getEntities(familyId: string): Entity[] {

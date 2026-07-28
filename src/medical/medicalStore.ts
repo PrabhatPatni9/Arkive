@@ -1,5 +1,6 @@
 import type { Medicine, Vital, Doctor, MedicineFrequency, VitalType } from './types'
-import { loadArray, saveArray } from '../modules/secureModuleStore'
+import { loadArray } from '../modules/secureModuleStore'
+import { persistSynced } from '../sync/syncContext'
 
 const MEDS_KEY = 'arkive_medicines_v1'
 const VITALS_KEY = 'arkive_vitals_v1'
@@ -18,7 +19,7 @@ export function listMedicines(): Medicine[] {
 }
 
 function saveMedicines(meds: Medicine[]): void {
-  saveArray(MEDS_KEY, meds)
+  persistSynced(MEDS_KEY, meds, 'medId')
 }
 
 export function addMedicine(params: {
@@ -69,7 +70,7 @@ export function listVitals(): Vital[] {
 }
 
 function saveVitals(vitals: Vital[]): void {
-  saveArray(VITALS_KEY, vitals)
+  persistSynced(VITALS_KEY, vitals, 'vitalId')
 }
 
 export function addVital(params: {
@@ -119,7 +120,7 @@ export function listDoctors(): Doctor[] {
 }
 
 function saveDoctors(doctors: Doctor[]): void {
-  saveArray(DOCTORS_KEY, doctors)
+  persistSynced(DOCTORS_KEY, doctors, 'doctorId')
 }
 
 export function addDoctor(params: {

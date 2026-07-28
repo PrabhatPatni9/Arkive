@@ -1,5 +1,6 @@
 import type { HomeDevice, HomeDeviceInput } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 const KEY = 'arkive_homedevices_v1'
 
@@ -10,7 +11,7 @@ function loadAll(): HomeDevice[] {
 }
 
 function saveAll(devices: HomeDevice[]): void {
-  saveArray(KEY, devices)
+  persistSynced(KEY, devices, 'deviceId')
 }
 
 export function getHomeDevices(familyId: string): HomeDevice[] {

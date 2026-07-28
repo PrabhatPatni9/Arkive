@@ -1,5 +1,6 @@
 import type { Contact, ContactInput } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 const KEY = 'arkive_contacts_v1'
 
@@ -10,7 +11,7 @@ function loadAll(): Contact[] {
 }
 
 function saveAll(contacts: Contact[]): void {
-  saveArray(KEY, contacts)
+  persistSynced(KEY, contacts, 'contactId')
 }
 
 export function getContacts(familyId: string): Contact[] {

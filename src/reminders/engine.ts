@@ -1,5 +1,6 @@
 import type { Reminder, ReminderInput, Recurrence, ReminderCompletion } from './types'
-import { loadArray, saveArray } from '../modules/secureModuleStore'
+import { loadArray } from '../modules/secureModuleStore'
+import { persistSynced } from '../sync/syncContext'
 
 const STORAGE_KEY = 'arkive_reminders_v1'
 
@@ -10,7 +11,7 @@ function loadAll(): Reminder[] {
 }
 
 function saveAll(reminders: Reminder[]): void {
-  saveArray(STORAGE_KEY, reminders)
+  persistSynced(STORAGE_KEY, reminders, 'reminderId')
 }
 
 function randomId(): string {

@@ -1,5 +1,6 @@
 import type { Expense, ExpenseInput, ExpenseCategory } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 const KEY = 'arkive_expenses_v1'
 
@@ -10,7 +11,7 @@ function loadAll(): Expense[] {
 }
 
 function saveAll(expenses: Expense[]): void {
-  saveArray(KEY, expenses)
+  persistSynced(KEY, expenses, 'expenseId')
 }
 
 export function getExpenses(familyId: string): Expense[] {

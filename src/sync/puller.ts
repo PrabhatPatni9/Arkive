@@ -1,6 +1,7 @@
 import { verifyOp, hashOp, verifyChainLink, GENESIS_HASH } from '../crypto/ops'
 import type { OpWithHash } from '../crypto/ops'
 import type { OpLogStore } from '../db/opLog'
+import { materializeOp } from './syncContext'
 
 export interface PullResult {
   applied: number
@@ -43,6 +44,8 @@ export async function pullFromRelay(
       if (!verifyChainLink(op, op.prev_hash)) { skipped++; continue }
 
       await opLog.append(op)
+      // Materialise the record change into the local stores so pulled data actually appears.
+      materializeOp(op)
       applied++
     } catch {
       skipped++

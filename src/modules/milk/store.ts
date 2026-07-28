@@ -1,5 +1,6 @@
 import type { MilkEntry, MilkEntryInput } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 const KEY = 'arkive_milk_v1'
 
@@ -10,7 +11,7 @@ function loadAll(): MilkEntry[] {
 }
 
 function saveAll(entries: MilkEntry[]): void {
-  saveArray(KEY, entries)
+  persistSynced(KEY, entries, 'entryId')
 }
 
 export function getMilkEntries(familyId: string): MilkEntry[] {

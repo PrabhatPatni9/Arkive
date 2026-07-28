@@ -1,5 +1,6 @@
 import type { InsurancePolicy, PolicyInput } from './types'
-import { loadArray, saveArray } from '../secureModuleStore'
+import { loadArray } from '../secureModuleStore'
+import { persistSynced } from '../../sync/syncContext'
 
 const KEY = 'arkive_insurance_v1'
 
@@ -10,7 +11,7 @@ function loadAll(): InsurancePolicy[] {
 }
 
 function saveAll(policies: InsurancePolicy[]): void {
-  saveArray(KEY, policies)
+  persistSynced(KEY, policies, 'policyId')
 }
 
 export function getPolicies(familyId: string): InsurancePolicy[] {
