@@ -15,13 +15,12 @@
   incoming ops back into the stores (`materializeOp`). All record stores are wired (insurance,
   vehicles, expenses, milk, contacts, home-devices, owners, assets, medical, reminders). Proven
   end-to-end by `sync/syncE2E.test.ts` (device A change → op → device B store).
-- ⏭️ **NOW URGENT (created by the sync work): medical conflict surfacing — Task C4 below.** With
-  sync live, two devices editing the same medical field resolve by last-writer-wins in
-  `materializeOp`. HC §3 forbids silent LWW for medical fields, so this must be wired next.
-- ⏭️ **Sync refinement:** on web the op log is in-memory (`MemoryOpLog`), so each session re-pulls
-  from lamport 0 (correct but re-pulls all) and an edit made in the ~1s before the first pull can
-  fork the chain. Fix: hydrate the op log from the relay before enabling emits, or add a
-  localStorage-backed `OpLogStore`. Native SQLite already persists. (Task C5.)
+- ✅ **DONE — Medical conflict surfacing (HC §3, Task C4).** `materializeOp` records a conflict
+  (kept local) instead of silently overwriting a differing medical record; `MedicalScreen` shows a
+  Keep-mine/Use-theirs banner (`medical/conflicts.ts`).
+- ✅ **DONE — Op-log persistence + cursor (Task C5).** `db/localStorageOpLog.ts` persists the chain
+  across web reloads (no GENESIS fork, dedup works); the engine now tracks the pull cursor with the
+  correct `'family'` scope and seeds it from the persisted head (no more re-pulling the whole log).
 
 Remaining ordered work is below.
 
