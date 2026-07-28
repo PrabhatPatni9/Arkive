@@ -53,7 +53,13 @@ export class SyncEngine {
     if (this.running) return
     this.running = true
     this.initP2P()
-    this.schedule(0)
+    // Seed the pull cursor from the persisted op log so a reloaded session doesn't re-pull the
+    // whole history — then run the first sync.
+    void (async () => {
+      const head = await this.opLog.getHead('family')
+      if (head) this.lastLamport = Math.max(this.lastLamport, head.lamport_clock)
+      if (this.running) this.schedule(0)
+    })()
   }
 
   stop(): void {
@@ -163,7 +169,9 @@ export class SyncEngine {
         this.opLog,
         this.config.deviceToken
       )
-      const head = await this.opLog.getHead(this.config.familyId)
+      // Record ops are family-scoped, so the family head tracks the pull cursor. (Using the
+      // family_id here instead of the 'family' scope left the cursor at 0 — re-pulling everything.)
+      const head = await this.opLog.getHead('family')
       if (head && head.lamport_clock > this.lastLamport) {
         this.lastLamport = head.lamport_clock
       }
