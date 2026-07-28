@@ -11,6 +11,7 @@ import { createRecoveryPackage, moderateParams, sealWithPassphrase } from '../cr
 import { deriveVerificationCode } from '../crypto/handshake'
 import { generateRecoveryPhrase } from './wordlist'
 import { secureSave, secureLoad, secureRemove } from './secureStore'
+import { emitRecordDirect } from '../sync/syncContext'
 
 const STORAGE_KEY = 'arkive_family_v1'
 const PENDING_JOIN_KEY = 'arkive_pending_join_v1'
@@ -388,6 +389,26 @@ export function completeJoin(pending: PendingJoin, approval: JoinApproval): Fami
   return state
 }
 
+// Member fields that are family-shared content and safe to sync across devices (never role,
+// keys, device id, or membership — those change only through the secure join/rotation flows).
+const SYNCABLE_PROFILE_KEYS = [
+  'name', 'bloodGroup', 'allergies', 'conditions', 'medications',
+  'emergencyContacts', 'policyNumbers', 'dateOfBirth',
+] as const
+
+/** The logical store name used for member-profile sync ops. */
+export const MEMBERS_STORE = 'family_members'
+
+function profileSubset(member: FamilyMember): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  const asRecord = member as unknown as Record<string, unknown>
+  for (const k of SYNCABLE_PROFILE_KEYS) {
+    const v = asRecord[k]
+    if (v !== undefined) out[k] = v
+  }
+  return out
+}
+
 export function updateMemberProfile(
   memberId: string,
   updates: Partial<Omit<FamilyMember, 'memberId' | 'role' | 'deviceId' | 'encPublicKey' | 'sigPublicKey' | 'isDependent'>>
@@ -397,6 +418,27 @@ export function updateMemberProfile(
   const idx = family.members.findIndex(m => m.memberId === memberId)
   if (idx === -1) return
   family.members[idx] = { ...family.members[idx], ...updates }
+  saveFamily(family)
+  // Sync the profile change so other family devices see it (emergency/health fields).
+  emitRecordDirect(MEMBERS_STORE, 'memberId', 'put', memberId, profileSubset(family.members[idx]))
+}
+
+/**
+ * Apply a member-profile change received from another device. Merges only the syncable profile
+ * fields onto the existing member — never role, keys, or membership. Unknown members are ignored
+ * (membership arrives through the join handshake, not here).
+ */
+export function applyMemberProfileFromSync(payload: { id: string; record?: unknown }): void {
+  const family = getFamily()
+  if (!family) return
+  const idx = family.members.findIndex(m => m.memberId === payload.id)
+  if (idx === -1) return
+  const incoming = (payload.record ?? {}) as Record<string, unknown>
+  const profile: Record<string, unknown> = {}
+  for (const k of SYNCABLE_PROFILE_KEYS) {
+    if (k in incoming) profile[k] = incoming[k]
+  }
+  family.members[idx] = { ...family.members[idx], ...profile } as FamilyMember
   saveFamily(family)
 }
 

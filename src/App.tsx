@@ -33,7 +33,8 @@ import { JoinFamilyScreen } from './screens/onboarding/JoinFamilyScreen'
 import { ApproveJoinScreen } from './screens/onboarding/ApproveJoinScreen'
 import { Nav } from './components/Nav'
 import { EmergencyFab } from './components/EmergencyFab'
-import { getFamily, hydrateFamilyStore } from './family/familyStore'
+import { getFamily, hydrateFamilyStore, applyMemberProfileFromSync, MEMBERS_STORE } from './family/familyStore'
+import { registerStoreHandler } from './sync/syncContext'
 import { isLockEnabled } from './security/appLock'
 import { LockScreen } from './screens/LockScreen'
 import { sodium } from './crypto/sodium'
@@ -85,6 +86,9 @@ export default function App() {
   // Medical fields must reconcile, not silently overwrite, on sync (HC §3). Register once at boot
   // so conflicts are caught during background sync even before the Medical screen is opened.
   useEffect(() => { registerMedicalConflictPolicy() }, [])
+
+  // Member profile/health edits sync across the family's devices via a custom store handler.
+  useEffect(() => { registerStoreHandler(MEMBERS_STORE, applyMemberProfileFromSync) }, [])
 
   useEffect(() => {
     applyTheme()

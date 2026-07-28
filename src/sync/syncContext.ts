@@ -47,6 +47,19 @@ export function registerReconcileStore(
   conflictRecorder = recorder
 }
 
+// Custom materialise handlers for stores that aren't a plain localStorage array (e.g. family
+// members live inside FamilyState). A registered handler fully owns applying that store's ops.
+const storeHandlers = new Map<string, (payload: RecordOpPayload) => void>()
+
+export function registerStoreHandler(storeKey: string, apply: (payload: RecordOpPayload) => void): void {
+  storeHandlers.set(storeKey, apply)
+}
+
+/** Emit a record op directly (for callers that manage their own storage, e.g. family profiles). */
+export function emitRecordDirect(store: string, idKey: string, action: 'put' | 'delete', id: string, record?: unknown): void {
+  emitRecord(store, idKey, action, id, record)
+}
+
 /** Resolves once all queued emits have been appended + handed to the engine (for tests/flush). */
 export function whenEmitsSettled(): Promise<void> { return emitChain }
 
@@ -112,6 +125,10 @@ export function materializeOp(op: Op): void {
 
 /** Apply one record change to the raw local store (never emits — avoids a feedback loop). */
 export function applyRecordPayload(p: RecordOpPayload): void {
+  // Stores with a custom handler (e.g. family members) own their own apply logic.
+  const custom = storeHandlers.get(p.store)
+  if (custom) { custom(p); return }
+
   const arr = loadArray<Record<string, unknown>>(p.store)
   const idx = arr.findIndex(r => String(r[p.idKey]) === p.id)
   if (p.action === 'delete') {
