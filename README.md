@@ -3,6 +3,11 @@
 > A local-first, end-to-end encrypted family vault. Blood groups, allergies, medicines, IDs, policies — always offline, always private.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](LICENSE)
+[![Deploy Web App](https://github.com/prabhatpatni9/arkive/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/prabhatpatni9/arkive/actions/workflows/deploy-pages.yml)
+[![Deploy Relay](https://github.com/prabhatpatni9/arkive/actions/workflows/deploy-relay.yml/badge.svg?branch=main)](https://github.com/prabhatpatni9/arkive/actions/workflows/deploy-relay.yml)
+
+> **Deployment & Cloudflare sync:** push to `main` auto-deploys the web app + relay. See
+> [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for how to verify, force a redeploy, and fix common issues.
 
 Arkive is a family vault for the things you'd panic to find in a medical emergency. Any family
 member can reach critical health information instantly, **offline**, on their own device. The

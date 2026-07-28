@@ -6,6 +6,7 @@ on:
     paths:
       - 'relay/**'
       - '.github/workflows/deploy-relay.yml'
+  workflow_dispatch:   # lets you re-deploy on demand from the Actions tab ("Run workflow")
 
 jobs:
   deploy:
