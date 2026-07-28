@@ -38,7 +38,7 @@ import { isLockEnabled } from './security/appLock'
 import { LockScreen } from './screens/LockScreen'
 import { sodium } from './crypto/sodium'
 import { initSodium } from './crypto/sodium'
-import { MemoryOpLog } from './db/opLog'
+import { LocalStorageOpLog } from './db/localStorageOpLog'
 import { SyncEngine } from './sync/engine'
 import { initSyncContext, clearSyncContext } from './sync/syncContext'
 import { registerMedicalConflictPolicy } from './medical/conflicts'
@@ -124,7 +124,7 @@ export default function App() {
       }
     }
 
-    const opLog = new MemoryOpLog()
+    const opLog = new LocalStorageOpLog()
     const engine = new SyncEngine(
       {
         relayUrl: RELAY_URL,
