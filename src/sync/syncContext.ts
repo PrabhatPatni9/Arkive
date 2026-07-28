@@ -34,6 +34,19 @@ export function initSyncContext(c: SyncContext): void { ctx = c }
 export function clearSyncContext(): void { ctx = null }
 export function isSyncActive(): boolean { return ctx !== null }
 
+// Stores whose incoming changes must be reconciled by a human instead of silently overwritten
+// (HC §3 — medical fields). The recorder logs the conflict; the local value is kept until resolved.
+const reconcileStores = new Set<string>()
+let conflictRecorder: ((store: string, idKey: string, id: string, local: unknown, incoming: unknown) => void) | null = null
+
+export function registerReconcileStore(
+  storeKey: string,
+  recorder: (store: string, idKey: string, id: string, local: unknown, incoming: unknown) => void,
+): void {
+  reconcileStores.add(storeKey)
+  conflictRecorder = recorder
+}
+
 /** Resolves once all queued emits have been appended + handed to the engine (for tests/flush). */
 export function whenEmitsSettled(): Promise<void> { return emitChain }
 
@@ -109,6 +122,15 @@ export function applyRecordPayload(p: RecordOpPayload): void {
     return
   }
   if (p.record) {
+    // HC §3: for reconcile stores (medical), never silently overwrite a differing local record —
+    // record a conflict and keep the local value until a human chooses.
+    if (idx >= 0 && reconcileStores.has(p.store)) {
+      const local = arr[idx]
+      if (JSON.stringify(local) !== JSON.stringify(p.record)) {
+        conflictRecorder?.(p.store, p.idKey, p.id, local, p.record)
+        return
+      }
+    }
     if (idx >= 0) arr[idx] = p.record as Record<string, unknown>
     else arr.push(p.record as Record<string, unknown>)
     saveArray(p.store, arr)

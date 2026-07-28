@@ -8,6 +8,23 @@
 > Companion docs: `PRODUCTION_READINESS.md` (what's done vs pending) and `EMERGENCY_MODULES.md`
 > (new modules to build later). Source of truth for intent: `ARKIVE_BUILD_BRIEF.md`.
 
+## STATUS (update as you go)
+
+- ✅ **DONE — the load-bearing gap (multi-device sync).** Record stores now emit signed ops on
+  every change (`sync/syncContext.ts` `persistSynced`) and the puller materialises verified
+  incoming ops back into the stores (`materializeOp`). All record stores are wired (insurance,
+  vehicles, expenses, milk, contacts, home-devices, owners, assets, medical, reminders). Proven
+  end-to-end by `sync/syncE2E.test.ts` (device A change → op → device B store).
+- ⏭️ **NOW URGENT (created by the sync work): medical conflict surfacing — Task C4 below.** With
+  sync live, two devices editing the same medical field resolve by last-writer-wins in
+  `materializeOp`. HC §3 forbids silent LWW for medical fields, so this must be wired next.
+- ⏭️ **Sync refinement:** on web the op log is in-memory (`MemoryOpLog`), so each session re-pulls
+  from lamport 0 (correct but re-pulls all) and an edit made in the ~1s before the first pull can
+  fork the chain. Fix: hydrate the op log from the relay before enabling emits, or add a
+  localStorage-backed `OpLogStore`. Native SQLite already persists. (Task C5.)
+
+Remaining ordered work is below.
+
 ---
 
 ## 0. How this repo works (read once before touching code)
@@ -150,6 +167,26 @@ These cannot be done from a sandbox. List them in your PR description; do not at
   on-demand from the Emergency screen.
 
 ---
+
+### Task C4 — Medical conflict surfacing (HC §3) — NOW URGENT (sync is live)
+- **Goal:** when `materializeOp` would overwrite a *medical* record (medicines/vitals/doctors)
+  with an incoming version that differs from the local one, do **not** silently overwrite — record
+  a conflict and let a human reconcile.
+- **Files:** `src/medical/conflicts.ts` (a non-synced conflict store: `getConflicts`,
+  `recordConflict`, `resolveConflict(store, id, useIncoming)`); a small hook in
+  `sync/syncContext.ts` `applyRecordPayload` — for a registered set of "reconcile" store keys
+  (the 3 medical keys), if `action==='put'` and a differing local record exists, record a conflict
+  and keep local. Surface a banner + Keep-mine/Use-theirs on `MedicalScreen`.
+- **Existing help:** `sync/resolver.ts` already has `isMedicalField`/`detectConflicts` — reuse it.
+- **Acceptance:** a divergent medical put creates a visible conflict instead of overwriting;
+  resolving applies the chosen version; non-medical stores keep plain LWW.
+
+### Task C5 — Persist the op log on web (sync hardening)
+- **Goal:** keep the hash chain continuous across web reloads. Add a localStorage-backed
+  `OpLogStore` (implement the `db/opLog.ts` interface) OR hydrate the `MemoryOpLog` from a full
+  relay pull *before* `initSyncContext` enables emits. Native SQLite already persists.
+- **Acceptance:** reload the PWA, make an edit, and the new op's `prev_hash` continues the chain
+  (no fork); other devices apply it cleanly.
 
 ## Phase D — Managed identity & three-tier crypto enforcement (brief §2, §3)
 

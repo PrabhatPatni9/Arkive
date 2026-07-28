@@ -41,6 +41,7 @@ import { initSodium } from './crypto/sodium'
 import { MemoryOpLog } from './db/opLog'
 import { SyncEngine } from './sync/engine'
 import { initSyncContext, clearSyncContext } from './sync/syncContext'
+import { registerMedicalConflictPolicy } from './medical/conflicts'
 import { refreshEntitlementFromRelay } from './payments/entitlement'
 import { initPush } from './push/pushService'
 import './app.css'
@@ -80,6 +81,10 @@ export default function App() {
     document.addEventListener('visibilitychange', onHide)
     return () => document.removeEventListener('visibilitychange', onHide)
   }, [])
+
+  // Medical fields must reconcile, not silently overwrite, on sync (HC §3). Register once at boot
+  // so conflicts are caught during background sync even before the Medical screen is opened.
+  useEffect(() => { registerMedicalConflictPolicy() }, [])
 
   useEffect(() => {
     applyTheme()

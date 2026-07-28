@@ -1,13 +1,11 @@
 name: Deploy Web App
 
+# NOTE: the web app now deploys via Cloudflare Pages' native Git integration (it builds on every
+# push to main). To avoid two deploy paths racing (see docs/DEPLOYMENT.md), this Action no longer
+# runs automatically — it is kept for manual/backup deploys only. If you ever disconnect the
+# Cloudflare Git integration, restore the `push:` trigger below.
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - 'relay/**'
-      - '.github/workflows/deploy-relay.yml'
-      - '.github/workflows/build-apk.yml'
-  workflow_dispatch:   # lets you re-deploy on demand from the Actions tab ("Run workflow")
+  workflow_dispatch:   # manual/backup deploy from the Actions tab ("Run workflow")
 
 jobs:
   deploy:

@@ -12,8 +12,44 @@ import {
 } from '../medical/medicalStore'
 import type { Medicine, Vital, Doctor } from '../medical/types'
 import { VITAL_LABELS, FREQUENCY_LABELS } from '../medical/types'
+import { getMedConflicts, resolveMedConflict } from '../medical/conflicts'
 
 type Tab = 'medicines' | 'vitals' | 'doctors'
+
+/**
+ * Surfaces medical sync conflicts for human reconciliation (HC §3 — never silent last-writer-wins).
+ * Shown when another device sent a differing version of a medical record; the local value is kept
+ * until the user chooses "Keep mine" or "Use theirs".
+ */
+function MedicalConflictBanner() {
+  const [conflicts, setConflicts] = useState(() => getMedConflicts())
+  if (conflicts.length === 0) return null
+
+  function resolve(conflictId: string, useIncoming: boolean) {
+    resolveMedConflict(conflictId, useIncoming)
+    setConflicts(getMedConflicts())
+  }
+
+  return (
+    <div className="card card-p" style={{ marginBottom: 12, border: '1.5px solid var(--warning)', background: 'rgba(245,166,35,0.08)' }}>
+      <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>
+        {conflicts.length} medical {conflicts.length === 1 ? 'record needs' : 'records need'} your review
+      </p>
+      <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
+        Another device changed the same record. Medical data is never overwritten automatically — choose which to keep.
+      </p>
+      {conflicts.map(c => (
+        <div key={c.conflictId} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Record {c.id.slice(0, 6)}…</span>
+          <span style={{ display: 'flex', gap: 6 }}>
+            <button type="button" className="btn btn-sm btn-outline" onClick={() => resolve(c.conflictId, false)}>Keep mine</button>
+            <button type="button" className="btn btn-sm btn-primary" onClick={() => resolve(c.conflictId, true)}>Use theirs</button>
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export function MedicalScreen() {
   const navigate = useNavigate()
@@ -66,6 +102,7 @@ export function MedicalScreen() {
       </header>
 
       <div className="screen-body" style={{ paddingTop: 12 }}>
+        <MedicalConflictBanner />
         {/* Member picker */}
         {members.length > 1 && (
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12 }}>
