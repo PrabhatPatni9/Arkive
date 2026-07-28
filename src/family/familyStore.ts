@@ -431,13 +431,32 @@ export function updateMemberProfile(
 export function applyMemberProfileFromSync(payload: { id: string; record?: unknown }): void {
   const family = getFamily()
   if (!family) return
-  const idx = family.members.findIndex(m => m.memberId === payload.id)
-  if (idx === -1) return
   const incoming = (payload.record ?? {}) as Record<string, unknown>
   const profile: Record<string, unknown> = {}
   for (const k of SYNCABLE_PROFILE_KEYS) {
     if (k in incoming) profile[k] = incoming[k]
   }
+
+  const idx = family.members.findIndex(m => m.memberId === payload.id)
+  if (idx === -1) {
+    // Unknown member: a synced record may ONLY create a dependent (no device, no keys). Keyed
+    // members always arrive through the secure join handshake — never through a record op.
+    if (incoming.isDependent !== true) return
+    family.members.push({
+      memberId: payload.id,
+      name: typeof incoming.name === 'string' ? incoming.name : 'Family member',
+      role: 'member',
+      deviceId: '',
+      encPublicKey: '',
+      sigPublicKey: '',
+      isDependent: true,
+      ...profile,
+    } as FamilyMember)
+    saveFamily(family)
+    return
+  }
+
+  // Known member: merge only the syncable profile fields (never role, keys, or membership).
   family.members[idx] = { ...family.members[idx], ...profile } as FamilyMember
   saveFamily(family)
 }
@@ -485,6 +504,9 @@ export function createDependentMember(params: {
   }
   family.members.push(member)
   saveFamily(family)
+  // Sync the new dependent so other family devices see them. isDependent marks it as a
+  // create-able-via-sync record (only dependents — never a keyed member).
+  emitRecordDirect(MEMBERS_STORE, 'memberId', 'put', memberId, { ...profileSubset(member), isDependent: true })
   return member
 }
 

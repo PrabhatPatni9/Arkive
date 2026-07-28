@@ -57,6 +57,21 @@ describe('member profile sync', () => {
     expect(m?.name).toBe('Asha R.')        // name is a syncable profile field
   })
 
+  it('creates a synced dependent, but ignores an unknown non-dependent member', () => {
+    newFamily()
+    // A dependent (no keys) created on another device is added here.
+    applyMemberProfileFromSync({ id: 'dep-1', record: { name: 'Baby', isDependent: true, bloodGroup: 'A+' } })
+    let m = getFamily()?.members.find(x => x.memberId === 'dep-1')
+    expect(m?.name).toBe('Baby')
+    expect(m?.isDependent).toBe(true)
+    expect(m?.sigPublicKey).toBe('')   // no keys — cannot act
+
+    // An unknown NON-dependent (would-be keyed member) must never be created via a record op.
+    applyMemberProfileFromSync({ id: 'evil-1', record: { name: 'Intruder', isDependent: false, role: 'admin' } })
+    m = getFamily()?.members.find(x => x.memberId === 'evil-1')
+    expect(m).toBeUndefined()
+  })
+
   it('emits a family_members op on profile update when sync is active', async () => {
     const state = newFamily()
     const scopeKey = generateScopeKey('family', 0)
