@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserPlus, UserCheck, RotateCcw, Shield, ChevronRight, Pencil, Check, X, Baby, Trash2 } from 'lucide-react'
+import { UserPlus, UserCheck, RotateCcw, Shield, ChevronRight, Pencil, Check, X, Baby, Trash2, Users } from 'lucide-react'
 import { getFamily, setBackupAdmin, renameDevice, removeMemberAndRotate } from '../family/familyStore'
 import type { FamilyMember } from '../family/familyStore'
 import { revokeDevice } from '../sync/relayClient'
@@ -340,6 +340,16 @@ export function FamilyScreen() {
               </div>
             </div>
           )}
+          <button
+            className="btn btn-ghost"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}
+            type="button"
+            onClick={() => navigate('/family/social-recovery')}
+          >
+            <Users size={16} />
+            Social recovery (share the key)
+            <ChevronRight size={16} style={{ marginLeft: 'auto' }} />
+          </button>
           <button
             className="btn btn-ghost"
             style={{ display: 'flex', alignItems: 'center', gap: 8 }}

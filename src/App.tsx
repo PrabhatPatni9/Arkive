@@ -12,6 +12,7 @@ import { EmergencyCardScreen } from './screens/EmergencyCardScreen'
 import { RemindersScreen } from './screens/RemindersScreen'
 import { AddDependentScreen } from './screens/AddDependentScreen'
 import { InviteScreen } from './screens/InviteScreen'
+import { SocialRecoveryScreen } from './screens/SocialRecoveryScreen'
 import { DataPrivacyScreen } from './screens/DataPrivacyScreen'
 import { MedicalScreen } from './screens/MedicalScreen'
 import { AddMedicineScreen } from './screens/AddMedicineScreen'
@@ -195,6 +196,7 @@ export default function App() {
             <Route path="/family/invite" element={<RequireFamily><InviteScreen /></RequireFamily>} />
             <Route path="/family/approve-join" element={<RequireFamily><ApproveJoinScreen /></RequireFamily>} />
             <Route path="/family/add-dependent" element={<RequireFamily><AddDependentScreen /></RequireFamily>} />
+            <Route path="/family/social-recovery" element={<RequireFamily><SocialRecoveryScreen /></RequireFamily>} />
             <Route path="/vault" element={<RequireFamily><VaultScreen /></RequireFamily>} />
             <Route path="/vault/capture" element={<RequireFamily><DocumentCaptureScreen /></RequireFamily>} />
             <Route path="/vault/doc/:docId" element={<RequireFamily><VaultDocumentScreen /></RequireFamily>} />
