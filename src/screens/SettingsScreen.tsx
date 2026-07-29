@@ -45,7 +45,7 @@ function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => v
         {enabled ? (
           <>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-              The app lock is on. Turn it off to open Arkive without a PIN.
+              The app lock is on. Turn it off to open ARKHIVE without a PIN.
             </p>
             <button type="button" className="btn btn-primary" style={{ width: '100%' }} onClick={handleDisable} disabled={busy}>
               Turn off app lock
@@ -54,7 +54,7 @@ function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => v
         ) : (
           <>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-              Set a numeric PIN. Arkive will ask for it on launch and after being in the background.
+              Set a numeric PIN. ARKHIVE will ask for it on launch and after being in the background.
               The PIN is stored encrypted and cannot be recovered — remember it.
             </p>
             <input type="password" inputMode="numeric" value={pin} placeholder="New PIN"

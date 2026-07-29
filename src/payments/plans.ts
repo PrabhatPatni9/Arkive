@@ -32,7 +32,7 @@ export const SYNC_TIERS: Record<SyncTierId, SyncTier> = {
     features: [
       'Everything in Local & LAN',
       'Internet sync across any network',
-      'Encrypted relay — Arkive cannot read your data',
+      'Encrypted relay — ARKHIVE cannot read your data',
       'Background sync & push wake',
       'Billing is web-only (no in-app purchase)',
     ],

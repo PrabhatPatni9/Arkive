@@ -1,4 +1,4 @@
-# Arkive — Technical README
+# ARKHIVE — Technical README
 
 > A local-first, end-to-end encrypted family vault. Blood groups, allergies, medicines, IDs, policies — always offline, always private.
 

@@ -1,4 +1,4 @@
-# Arkive
+# ARKHIVE
 
 > A local-first, end-to-end encrypted family vault. Blood groups, allergies, medicines, IDs, policies — always offline, always private.
 
@@ -9,7 +9,7 @@
 > **Deployment & Cloudflare sync:** push to `main` auto-deploys the web app + relay. See
 > [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for how to verify, force a redeploy, and fix common issues.
 
-Arkive is a family vault for the things you'd panic to find in a medical emergency. Any family
+ARKHIVE is a family vault for the things you'd panic to find in a medical emergency. Any family
 member can reach critical health information instantly, **offline**, on their own device. The
 sync relay is a **blind post office** — it stores sealed envelopes it cannot open, and nothing else.
 
@@ -42,7 +42,7 @@ This project ships two guides so the right audience gets the right level of deta
 ## Why it exists
 
 In a medical emergency, nobody should be scrambling to find a policy number or a blood group.
-Arkive keeps that information on the family's own devices, encrypted with keys only the family
+ARKHIVE keeps that information on the family's own devices, encrypted with keys only the family
 holds, readable offline, and kept fresh by a reminder engine.
 
 **The promise that's true and defensible:** content is end-to-end encrypted and the relay is

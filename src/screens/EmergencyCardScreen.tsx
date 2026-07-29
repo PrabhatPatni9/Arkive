@@ -250,7 +250,7 @@ export function EmergencyCardScreen() {
               )}
 
               <p style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 10 }}>
-                Generated {cardData.generated} via Arkive — data consented by patient.
+                Generated {cardData.generated} via ARKHIVE — data consented by patient.
                 {!qrReady && ' Scan QR for full data.'}
               </p>
             </div>

@@ -321,7 +321,7 @@ export function FamilyScreen() {
             <div style={{ background: 'var(--bg)', borderRadius: 10, padding: 12, marginTop: 8 }}>
               <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
                 Your family key is protected by your recovery phrase via Argon2id key derivation.
-                The key itself is encrypted and stored locally — Arkive never holds it.
+                The key itself is encrypted and stored locally — ARKHIVE never holds it.
               </p>
               <div style={{ marginTop: 10 }}>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Family Key ID</p>

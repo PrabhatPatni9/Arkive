@@ -88,7 +88,7 @@ export function RecoveryPhraseScreen() {
               This phrase is your only backup
             </p>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              {`${words.length} words generated on your device. Arkive never sees it. If you lose all your devices, this phrase is the only way to recover your vault. Write it on paper and store it safely.`}
+              {`${words.length} words generated on your device. ARKHIVE never sees it. If you lose all your devices, this phrase is the only way to recover your vault. Write it on paper and store it safely.`}
             </p>
           </div>
         </div>

@@ -158,7 +158,7 @@ export function DataPrivacyScreen() {
                 <div>
                   <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--danger)' }}>Delete family vault</p>
                   <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.5 }}>
-                    Permanently erases all Arkive data from this device. This cannot be undone.
+                    Permanently erases all ARKHIVE data from this device. This cannot be undone.
                     Other devices are not affected — they retain their local copies.
                   </p>
                 </div>

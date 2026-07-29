@@ -13,7 +13,7 @@ export function OnboardingScreen() {
         </div>
 
         <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)', textAlign: 'center', marginBottom: 8 }}>
-          Arkive
+          ARKHIVE
         </h1>
         <p style={{ fontSize: 15, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.6, maxWidth: 300, marginBottom: 48 }}>
           Your family vault, end-to-end encrypted. Operator never sees your data — only your family holds the keys.

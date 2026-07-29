@@ -42,7 +42,7 @@ export function openRazorpayCheckout(
       key: razorpayKey,
       amount: order.amount,
       currency: order.currency,
-      name: 'Arkive',
+      name: 'ARKHIVE',
       description: `${tier.name} — ${familyName}`,
       order_id: order.orderId,
       handler(response) {

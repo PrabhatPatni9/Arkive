@@ -1,4 +1,4 @@
-# Arkive — A Simple Guide for Everyone
+# ARKHIVE — A Simple Guide for Everyone
 
 > The family safe for the things you'd panic to find in an emergency — blood groups,
 > allergies, medicines, insurance policies, IDs and important documents. On your phone,
@@ -9,7 +9,7 @@ read [`README.technical.md`](README.technical.md) instead.
 
 ---
 
-## What is Arkive, in one minute
+## What is ARKHIVE, in one minute
 
 Imagine a small, private safe that lives on your family's phones. Inside it you keep the
 information you'd be desperate to find in a hospital waiting room: a blood group, a list of
@@ -144,7 +144,7 @@ Very little. It's designed for patchy, expensive mobile data.
   door.
 - You can keep a phone on a **"lean" mode** that holds less locally if storage is tight.
 
-In everyday use, Arkive is one of the lightest things on your phone.
+In everyday use, ARKHIVE is one of the lightest things on your phone.
 
 ---
 
@@ -184,7 +184,7 @@ thing is the optional encrypted backup.
 
 ## A note on the name
 
-"Arkive" is the working name of this open-source project. **No trademark is claimed** and the
+"ARKHIVE" is the working name of this open-source project. **No trademark is claimed** and the
 name/branding aren't legally registered. It's a community project under an open licence.
 
 ---
@@ -195,7 +195,7 @@ name/branding aren't legally registered. It's a community project under an open 
 No — other family members' phones still have the shared safe, and your recovery phrase can
 rebuild your access. That's why writing the recovery phrase down at the start matters.
 
-**Can Arkive (the company) read my documents?**
+**Can ARKHIVE (the company) read my documents?**
 No. They're scrambled with keys only your family holds. We only ever see sealed, unreadable
 data.
 

@@ -34,7 +34,7 @@ export function LockScreen({ onUnlock }: { onUnlock: () => void }) {
       <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--accent-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
         <Lock size={26} color="var(--accent)" />
       </div>
-      <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>Arkive is locked</p>
+      <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>ARKHIVE is locked</p>
       <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 24 }}>Enter your PIN to continue</p>
 
       <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 280 }}>
