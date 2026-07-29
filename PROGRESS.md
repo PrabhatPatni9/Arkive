@@ -1,6 +1,42 @@
 # Arkive Build Progress
 
-## Current Phase: v2 Phase A (Security Remediation) — COMPLETE; Phase B (data model) next
+## Current Phase: Multi-device sync + operational hardening — COMPLETE
+
+Latest state (this session). Build passes (`npm run build`), lint clean, **235 tests pass**,
+relay typechecks (`cd relay && npx tsc --noEmit`). `main` is canonical and deploys both Pages
+and the relay.
+
+### Done this session
+- **Multi-device record sync (the previously-missing link).** Local edits in every synced store
+  now emit signed, hash-chained record ops (`src/sync/recordOps.ts`, `persistSynced`/
+  `emitRecordDirect` in `src/sync/syncContext.ts`); the puller materialises verified incoming
+  ops back into the stores. Proven end-to-end in `src/sync/syncE2E.test.ts`.
+- **Op log persisted across web reloads** — `src/db/localStorageOpLog.ts`; engine seeds its
+  cursor from the log head.
+- **Member profile / health-field sync** with the medical no-silent-overwrite rule
+  (`registerReconcileStore` + `src/medical/conflicts.ts`).
+- **Member removal + forward-only family-key rotation (brief §6).** `removeMemberAndRotate`
+  mints a new epoch key sealed per-remaining-device via `crypto_box_seal`; the removed member,
+  who still holds the old key, cannot read new-epoch data; old blobs are never re-encrypted
+  (`familyKeyHistory` keeps old keys readable). Admin-authorised via the op's signed
+  `author_device_id`. Proven in `src/family/rotation.test.ts`.
+- **PWA/web OCR** — Tesseract.js lazy fallback so web document capture actually extracts text
+  (`src/ocr/ocrService.ts`); native ML Kit still preferred on Android.
+- **Relay operational hardening (brief §8)** — per-family fixed-window rate limits on `/ops`,
+  `/blob`, and `/join`; a 100 MB per-family blob storage quota (R2 `head`-checked so only new
+  blobs count); last-activity tracking. All best-effort: the Worker degrades gracefully if
+  migration 006 has not been applied. `relay/migrations/006_rate_and_usage.sql`.
+
+### Crypto tier status (honest)
+- **Family tier: fully enforced.** All synced record ops and all at-rest module data
+  (`src/modules/secureModuleStore.ts`) are sealed under the family key; forward-only rotation
+  is implemented and tested.
+- **Node / member (private) / custom tiers, and threshold break-glass:** the primitives exist
+  (`src/crypto/keys.ts`, Shamir in `src/crypto/*`) and the scope enum is defined, but there is
+  **no per-record consumer** wired for these tiers yet, so they are intentionally NOT scaffolded
+  into the sync path — adding unused encryption routing now would be dead code. These are the
+  next real feature (they need a UI that lets a user mark a record private/node/custom first).
+- **Excluded by owner:** Razorpay payment integration stays a stub until licensing.
 
 ---
 

@@ -525,7 +525,6 @@ export function removeMemberAndRotate(memberId: string): void {
   if (!removed) throw new Error('Member not found')
   if (removed.role === 'admin') throw new Error('Cannot remove an admin this way')
 
-  const oldKeyId = family.familyKey.keyId
   const newEpoch = family.familyKey.epoch + 1
   const newKey = generateScopeKey('family', newEpoch)
   const remaining = family.members.filter(m => m.memberId !== memberId)
@@ -553,9 +552,9 @@ export function removeMemberAndRotate(memberId: string): void {
   family.members = remaining
   saveFamily(family)
 
-  // Point new emits at the new epoch, and (best-effort) revoke the removed device on the relay.
+  // Point new emits at the new epoch. The old key stays readable via familyKeyHistory; the
+  // removed device is revoked on the relay separately by the caller (best-effort).
   updateCurrentKey(newKey.bytes, newEpoch)
-  void oldKeyId   // retained for clarity; the old key lives on in familyKeyHistory
 }
 
 /**

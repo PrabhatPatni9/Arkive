@@ -34,7 +34,6 @@ let emitChain: Promise<void> = Promise.resolve()
 
 export function initSyncContext(c: SyncContext): void { ctx = c }
 export function clearSyncContext(): void { ctx = null }
-export function isSyncActive(): boolean { return ctx !== null }
 
 /** After a key rotation, point new emits at the new current-epoch key. */
 export function updateCurrentKey(scopeKeyBytes: Uint8Array, keyEpoch: number): void {
@@ -140,7 +139,7 @@ export function materializeOp(op: Op): void {
 }
 
 /** Apply one record change to the raw local store (never emits — avoids a feedback loop). */
-export function applyRecordPayload(p: RecordOpPayload, op?: Op): void {
+function applyRecordPayload(p: RecordOpPayload, op?: Op): void {
   // Stores with a custom handler (e.g. family members / keys) own their own apply logic and get
   // the op for authorisation. Only reachable with an op from materializeOp; the default array
   // path below needs no op.
