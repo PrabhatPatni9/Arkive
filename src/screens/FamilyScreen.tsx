@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserPlus, RotateCcw, Shield, ChevronRight, Pencil, Check, X, Baby } from 'lucide-react'
-import { getFamily, setBackupAdmin, renameDevice } from '../family/familyStore'
+import { UserPlus, RotateCcw, Shield, ChevronRight, Pencil, Check, X, Baby, Trash2 } from 'lucide-react'
+import { getFamily, setBackupAdmin, renameDevice, removeMemberAndRotate } from '../family/familyStore'
 import type { FamilyMember } from '../family/familyStore'
+import { revokeDevice } from '../sync/relayClient'
+
+const RELAY_URL = (import.meta.env.VITE_RELAY_URL as string | undefined) ?? ''
 
 function Avatar({ name, size = 44 }: { name: string; size?: number }) {
   return (
@@ -16,7 +19,7 @@ function Avatar({ name, size = 44 }: { name: string; size?: number }) {
   )
 }
 
-function MemberCard({ member, isBackupAdmin }: { member: FamilyMember; isBackupAdmin: boolean }) {
+function MemberCard({ member, isBackupAdmin, onRemove }: { member: FamilyMember; isBackupAdmin: boolean; onRemove?: () => void }) {
   const roleLabel = member.role === 'admin' ? 'Admin'
     : member.role === 'view_only' ? 'View only'
     : 'Member'
@@ -39,6 +42,16 @@ function MemberCard({ member, isBackupAdmin }: { member: FamilyMember; isBackupA
       </div>
       {member.role === 'admin' && (
         <Shield size={15} color="var(--accent)" style={{ flexShrink: 0 }} />
+      )}
+      {onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Remove ${member.name}`}
+          style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', flexShrink: 0, padding: 4 }}
+        >
+          <Trash2 size={15} />
+        </button>
       )}
     </div>
   )
@@ -67,6 +80,19 @@ export function FamilyScreen() {
     renameDevice(deviceLabel)
     setFamily(getFamily())
     setEditingDevice(false)
+  }
+
+  function handleRemoveMember(member: FamilyMember) {
+    const msg = member.isDependent
+      ? `Remove ${member.name}? Their managed profile will be deleted for the whole family.`
+      : `Remove ${member.name}? They will lose access to new family data (the family key is rotated), and their device is signed out.`
+    if (!window.confirm(msg)) return
+    removeMemberAndRotate(member.memberId)
+    // Best-effort: revoke the removed device's relay token so it can't sync any more.
+    if (member.deviceId && RELAY_URL && family?.relayDeviceToken) {
+      void revokeDevice(RELAY_URL, family.relayDeviceToken, member.deviceId).catch(() => null)
+    }
+    setFamily(getFamily())
   }
 
   const eligibleBackupAdmins = family.members.filter(
@@ -155,7 +181,16 @@ export function FamilyScreen() {
         <p className="section-header" style={{ marginTop: needsBackupAdmin ? 8 : 16 }}>Members</p>
         <div className="card-row">
           {family.members.map((m) => (
-            <MemberCard key={m.memberId} member={m} isBackupAdmin={m.memberId === family.backupAdminMemberId} />
+            <MemberCard
+              key={m.memberId}
+              member={m}
+              isBackupAdmin={m.memberId === family.backupAdminMemberId}
+              onRemove={
+                family.role === 'admin' && m.memberId !== family.myMemberId && m.role !== 'admin'
+                  ? () => handleRemoveMember(m)
+                  : undefined
+              }
+            />
           ))}
 
           {/* Change backup admin (when already set) */}

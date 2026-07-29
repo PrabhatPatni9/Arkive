@@ -130,6 +130,23 @@ export async function deleteFamily(
   }
 }
 
+/** Revoke a device's relay token (remote kill for a removed/lost device). Same family only. */
+export async function revokeDevice(
+  relayUrl: string,
+  token: string,
+  deviceId: string
+): Promise<void> {
+  enforceHttps(relayUrl)
+  const res = await fetch(`${relayUrl}/devices/revoke`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ device_id: deviceId }),
+  })
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Device revoke failed: ${res.status}`)
+  }
+}
+
 export async function logEvent(
   relayUrl: string,
   token: string,
