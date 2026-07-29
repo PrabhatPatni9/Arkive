@@ -81,28 +81,31 @@ export function ExpensesScreen() {
           <div className="card card-p" style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
               <select
+                className="form-select"
+                style={{ flex: 1 }}
                 value={form.category}
                 onChange={e => setForm(f => ({ ...f, category: e.target.value as ExpenseCategory }))}
-                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
               >
                 {CATEGORIES.map(c => <option key={c} value={c}>{t(`expenses.${c}`)}</option>)}
               </select>
               <input
+                className="form-input"
+                style={{ flex: 1 }}
                 type="number"
                 placeholder={t('expenses.amount')}
                 value={form.amount}
                 onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
               />
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
               <input
+                className="form-input"
+                style={{ flex: 1 }}
                 type="date"
                 value={form.date}
                 onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
               />
-              <button type="button" className="btn btn-primary btn-sm" onClick={handleAdd}>{t('common.save')}</button>
+              <button type="button" className="btn btn-primary" style={{ width: 'auto', paddingInline: 20 }} onClick={handleAdd}>{t('common.save')}</button>
             </div>
           </div>
         )}

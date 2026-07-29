@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { Plus, Car, AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getFamily } from '../family/familyStore'
+import { Sheet } from '../components/Sheet'
 import { getVehicles, addVehicle, deleteVehicle, isVehicleDocExpiringSoon } from '../modules/vehicles/store'
 import type { Vehicle, VehicleInput, FuelType } from '../modules/vehicles/types'
 
@@ -80,34 +81,20 @@ function AddVehicleModal({ familyId, onClose }: { familyId: string; onClose: () 
   }, [form, familyId, onClose])
 
   const field = (label: string, key: keyof typeof form, type = 'text', options?: { value: string; label: string }[]) => (
-    <div style={{ marginBottom: 12 }}>
-      <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</p>
+    <div className="form-field">
+      <label className="form-label">{label}</label>
       {options ? (
-        <select
-          value={form[key]}
-          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-          style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
-        >
+        <select className="form-select" value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}>
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       ) : (
-        <input
-          type={type}
-          value={form[key]}
-          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-          style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14, boxSizing: 'border-box' }}
-        />
+        <input className="form-input" type={type} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
       )}
     </div>
   )
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ background: 'var(--card-bg)', borderRadius: '16px 16px 0 0', padding: 20, width: '100%', maxHeight: '90dvh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>{t('vehicles.add_vehicle')}</p>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 20, cursor: 'pointer' }}>✕</button>
-        </div>
+    <Sheet title={t('vehicles.add_vehicle')} onClose={onClose}>
         {field(t('vehicles.name'), 'name')}
         {field(t('vehicles.make'), 'make')}
         {field(t('vehicles.model'), 'model')}
@@ -126,8 +113,7 @@ function AddVehicleModal({ familyId, onClose }: { familyId: string; onClose: () 
         <button type="button" className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={handleSubmit}>
           {t('common.save')}
         </button>
-      </div>
-    </div>
+    </Sheet>
   )
 }
 

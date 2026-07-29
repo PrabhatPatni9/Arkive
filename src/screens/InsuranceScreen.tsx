@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { Plus, AlertTriangle, Shield } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { getFamily } from '../family/familyStore'
+import { Sheet } from '../components/Sheet'
 import { getPolicies, addPolicy, deletePolicy, isPolicyExpiringSoon } from '../modules/insurance/store'
 import type { InsurancePolicy, PolicyInput, PolicyType, PremiumCycle } from '../modules/insurance/types'
 import { POLICY_TYPES } from '../modules/insurance/types'
@@ -164,34 +165,20 @@ function AddPolicyModal({ familyId, memberId, onClose }: { familyId: string; mem
   }, [form, familyId, memberId, onClose])
 
   const field = (label: string, key: keyof typeof form, type = 'text', options?: { value: string; label: string }[]) => (
-    <div style={{ marginBottom: 12 }}>
-      <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</p>
+    <div className="form-field">
+      <label className="form-label">{label}</label>
       {options ? (
-        <select
-          value={form[key]}
-          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-          style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
-        >
+        <select className="form-select" value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}>
           {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       ) : (
-        <input
-          type={type}
-          value={form[key]}
-          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-          style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14, boxSizing: 'border-box' }}
-        />
+        <input className="form-input" type={type} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
       )}
     </div>
   )
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ background: 'var(--card-bg)', borderRadius: '16px 16px 0 0', padding: 20, width: '100%', maxHeight: '90dvh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>{t('insurance.add_policy')}</p>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 20, cursor: 'pointer' }}>✕</button>
-        </div>
+    <Sheet title={t('insurance.add_policy')} onClose={onClose}>
         {field(t('insurance.insurer'), 'insurer')}
         {field(t('insurance.policy_number'), 'policyNumber')}
         {field(t('insurance.policy_type'), 'policyType', 'text',
@@ -216,8 +203,7 @@ function AddPolicyModal({ familyId, memberId, onClose }: { familyId: string; mem
         >
           {t('common.save')}
         </button>
-      </div>
-    </div>
+    </Sheet>
   )
 }
 

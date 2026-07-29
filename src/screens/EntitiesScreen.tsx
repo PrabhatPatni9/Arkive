@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Plus, Building2 } from 'lucide-react'
 import { getFamily } from '../family/familyStore'
+import { Sheet } from '../components/Sheet'
 import { getEntities, addEntity, deleteEntity } from '../modules/owners/store'
 import {
   ENTITY_TYPE_LABELS,
@@ -72,40 +73,29 @@ function AddEntityModal({ familyId, onClose }: { familyId: string; onClose: () =
     onClose()
   }, [form, familyId, onClose])
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)',
-    background: 'var(--bg)', color: 'var(--text)', fontSize: 14, boxSizing: 'border-box',
-  }
-
   const field = (label: string, key: 'name' | 'pan' | 'gstin' | 'cin', placeholder?: string) => (
-    <div style={{ marginBottom: 12 }}>
-      <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</p>
+    <div className="form-field">
+      <label className="form-label">{label}</label>
       <input
+        className="form-input"
         type="text"
         value={form[key]}
         placeholder={placeholder}
         onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-        style={inputStyle}
       />
     </div>
   )
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ background: 'var(--card-bg)', borderRadius: '16px 16px 0 0', padding: 20, width: '100%', maxHeight: '90dvh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>Add entity</p>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 20, cursor: 'pointer' }}>✕</button>
-        </div>
-
+    <Sheet title="Add entity" onClose={onClose}>
         {field('Name', 'name', 'e.g. Patni HUF, Ratanmoti Texfab Pvt Ltd')}
 
-        <div style={{ marginBottom: 12 }}>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Type</p>
+        <div className="form-field">
+          <label className="form-label">Type</label>
           <select
+            className="form-select"
             value={form.entityType}
             onChange={e => setForm(f => ({ ...f, entityType: e.target.value as EntityType }))}
-            style={inputStyle}
           >
             {ENTITY_TYPES.map(tp => <option key={tp} value={tp}>{ENTITY_TYPE_LABELS[tp]}</option>)}
           </select>
@@ -121,8 +111,7 @@ function AddEntityModal({ familyId, onClose }: { familyId: string; onClose: () =
         <button type="button" className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={handleSubmit}>
           Save
         </button>
-      </div>
-    </div>
+    </Sheet>
   )
 }
 

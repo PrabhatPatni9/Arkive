@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Plus, Package } from 'lucide-react'
 import { getFamily } from '../family/familyStore'
+import { Sheet } from '../components/Sheet'
 import { getAssets, addAsset, deleteAsset } from '../modules/assets/store'
 import { ASSET_TYPES, ASSET_TYPE_LABELS } from '../modules/assets/types'
 import type { Asset, AssetInput, AssetType } from '../modules/assets/types'
@@ -83,34 +84,24 @@ function AddAssetModal({ familyId, defaultOwner, onClose }: { familyId: string; 
     onClose()
   }, [form, familyId, onClose])
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)',
-    background: 'var(--bg)', color: 'var(--text)', fontSize: 14, boxSizing: 'border-box',
-  }
-
   const select = (label: string, key: 'assetType' | 'owner', options: { value: string; label: string }[]) => (
-    <div style={{ marginBottom: 12 }}>
-      <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</p>
-      <select value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} style={inputStyle}>
+    <div className="form-field">
+      <label className="form-label">{label}</label>
+      <select className="form-select" value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
   )
 
   const field = (label: string, key: 'name' | 'identifier' | 'value' | 'location' | 'warrantyExpiry', type = 'text', placeholder?: string) => (
-    <div style={{ marginBottom: 12 }}>
-      <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>{label}</p>
-      <input type={type} value={form[key]} placeholder={placeholder} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} style={inputStyle} />
+    <div className="form-field">
+      <label className="form-label">{label}</label>
+      <input className="form-input" type={type} value={form[key]} placeholder={placeholder} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
     </div>
   )
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ background: 'var(--card-bg)', borderRadius: '16px 16px 0 0', padding: 20, width: '100%', maxHeight: '90dvh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>Add asset</p>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 20, cursor: 'pointer' }}>✕</button>
-        </div>
+    <Sheet title="Add asset" onClose={onClose}>
         {field('Name', 'name', 'text', 'e.g. Honda City, Flat 4B')}
         {select('Type', 'assetType', ASSET_TYPES.map(tp => ({ value: tp, label: ASSET_TYPE_LABELS[tp] })))}
         {select('Owner', 'owner', ownerOptions)}
@@ -119,8 +110,7 @@ function AddAssetModal({ familyId, defaultOwner, onClose }: { familyId: string; 
         {field('Location', 'location')}
         {field('Warranty expiry', 'warrantyExpiry', 'date')}
         <button type="button" className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={handleSubmit}>Save</button>
-      </div>
-    </div>
+    </Sheet>
   )
 }
 

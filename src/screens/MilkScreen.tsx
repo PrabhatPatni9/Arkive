@@ -83,29 +83,32 @@ export function MilkScreen() {
           <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 8 }}>{t('milk.add_entry')}</p>
           <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
             <input
+              className="form-input"
+              style={{ flex: 1 }}
               type="date"
               value={form.date}
               onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
             />
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
             <input
+              className="form-input"
+              style={{ flex: 1 }}
               type="number"
               placeholder={t('milk.litres')}
               value={form.litres}
               step="0.5"
               onChange={e => setForm(f => ({ ...f, litres: e.target.value }))}
-              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
             />
             <input
+              className="form-input"
+              style={{ flex: 1 }}
               type="number"
               placeholder={t('milk.price_per_litre')}
               value={form.pricePerLitre}
               onChange={e => setForm(f => ({ ...f, pricePerLitre: e.target.value }))}
-              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 14 }}
             />
-            <button type="button" className="btn btn-primary btn-sm" onClick={handleAdd}>{t('common.save')}</button>
+            <button type="button" className="btn btn-primary" style={{ width: 'auto', paddingInline: 16 }} onClick={handleAdd}>{t('common.save')}</button>
           </div>
         </div>
 

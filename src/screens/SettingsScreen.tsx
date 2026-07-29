@@ -7,6 +7,7 @@ import { MODULE_REGISTRY } from '../modules/types'
 import { isModuleEnabled, setModuleEnabled, getAllModuleStates } from '../modules/store'
 import type { ModuleId } from '../modules/types'
 import { isLockEnabled, setPin, disableLock } from '../security/appLock'
+import { Sheet } from '../components/Sheet'
 
 /** Modal to enable (set a PIN) or disable the app lock. */
 function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => void }) {
@@ -16,9 +17,7 @@ function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => v
   const [busy, setBusy] = useState(false)
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', textAlign: 'center', letterSpacing: 6, fontSize: 18, marginBottom: 10,
-    padding: '10px 12px', borderRadius: 10, border: '1.5px solid var(--border)',
-    background: 'var(--bg)', color: 'var(--text)', outline: 'none', boxSizing: 'border-box',
+    textAlign: 'center', letterSpacing: 6, fontSize: 18, marginBottom: 10,
   }
 
   async function handleEnable() {
@@ -36,12 +35,7 @@ function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => v
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ background: 'var(--card-bg)', borderRadius: '16px 16px 0 0', padding: 20, width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <p style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)' }}>App lock</p>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 20, cursor: 'pointer' }}>✕</button>
-        </div>
+    <Sheet title="App lock" onClose={onClose}>
         {enabled ? (
           <>
             <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
@@ -57,9 +51,9 @@ function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => v
               Set a numeric PIN. ARKHIVE will ask for it on launch and after being in the background.
               The PIN is stored encrypted and cannot be recovered — remember it.
             </p>
-            <input type="password" inputMode="numeric" value={pin} placeholder="New PIN"
+            <input className="form-input" type="password" inputMode="numeric" value={pin} placeholder="New PIN"
               onChange={e => setPinValue(e.target.value.replace(/[^0-9]/g, ''))} style={inputStyle} />
-            <input type="password" inputMode="numeric" value={confirm} placeholder="Confirm PIN"
+            <input className="form-input" type="password" inputMode="numeric" value={confirm} placeholder="Confirm PIN"
               onChange={e => setConfirm(e.target.value.replace(/[^0-9]/g, ''))} style={inputStyle} />
             {error && <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 10 }}>{error}</p>}
             <button type="button" className="btn btn-primary" style={{ width: '100%' }} onClick={handleEnable} disabled={busy}>
@@ -67,8 +61,7 @@ function AppLockModal({ enabled, onClose }: { enabled: boolean; onClose: () => v
             </button>
           </>
         )}
-      </div>
-    </div>
+    </Sheet>
   )
 }
 
