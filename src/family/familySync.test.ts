@@ -77,7 +77,7 @@ describe('member profile sync', () => {
     const scopeKey = generateScopeKey('family', 0)
     const captured: OpWithHash[] = []
     initSyncContext({
-      opLog: new MemoryOpLog(), scopeKeyBytes: scopeKey.bytes,
+      opLog: new MemoryOpLog(), scopeKeyBytes: scopeKey.bytes, keyForEpoch: () => scopeKey.bytes,
       signingSecretKey: generateSigningKeypair().secretKey, deviceId: 'd', keyEpoch: 0,
       onOp: (op) => captured.push(op),
     })

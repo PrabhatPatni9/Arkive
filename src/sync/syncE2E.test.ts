@@ -36,7 +36,7 @@ describe('end-to-end record sync (store → op → other device → store)', () 
     const logA = new MemoryOpLog()
     initSyncContext({
       opLog: logA,
-      scopeKeyBytes: familyKey.bytes,
+      scopeKeyBytes: familyKey.bytes, keyForEpoch: () => familyKey.bytes,
       signingSecretKey: deviceA.secretKey,
       deviceId: 'device-A',
       keyEpoch: 0,
@@ -63,7 +63,7 @@ describe('end-to-end record sync (store → op → other device → store)', () 
     const logB = new MemoryOpLog()
     initSyncContext({
       opLog: logB,
-      scopeKeyBytes: familyKey.bytes,   // B holds the family key too
+      scopeKeyBytes: familyKey.bytes, keyForEpoch: () => familyKey.bytes,   // B holds the family key too
       signingSecretKey: generateSigningKeypair().secretKey,
       deviceId: 'device-B',
       keyEpoch: 0,
@@ -85,7 +85,7 @@ describe('end-to-end record sync (store → op → other device → store)', () 
     const deviceA = generateSigningKeypair()
     const wire: OpWithHash[] = []
     initSyncContext({
-      opLog: new MemoryOpLog(), scopeKeyBytes: familyKey.bytes, signingSecretKey: deviceA.secretKey,
+      opLog: new MemoryOpLog(), scopeKeyBytes: familyKey.bytes, keyForEpoch: () => familyKey.bytes, signingSecretKey: deviceA.secretKey,
       deviceId: 'device-A', keyEpoch: 0, onOp: (op) => wire.push(op),
     })
 
@@ -101,7 +101,7 @@ describe('end-to-end record sync (store → op → other device → store)', () 
     // Device B applies both in order.
     wipeStorage(); clearSyncContext()
     initSyncContext({
-      opLog: new MemoryOpLog(), scopeKeyBytes: familyKey.bytes,
+      opLog: new MemoryOpLog(), scopeKeyBytes: familyKey.bytes, keyForEpoch: () => familyKey.bytes,
       signingSecretKey: generateSigningKeypair().secretKey, deviceId: 'device-B', keyEpoch: 0,
     })
     materializeOp(wire[0])

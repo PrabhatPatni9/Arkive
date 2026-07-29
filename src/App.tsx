@@ -33,7 +33,7 @@ import { JoinFamilyScreen } from './screens/onboarding/JoinFamilyScreen'
 import { ApproveJoinScreen } from './screens/onboarding/ApproveJoinScreen'
 import { Nav } from './components/Nav'
 import { EmergencyFab } from './components/EmergencyFab'
-import { getFamily, hydrateFamilyStore, applyMemberProfileFromSync, MEMBERS_STORE } from './family/familyStore'
+import { getFamily, hydrateFamilyStore, applyMemberProfileFromSync, applyKeyRotationFromSync, MEMBERS_STORE, KEYS_STORE, familyKeyBytesForEpoch } from './family/familyStore'
 import { registerStoreHandler } from './sync/syncContext'
 import { isLockEnabled } from './security/appLock'
 import { LockScreen } from './screens/LockScreen'
@@ -87,8 +87,12 @@ export default function App() {
   // so conflicts are caught during background sync even before the Medical screen is opened.
   useEffect(() => { registerMedicalConflictPolicy() }, [])
 
-  // Member profile/health edits sync across the family's devices via a custom store handler.
-  useEffect(() => { registerStoreHandler(MEMBERS_STORE, applyMemberProfileFromSync) }, [])
+  // Member profile/health edits + admin member-removal, and forward-only family-key rotation,
+  // materialise through custom store handlers.
+  useEffect(() => {
+    registerStoreHandler(MEMBERS_STORE, applyMemberProfileFromSync)
+    registerStoreHandler(KEYS_STORE, applyKeyRotationFromSync)
+  }, [])
 
   useEffect(() => {
     applyTheme()
@@ -145,9 +149,10 @@ export default function App() {
     initSyncContext({
       opLog,
       scopeKeyBytes: sodium.from_base64(family.familyKey.bytes),
+      keyEpoch: family.familyKey.epoch,
+      keyForEpoch: familyKeyBytesForEpoch,
       signingSecretKey: sodium.from_base64(family.deviceSigKeypair.secretKey),
       deviceId: family.deviceId,
-      keyEpoch: family.familyKey.epoch,
       onOp: (op) => engine.enqueuePush(op),
     })
     engine.start()

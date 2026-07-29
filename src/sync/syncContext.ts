@@ -19,10 +19,12 @@ import { loadArray, saveArray } from '../modules/secureModuleStore'
 
 interface SyncContext {
   opLog: OpLogStore
-  scopeKeyBytes: Uint8Array
+  scopeKeyBytes: Uint8Array          // CURRENT-epoch family key, used to encrypt new ops
+  keyEpoch: number                   // CURRENT epoch
+  /** Resolve the key for any epoch, so ops from before a rotation still decrypt. */
+  keyForEpoch: (epoch: number) => Uint8Array | null
   signingSecretKey: Uint8Array
   deviceId: string
-  keyEpoch: number
   onOp?: (op: OpWithHash) => void   // hand the new op to the engine for pushing
 }
 
@@ -33,6 +35,11 @@ let emitChain: Promise<void> = Promise.resolve()
 export function initSyncContext(c: SyncContext): void { ctx = c }
 export function clearSyncContext(): void { ctx = null }
 export function isSyncActive(): boolean { return ctx !== null }
+
+/** After a key rotation, point new emits at the new current-epoch key. */
+export function updateCurrentKey(scopeKeyBytes: Uint8Array, keyEpoch: number): void {
+  if (ctx) { ctx.scopeKeyBytes = scopeKeyBytes; ctx.keyEpoch = keyEpoch }
+}
 
 // Stores whose incoming changes must be reconciled by a human instead of silently overwritten
 // (HC §3 — medical fields). The recorder logs the conflict; the local value is kept until resolved.
@@ -48,10 +55,13 @@ export function registerReconcileStore(
 }
 
 // Custom materialise handlers for stores that aren't a plain localStorage array (e.g. family
-// members live inside FamilyState). A registered handler fully owns applying that store's ops.
-const storeHandlers = new Map<string, (payload: RecordOpPayload) => void>()
+// members live inside FamilyState). A registered handler fully owns applying that store's ops and
+// receives the signed op too, so it can authorise the change (e.g. only an admin may remove a
+// member or rotate the family key).
+export type StoreHandler = (payload: RecordOpPayload, op: Op) => void
+const storeHandlers = new Map<string, StoreHandler>()
 
-export function registerStoreHandler(storeKey: string, apply: (payload: RecordOpPayload) => void): void {
+export function registerStoreHandler(storeKey: string, apply: StoreHandler): void {
   storeHandlers.set(storeKey, apply)
 }
 
@@ -91,16 +101,20 @@ export function persistSynced<T>(key: string, items: T[], idKey: string): void {
 function emitRecord(store: string, idKey: string, action: 'put' | 'delete', id: string, record?: unknown): void {
   const c = ctx
   if (!c) return
+  // Snapshot the encrypting key/epoch NOW, so an op queued just before a rotation is still sealed
+  // with the key it was authored under (avoids a race with updateCurrentKey).
+  const scopeKeyBytes = c.scopeKeyBytes
+  const keyEpoch = c.keyEpoch
   emitChain = emitChain
     .then(async () => {
       const head = await c.opLog.getHead('family')
       const prevHash = head?.hash ?? GENESIS_HASH
       const lamportClock = (head?.lamport_clock ?? 0) + 1
       const op = buildRecordOp({
-        scopeKeyBytes: c.scopeKeyBytes,
+        scopeKeyBytes,
         signingSecretKey: c.signingSecretKey,
         authorDeviceId: c.deviceId,
-        keyEpoch: c.keyEpoch,
+        keyEpoch,
         prevHash,
         lamportClock,
         payload: { store, idKey, action, id, record },
@@ -114,20 +128,24 @@ function emitRecord(store: string, idKey: string, action: 'put' | 'delete', id: 
 /** Apply a verified incoming op to the local view. No-op if inactive or not a record op. */
 export function materializeOp(op: Op): void {
   if (!ctx) return
+  // Decrypt with the key for the op's epoch (ops authored before a rotation use an older key).
+  const key = ctx.keyForEpoch(op.key_epoch) ?? ctx.scopeKeyBytes
   let payload: RecordOpPayload
   try {
-    payload = readRecordOp(op, ctx.scopeKeyBytes)
+    payload = readRecordOp(op, key)
   } catch {
-    return   // not a record op we can read (or wrong key)
+    return   // not a record op we can read (or no key for that epoch)
   }
-  applyRecordPayload(payload)
+  applyRecordPayload(payload, op)
 }
 
 /** Apply one record change to the raw local store (never emits — avoids a feedback loop). */
-export function applyRecordPayload(p: RecordOpPayload): void {
-  // Stores with a custom handler (e.g. family members) own their own apply logic.
+export function applyRecordPayload(p: RecordOpPayload, op?: Op): void {
+  // Stores with a custom handler (e.g. family members / keys) own their own apply logic and get
+  // the op for authorisation. Only reachable with an op from materializeOp; the default array
+  // path below needs no op.
   const custom = storeHandlers.get(p.store)
-  if (custom) { custom(p); return }
+  if (custom && op) { custom(p, op); return }
 
   const arr = loadArray<Record<string, unknown>>(p.store)
   const idx = arr.findIndex(r => String(r[p.idKey]) === p.id)

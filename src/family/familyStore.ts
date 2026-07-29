@@ -11,7 +11,8 @@ import { createRecoveryPackage, moderateParams, sealWithPassphrase } from '../cr
 import { deriveVerificationCode } from '../crypto/handshake'
 import { generateRecoveryPhrase } from './wordlist'
 import { secureSave, secureLoad, secureRemove } from './secureStore'
-import { emitRecordDirect } from '../sync/syncContext'
+import { emitRecordDirect, updateCurrentKey } from '../sync/syncContext'
+import type { Op } from '../crypto/ops'
 
 const STORAGE_KEY = 'arkive_family_v1'
 const PENDING_JOIN_KEY = 'arkive_pending_join_v1'
@@ -57,6 +58,9 @@ export interface FamilyState {
   deviceEncKeypair: StoredKeypair
   deviceSigKeypair: StoredKeypair
   familyKey: StoredScopeKey
+  /** Previous-epoch family keys, kept so this device can still read data encrypted before a
+   * key rotation (forward-only rotation — old blobs are never re-encrypted). */
+  familyKeyHistory?: StoredScopeKey[]
   recoveryPackage: { salt: string; wrappedKey: string } | null
   myMemberId: string
   role: 'admin' | 'member'
@@ -399,6 +403,19 @@ const SYNCABLE_PROFILE_KEYS = [
 /** The logical store name used for member-profile sync ops. */
 export const MEMBERS_STORE = 'family_members'
 
+/**
+ * Resolve the family key bytes for a given epoch (current or any historical epoch). Lets the sync
+ * layer decrypt ops encrypted before a key rotation. Returns null if this device holds no key for
+ * that epoch. Reads live family state, so it stays correct after a rotation with no re-init.
+ */
+export function familyKeyBytesForEpoch(epoch: number): Uint8Array | null {
+  const family = getFamily()
+  if (!family) return null
+  if (family.familyKey.epoch === epoch) return sodium.from_base64(family.familyKey.bytes)
+  const old = family.familyKeyHistory?.find(k => k.epoch === epoch)
+  return old ? sodium.from_base64(old.bytes) : null
+}
+
 function profileSubset(member: FamilyMember): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   const asRecord = member as unknown as Record<string, unknown>
@@ -428,20 +445,41 @@ export function updateMemberProfile(
  * fields onto the existing member — never role, keys, or membership. Unknown members are ignored
  * (membership arrives through the join handshake, not here).
  */
-export function applyMemberProfileFromSync(payload: { id: string; record?: unknown }): void {
+export function applyMemberProfileFromSync(
+  payload: { id: string; record?: unknown; action?: 'put' | 'delete' },
+  op?: Op,
+): void {
   const family = getFamily()
   if (!family) return
+
+  // Removals and dependent-creations must be authored by an admin's device. Profile edits to an
+  // existing member are allowed from any family device. (Tests call without an op — treated as
+  // trusted local application.)
+  const adminDeviceIds = new Set(
+    family.members.filter(m => m.role === 'admin' && m.deviceId).map(m => m.deviceId),
+  )
+  const isAdminAuthored = op ? adminDeviceIds.has(op.author_device_id) : true
+
+  const idx = family.members.findIndex(m => m.memberId === payload.id)
+
+  if (payload.action === 'delete') {
+    if (!isAdminAuthored || idx === -1) return
+    if (family.members[idx].role === 'admin') return   // never remove an admin via a record op
+    family.members.splice(idx, 1)
+    saveFamily(family)
+    return
+  }
+
   const incoming = (payload.record ?? {}) as Record<string, unknown>
   const profile: Record<string, unknown> = {}
   for (const k of SYNCABLE_PROFILE_KEYS) {
     if (k in incoming) profile[k] = incoming[k]
   }
 
-  const idx = family.members.findIndex(m => m.memberId === payload.id)
   if (idx === -1) {
-    // Unknown member: a synced record may ONLY create a dependent (no device, no keys). Keyed
-    // members always arrive through the secure join handshake — never through a record op.
-    if (incoming.isDependent !== true) return
+    // Unknown member: a synced record may ONLY create a dependent (no device, no keys), and only
+    // by an admin. Keyed members always arrive through the secure join handshake, never here.
+    if (incoming.isDependent !== true || !isAdminAuthored) return
     family.members.push({
       memberId: payload.id,
       name: typeof incoming.name === 'string' ? incoming.name : 'Family member',
@@ -459,6 +497,105 @@ export function applyMemberProfileFromSync(payload: { id: string; record?: unkno
   // Known member: merge only the syncable profile fields (never role, keys, or membership).
   family.members[idx] = { ...family.members[idx], ...profile } as FamilyMember
   saveFamily(family)
+}
+
+// ── Member removal + forward-only family-key rotation (brief §6) ──────────────────────────────
+
+/** Store name for family-key-rotation ops. */
+export const KEYS_STORE = 'family_keys'
+
+interface KeyRotationPayload {
+  newEpoch: number
+  keyId: string
+  /** New family key, sealed to each remaining member's device encryption public key (base64). */
+  wrapped: Record<string, string>
+}
+
+/**
+ * Admin removes a member and rotates the family key forward (new epoch). The new key is sealed
+ * individually to every remaining member's device, so the removed member — who still holds the
+ * OLD key — cannot read anything encrypted under the new epoch. Old data stays readable (old key
+ * kept in history); existing blobs are never re-encrypted.
+ */
+export function removeMemberAndRotate(memberId: string): void {
+  const family = getFamily()
+  if (!family) throw new Error('No family')
+  if (family.role !== 'admin') throw new Error('Only an admin can remove a member')
+  const removed = family.members.find(m => m.memberId === memberId)
+  if (!removed) throw new Error('Member not found')
+  if (removed.role === 'admin') throw new Error('Cannot remove an admin this way')
+
+  const oldKeyId = family.familyKey.keyId
+  const newEpoch = family.familyKey.epoch + 1
+  const newKey = generateScopeKey('family', newEpoch)
+  const remaining = family.members.filter(m => m.memberId !== memberId)
+
+  // Seal the new key to each remaining member that has a device key (dependents have none).
+  const wrapped: Record<string, string> = {}
+  for (const m of remaining) {
+    if (!m.encPublicKey) continue
+    wrapped[m.memberId] = sodium.to_base64(
+      sodium.crypto_box_seal(newKey.bytes, sodium.from_base64(m.encPublicKey)),
+    )
+  }
+
+  // Emit the rotation + removal ops FIRST, while the OLD key is still current (emitRecordDirect
+  // snapshots the encrypting key at call time), so remaining devices can decrypt the envelope.
+  const payload: KeyRotationPayload = { newEpoch, keyId: newKey.keyId, wrapped }
+  emitRecordDirect(KEYS_STORE, 'keyId', 'put', newKey.keyId, payload)
+  emitRecordDirect(MEMBERS_STORE, 'memberId', 'delete', memberId)
+
+  // Rotate locally: keep the old key for reading old data, adopt the new key, drop the member.
+  family.familyKeyHistory = [...(family.familyKeyHistory ?? []), family.familyKey]
+  family.familyKey = {
+    keyId: newKey.keyId, scope: 'family', epoch: newEpoch, bytes: sodium.to_base64(newKey.bytes),
+  }
+  family.members = remaining
+  saveFamily(family)
+
+  // Point new emits at the new epoch, and (best-effort) revoke the removed device on the relay.
+  updateCurrentKey(newKey.bytes, newEpoch)
+  void oldKeyId   // retained for clarity; the old key lives on in familyKeyHistory
+}
+
+/**
+ * Apply a family-key rotation received from another device: unwrap the new key sealed to this
+ * device and adopt it as the current epoch. Only honoured if the op was authored by an admin.
+ */
+export function applyKeyRotationFromSync(payload: { record?: unknown }, op?: Op): void {
+  const family = getFamily()
+  if (!family) return
+  const adminDeviceIds = new Set(
+    family.members.filter(m => m.role === 'admin' && m.deviceId).map(m => m.deviceId),
+  )
+  if (op && !adminDeviceIds.has(op.author_device_id)) return   // only admin may rotate
+
+  const rot = payload.record as KeyRotationPayload | undefined
+  if (!rot || typeof rot.newEpoch !== 'number' || !rot.wrapped) return
+  if (family.familyKey.epoch >= rot.newEpoch) return           // already have this epoch or newer
+
+  const sealed = rot.wrapped[family.myMemberId]
+  if (!sealed) return                                          // not sealed to us (e.g. dependent)
+
+  let newBytes: Uint8Array
+  try {
+    const opened = sodium.crypto_box_seal_open(
+      sodium.from_base64(sealed),
+      sodium.from_base64(family.deviceEncKeypair.publicKey),
+      sodium.from_base64(family.deviceEncKeypair.secretKey),
+    )
+    if (!opened) return
+    newBytes = opened
+  } catch {
+    return
+  }
+
+  family.familyKeyHistory = [...(family.familyKeyHistory ?? []), family.familyKey]
+  family.familyKey = {
+    keyId: rot.keyId, scope: 'family', epoch: rot.newEpoch, bytes: sodium.to_base64(newBytes),
+  }
+  saveFamily(family)
+  updateCurrentKey(newBytes, rot.newEpoch)
 }
 
 export function setEmergencyCardEnabled(memberId: string, enabled: boolean): void {
