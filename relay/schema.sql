@@ -75,3 +75,16 @@ CREATE TABLE IF NOT EXISTS intent_events (
 );
 
 CREATE INDEX IF NOT EXISTS idx_intent_events_family ON intent_events (family_id, created_at);
+
+-- Migration 6: per-family rate limiting + storage-quota accounting
+CREATE TABLE IF NOT EXISTS rate_counters (
+  key          TEXT PRIMARY KEY,
+  window_start INTEGER NOT NULL,   -- unix epoch seconds, aligned to the window
+  count        INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS family_usage (
+  family_id      TEXT PRIMARY KEY,
+  blob_bytes     INTEGER NOT NULL DEFAULT 0,
+  last_active_at INTEGER            -- unix epoch seconds
+);

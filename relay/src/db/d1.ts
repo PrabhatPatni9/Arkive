@@ -262,6 +262,7 @@ export async function deleteAllFamilyData(env: Env, familyId: string): Promise<v
       env.DB.prepare('DELETE FROM signals WHERE family_id=?').bind(familyId),
       env.DB.prepare('DELETE FROM join_handshakes WHERE family_id=?').bind(familyId),
       env.DB.prepare('DELETE FROM intent_events WHERE family_id=?').bind(familyId),
+      env.DB.prepare('DELETE FROM family_usage WHERE family_id=?').bind(familyId),
       env.DB.prepare('DELETE FROM device_tokens WHERE family_id=?').bind(familyId),
       env.DB.prepare('DELETE FROM devices WHERE family_id=?').bind(familyId),
       env.DB.prepare('DELETE FROM families WHERE family_id=?').bind(familyId),
@@ -278,6 +279,72 @@ export async function deleteAllFamilyData(env: Env, familyId: string): Promise<v
     if (!page.truncated) break
     page = await env.OPS_BUCKET.list({ prefix: `${familyId}/`, limit: 500, cursor: page.cursor })
   }
+}
+
+// --- Rate limiting + storage accounting (brief §8) ---
+//
+// All best-effort: if migration 006 has not been applied the tables are missing, so these
+// fail open (rate limits allow, usage reads as 0). The Worker must never reject legitimate
+// traffic or lose a write just because an ops table isn't there yet.
+
+/**
+ * Fixed-window counter. Returns true if this request is within `limit` for the current
+ * `windowSec` window, false if it has exceeded it. One atomic upsert per call.
+ */
+export async function checkRateLimit(
+  env: Env, key: string, limit: number, windowSec: number
+): Promise<boolean> {
+  const now = Math.floor(Date.now() / 1000)
+  const windowStart = now - (now % windowSec)
+  try {
+    const row = await env.DB.prepare(
+      `INSERT INTO rate_counters (key, window_start, count) VALUES (?, ?, 1)
+       ON CONFLICT(key) DO UPDATE SET
+         count = CASE WHEN rate_counters.window_start = excluded.window_start
+                      THEN rate_counters.count + 1 ELSE 1 END,
+         window_start = excluded.window_start
+       RETURNING count`
+    ).bind(key, windowStart).first<{ count: number }>()
+    return (row?.count ?? 1) <= limit
+  } catch {
+    return true   // fail open — never block on a missing table
+  }
+}
+
+/** Current blob bytes stored for a family (0 if unknown). */
+export async function getBlobUsage(env: Env, familyId: string): Promise<number> {
+  try {
+    const row = await env.DB.prepare(
+      'SELECT blob_bytes FROM family_usage WHERE family_id=?'
+    ).bind(familyId).first<{ blob_bytes: number }>()
+    return row?.blob_bytes ?? 0
+  } catch {
+    return 0
+  }
+}
+
+/** Adjust a family's stored-blob byte total (delta may be negative) and stamp activity. */
+export async function addBlobUsage(env: Env, familyId: string, deltaBytes: number): Promise<void> {
+  const now = Math.floor(Date.now() / 1000)
+  try {
+    await env.DB.prepare(
+      `INSERT INTO family_usage (family_id, blob_bytes, last_active_at) VALUES (?, ?, ?)
+       ON CONFLICT(family_id) DO UPDATE SET
+         blob_bytes = MAX(0, family_usage.blob_bytes + excluded.blob_bytes),
+         last_active_at = excluded.last_active_at`
+    ).bind(familyId, deltaBytes, now).run()
+  } catch { /* best-effort */ }
+}
+
+/** Record that a family is active now (retention signal), without touching its byte total. */
+export async function touchFamily(env: Env, familyId: string): Promise<void> {
+  const now = Math.floor(Date.now() / 1000)
+  try {
+    await env.DB.prepare(
+      `INSERT INTO family_usage (family_id, blob_bytes, last_active_at) VALUES (?, 0, ?)
+       ON CONFLICT(family_id) DO UPDATE SET last_active_at = excluded.last_active_at`
+    ).bind(familyId, now).run()
+  } catch { /* best-effort */ }
 }
 
 // --- Intent events ---

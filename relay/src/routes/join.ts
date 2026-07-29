@@ -6,11 +6,15 @@ import {
   getPendingJoinRequests,
   familyExists,
   countPendingJoinRequests,
+  checkRateLimit,
 } from '../db/d1'
 import { requireAuth } from '../auth'
 
 /** Cap on unapproved join requests per family — bounds flooding of the join queue. */
 const MAX_PENDING_JOIN_REQUESTS = 20
+/** Join is unauthenticated, so rate-limit it tightly per family to blunt request floods. */
+const JOIN_RATE_LIMIT = 30
+const JOIN_RATE_WINDOW_SEC = 60
 
 export async function handleJoin(
   request: Request,
@@ -43,6 +47,10 @@ async function postJoinRequest(request: Request, env: Env): Promise<Response> {
 
   if (!body.family_id || !body.request_id || !body.request_json) {
     return new Response('Missing required fields: family_id, request_id, request_json', { status: 400 })
+  }
+
+  if (!await checkRateLimit(env, `join:${body.family_id}`, JOIN_RATE_LIMIT, JOIN_RATE_WINDOW_SEC)) {
+    return new Response('Rate limit exceeded', { status: 429 })
   }
 
   // Reject join requests to families that do not exist — stops enumeration of random

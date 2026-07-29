@@ -1,6 +1,6 @@
 import { blake2bHex } from 'blakejs'
 import type { Env, PostOpBody } from '../types'
-import { getDevice, indexOp, getOpsSince } from '../db/d1'
+import { getDevice, indexOp, getOpsSince, checkRateLimit, touchFamily } from '../db/d1'
 import { requireAuth } from '../auth'
 import { verifyEd25519Signature, canonicalJson } from '../crypto'
 import { notifyFamilyDevices } from '../push/notify'
@@ -21,9 +21,18 @@ export async function handleOps(request: Request, env: Env): Promise<Response> {
   return new Response('Method not allowed', { status: 405 })
 }
 
+// Generous per-family write ceiling: a busy multi-device family syncs in bursts, but this
+// bounds a runaway or hostile client. 600 ops/min ≈ 10/sec sustained.
+const OPS_RATE_LIMIT = 600
+const OPS_RATE_WINDOW_SEC = 60
+
 async function postOp(request: Request, env: Env): Promise<Response> {
   const ctx = await requireAuth(request, env)
   if (!ctx) return new Response('Unauthorized', { status: 401 })
+
+  if (!await checkRateLimit(env, `ops:${ctx.familyId}`, OPS_RATE_LIMIT, OPS_RATE_WINDOW_SEC)) {
+    return new Response('Rate limit exceeded', { status: 429 })
+  }
 
   let body: PostOpBody
   try {
@@ -69,6 +78,7 @@ async function postOp(request: Request, env: Env): Promise<Response> {
     posted_at: new Date().toISOString(),
   })
 
+  void touchFamily(env, ctx.familyId).catch(() => {})
   void notifyFamilyDevices(env, ctx.familyId, ctx.deviceId).catch(() => {})
 
   return json({ ok: true, hash: op.hash }, 201)

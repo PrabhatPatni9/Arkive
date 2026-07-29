@@ -1,5 +1,12 @@
 import type { Env } from '../types'
 import { requireAuth } from '../auth'
+import { checkRateLimit, getBlobUsage, addBlobUsage } from '../db/d1'
+
+// Per-family blob storage cap and upload rate. The cap protects R2 from a single family
+// filling the bucket; 120 uploads/min is ample for burst photo/document capture.
+const FAMILY_BLOB_QUOTA_BYTES = 100 * 1024 * 1024
+const BLOB_RATE_LIMIT = 120
+const BLOB_RATE_WINDOW_SEC = 60
 
 export async function handleBlobs(
   request: Request,
@@ -19,6 +26,10 @@ async function putBlob(request: Request, env: Env, hash: string): Promise<Respon
   const ctx = await requireAuth(request, env)
   if (!ctx) return new Response('Unauthorized', { status: 401 })
 
+  if (!await checkRateLimit(env, `blob:${ctx.familyId}`, BLOB_RATE_LIMIT, BLOB_RATE_WINDOW_SEC)) {
+    return new Response('Rate limit exceeded', { status: 429 })
+  }
+
   const body = await request.arrayBuffer()
   if (body.byteLength === 0) return new Response('Empty body', { status: 400 })
   if (body.byteLength > 10 * 1024 * 1024) return new Response('Blob too large (10 MB max)', { status: 413 })
@@ -32,10 +43,21 @@ async function putBlob(request: Request, env: Env, hash: string): Promise<Respon
   }
 
   const key = `blobs/${ctx.familyId}/${hash}`
+  // Content-addressed writes are idempotent: re-PUTting an existing blob (same hash) is a
+  // no-op for storage, so only a genuinely new blob counts against the quota.
+  const existing = await env.OPS_BUCKET.head(key)
+  if (!existing) {
+    const usage = await getBlobUsage(env, ctx.familyId)
+    if (usage + body.byteLength > FAMILY_BLOB_QUOTA_BYTES) {
+      return new Response('Storage quota exceeded', { status: 413 })
+    }
+  }
+
   await env.OPS_BUCKET.put(key, body, {
     httpMetadata: { contentType: 'application/octet-stream' },
     customMetadata: { family_id: ctx.familyId, device_id: ctx.deviceId },
   })
+  if (!existing) void addBlobUsage(env, ctx.familyId, body.byteLength).catch(() => {})
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 201,
