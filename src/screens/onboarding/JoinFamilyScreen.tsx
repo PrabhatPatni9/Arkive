@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Copy, Check, ShieldCheck, AlertTriangle, Wifi } from 'lucide-react'
 import {
   createJoinRequest,
@@ -21,9 +21,11 @@ type Step = 'name' | 'share_request' | 'relay_waiting' | 'paste_approval' | 'ver
 
 export function JoinFamilyScreen() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [step, setStep] = useState<Step>('name')
   const [myName, setMyName] = useState('')
-  const [familyId, setFamilyId] = useState('')
+  // Pre-fill the Family ID when arriving from an invite link (…/onboarding/join?fid=<id>).
+  const [familyId, setFamilyId] = useState(() => searchParams.get('fid')?.trim() ?? '')
   const [relayMode, setRelayMode] = useState(false)
   const [pending, setPending] = useState<PendingJoin | null>(() => getPendingJoin())
   const [approvalJson, setApprovalJson] = useState('')

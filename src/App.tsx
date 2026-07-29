@@ -11,6 +11,7 @@ import { EmergencyScreen } from './screens/EmergencyScreen'
 import { EmergencyCardScreen } from './screens/EmergencyCardScreen'
 import { RemindersScreen } from './screens/RemindersScreen'
 import { AddDependentScreen } from './screens/AddDependentScreen'
+import { InviteScreen } from './screens/InviteScreen'
 import { DataPrivacyScreen } from './screens/DataPrivacyScreen'
 import { MedicalScreen } from './screens/MedicalScreen'
 import { AddMedicineScreen } from './screens/AddMedicineScreen'
@@ -32,7 +33,6 @@ import { RecoveryPhraseScreen } from './screens/onboarding/RecoveryPhraseScreen'
 import { JoinFamilyScreen } from './screens/onboarding/JoinFamilyScreen'
 import { ApproveJoinScreen } from './screens/onboarding/ApproveJoinScreen'
 import { Nav } from './components/Nav'
-import { EmergencyFab } from './components/EmergencyFab'
 import { getFamily, hydrateFamilyStore, applyMemberProfileFromSync, applyKeyRotationFromSync, MEMBERS_STORE, KEYS_STORE, familyKeyBytesForEpoch } from './family/familyStore'
 import { registerStoreHandler } from './sync/syncContext'
 import { isLockEnabled } from './security/appLock'
@@ -192,6 +192,7 @@ export default function App() {
 
             <Route path="/home" element={<RequireFamily><HomeScreen /></RequireFamily>} />
             <Route path="/family" element={<RequireFamily><FamilyScreen /></RequireFamily>} />
+            <Route path="/family/invite" element={<RequireFamily><InviteScreen /></RequireFamily>} />
             <Route path="/family/approve-join" element={<RequireFamily><ApproveJoinScreen /></RequireFamily>} />
             <Route path="/family/add-dependent" element={<RequireFamily><AddDependentScreen /></RequireFamily>} />
             <Route path="/vault" element={<RequireFamily><VaultScreen /></RequireFamily>} />
@@ -221,7 +222,6 @@ export default function App() {
             <Route path="/assets" element={<RequireFamily><AssetsScreen /></RequireFamily>} />
           </Routes>
         </div>
-        {hasFamily && <EmergencyFab />}
         {hasFamily && <Nav />}
       </div>
     </BrowserRouter>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserPlus, RotateCcw, Shield, ChevronRight, Pencil, Check, X, Baby, Trash2 } from 'lucide-react'
+import { UserPlus, UserCheck, RotateCcw, Shield, ChevronRight, Pencil, Check, X, Baby, Trash2 } from 'lucide-react'
 import { getFamily, setBackupAdmin, renameDevice, removeMemberAndRotate } from '../family/familyStore'
 import type { FamilyMember } from '../family/familyStore'
 import { revokeDevice } from '../sync/relayClient'
@@ -113,9 +113,9 @@ export function FamilyScreen() {
         {family.role === 'admin' && (
           <button
             className="icon-btn"
-            aria-label="Approve new member"
+            aria-label="Invite new member"
             type="button"
-            onClick={() => navigate('/family/approve-join')}
+            onClick={() => navigate('/family/invite')}
           >
             <UserPlus size={20} />
           </button>
@@ -208,17 +208,12 @@ export function FamilyScreen() {
             <>
               <button
                 type="button"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  background: 'transparent', border: '1.5px dashed var(--border)',
-                  borderRadius: 'var(--r-card)', padding: '14px 16px',
-                  minHeight: 64, color: 'var(--text-muted)',
-                  fontSize: 14, cursor: 'pointer', width: '100%',
-                }}
-                onClick={() => navigate('/family/approve-join')}
+                className="btn btn-primary"
+                style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 }}
+                onClick={() => navigate('/family/invite')}
               >
-                <UserPlus size={20} aria-hidden />
-                Approve a member join request
+                <UserPlus size={18} aria-hidden />
+                Invite a member
               </button>
               <button
                 type="button"
@@ -226,7 +221,21 @@ export function FamilyScreen() {
                   display: 'flex', alignItems: 'center', gap: 10,
                   background: 'transparent', border: '1.5px dashed var(--border)',
                   borderRadius: 'var(--r-card)', padding: '14px 16px',
-                  minHeight: 64, color: 'var(--text-muted)',
+                  minHeight: 56, color: 'var(--text-muted)',
+                  fontSize: 14, cursor: 'pointer', width: '100%',
+                }}
+                onClick={() => navigate('/family/approve-join')}
+              >
+                <UserCheck size={20} aria-hidden />
+                Approve a pending request
+              </button>
+              <button
+                type="button"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  background: 'transparent', border: '1.5px dashed var(--border)',
+                  borderRadius: 'var(--r-card)', padding: '14px 16px',
+                  minHeight: 56, color: 'var(--text-muted)',
                   fontSize: 14, cursor: 'pointer', width: '100%',
                 }}
                 onClick={() => navigate('/family/add-dependent')}
